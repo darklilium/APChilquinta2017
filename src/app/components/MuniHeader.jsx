@@ -24,7 +24,7 @@ class MuniHeader extends React.Component {
 
   componentDidMount(){
     console.log(this.props.titulo[0].originalName);
-    
+
   }
 
   handleLogout(){
@@ -32,7 +32,7 @@ class MuniHeader extends React.Component {
   }
 
   render() {
-    let src = env.CSSDIRECTORY  + "images/logos/"+ this.props.logoName + ".png";
+    let src = env.CSSDIRECTORY  + "images/logos/logos_menu/"+ this.props.logoName + ".png";
 
     return (
 

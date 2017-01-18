@@ -1,7 +1,7 @@
 const env = {
-  ROOT: "dist/css/",
-  CSSDIRECTORY: 'dist/css/',
-  ROUTEPATH: '/'
+  ROOT: "css/",
+  CSSDIRECTORY: 'css/',
+  ROUTEPATH: '/AP'
 }
 
 

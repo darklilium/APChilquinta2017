@@ -165,7 +165,7 @@ class DrawerTest extends React.Component {
       if(!callback[0]){
         console.log("Vacio getMedidores");
 
-        this.setState({snackbarMessage: callback[2], activeSnackbar: true, snackbarIcon: callback[4] });
+        this.setState({snackbarMessage: callback[2], activeSnackbar: true, snackbarIcon: 'error' });
         $('.theme__icon___4OQx3').css('color',"red");
 
         return;
@@ -194,7 +194,7 @@ class DrawerTest extends React.Component {
       if(!callback[0]){
         console.log("Vacio getTodasLasLuminarias");
 
-        this.setState({snackbarMessage: callback[2], activeSnackbar: true, snackbarIcon: callback[4] });
+        this.setState({snackbarMessage: callback[2], activeSnackbar: true, snackbarIcon: callback[3] });
         $('.theme__icon___4OQx3').css('color',"red");
 
         return;
@@ -594,7 +594,7 @@ class DrawerTest extends React.Component {
       if(!callback[0]){
         console.log("Vacio getLuminariasAsociadas");
 
-        this.setState({snackbarMessage: callback[2], activeSnackbar: true, snackbarIcon: callback[4] });
+        this.setState({snackbarMessage: callback[2], activeSnackbar: true, snackbarIcon: callback[3] });
         $('.theme__icon___4OQx3').css('color',"red");
 
         return;
@@ -622,7 +622,7 @@ class DrawerTest extends React.Component {
         if(!callback[0]){
           console.log("Vacio getMedidorLocation");
 
-          this.setState({snackbarMessage: callback[2], activeSnackbar: true, snackbarIcon: callback[4] });
+          this.setState({snackbarMessage: callback[2], activeSnackbar: true, snackbarIcon: callback[3] });
           $('.theme__icon___4OQx3').css('color',"red");
 
           return;
@@ -634,7 +634,7 @@ class DrawerTest extends React.Component {
       if(!callback[0]){
         console.log("Vacio getTramosMedidor");
 
-        this.setState({snackbarMessage: callback[2], activeSnackbar: true, snackbarIcon: callback[4] });
+        this.setState({snackbarMessage: callback[2], activeSnackbar: true, snackbarIcon: callback[3] });
         $('.theme__icon___4OQx3').css('color',"red");
 
         return;
@@ -651,7 +651,7 @@ class DrawerTest extends React.Component {
           if(!callback[0]){
             console.log("Vacio getLuminariaLocation");
 
-            this.setState({snackbarMessage: callback[2], activeSnackbar: true, snackbarIcon: callback[4] });
+            this.setState({snackbarMessage: callback[2], activeSnackbar: true, snackbarIcon: callback[3] });
             $('.theme__icon___4OQx3').css('color',"red");
 
             return;
@@ -669,7 +669,7 @@ class DrawerTest extends React.Component {
           if(!callback[0]){
             console.log("Vacio getLuminariaLocation2");
 
-            this.setState({snackbarMessage: callback[2], activeSnackbar: true, snackbarIcon: callback[4] });
+            this.setState({snackbarMessage: callback[2], activeSnackbar: true, snackbarIcon: callback[3] });
             $('.theme__icon___4OQx3').css('color',"red");
 
             return;

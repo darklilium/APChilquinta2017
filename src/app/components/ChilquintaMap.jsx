@@ -25,73 +25,6 @@ import env from '../services/config';
 import {nuevoQuery} from '../services/addQuery';
 import ProgressBar from 'react-toolbox/lib/progress_bar';
 
-class DemoCarousel extends React.Component {
-    constructor(props){
-      super(props);
-      this.state = {
-        pics: [],
-        showThumbs: true
-      }
-      this.onChangeChild = this.onChangeChild.bind(this);
-    }
-    componentDidMount(){
-        console.log("Did mount caro", this.props.fotografias);
-
-    }
-
-    onChangeChild(e){
-      console.log(e,"valor onchange");
-      this.props.callbackParent("foto"+e);
-    }
-
-    render() {
-      let DisplayPics;
-      if(this.props.fotografias.length){
-        let fotos  = this.props.fotografias.map((foto,index)=>{
-          return <div><img id={"foto"+index} src={foto} /></div>
-        })
-        DisplayPics = fotos;
-        console.log("hay fotos");
-
-
-      }else{
-        DisplayPics = (<div><img id="foto0" src={env.CSSDIRECTORY + "images/nofoto.png"}></img></div>);
-        console.log("no hay fotos");
-
-      }
-        return (
-            <Carousel showArrows={true} showThumbs={false} onChange={this.onChangeChild}>
-            {/*<div>
-                <img src={this.props.fotografias[0]} />
-                <p className="legend">Legend 1</p>
-            </div>
-            <div>
-                <img src="http://lorempixel.com/900/500/sports/2/" />
-                <p className="legend">Legend 2</p>
-            </div>
-            <div>
-                <img src="http://lorempixel.com/900/500/sports/3/" />
-                <p className="legend">Legend 3</p>
-            </div>
-            <div>
-                <img src="http://lorempixel.com/900/500/sports/4/" />
-                <p className="legend">Legend 4</p>
-            </div>
-            <div>
-                <img src="http://lorempixel.com/900/500/sports/5/" />
-                <p className="legend">Legend 5</p>
-            </div>
-            <div>
-                <img src="http://lorempixel.com/900/500/sports/6/" />
-                <p className="legend">Legend 6</p>
-            </div>
-            */}
-            {DisplayPics}
-            </Carousel>
-        );
-    }
-}
-
 const opcionesTipo = [
   { value: 'NA', label: 'NA', type: 'tipoluminaria' },
   { value: 'Hg', label: 'Hg', type: 'tipoluminaria' },
@@ -575,7 +508,7 @@ class ChilquintaMap extends React.Component {
   }
 
   render(){
-    let logoName = "logo_"+this.props.params.muni;
+    let logoName = this.props.params.muni;
     var settings = {
       dots: true
     };
