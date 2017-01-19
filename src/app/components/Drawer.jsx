@@ -219,7 +219,11 @@ class DrawerTest extends React.Component {
   }
 
   handleLogout(){
-    browserHistory.push(env.ROUTEPATH);
+    if(env.ENVIRONMENT=='DEVELOPMENT'){
+      browserHistory.push(env.ROUTEPATH);
+    }else{
+      window.location.href = env.WEBSERVERADDRESS;
+    }
   }
 
   handleCheckboxChange = (e) => {

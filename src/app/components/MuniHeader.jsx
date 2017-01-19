@@ -28,7 +28,11 @@ class MuniHeader extends React.Component {
   }
 
   handleLogout(){
-    browserHistory.push("/");
+    if(env.ENVIRONMENT=='DEVELOPMENT'){
+      browserHistory.push(env.ROUTEPATH);
+    }else{
+      window.location.href = env.WEBSERVERADDRESS;
+    }
   }
 
   render() {

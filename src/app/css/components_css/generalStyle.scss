@@ -11,7 +11,7 @@
 }
 
 .apmenu_buttongroup{
-display: flex !important; 
+display: flex !important;
 }
 .wrapperTop{
   display: flex;
@@ -340,593 +340,7 @@ input:not([type=checkbox]):not([type=radio]) {
   display: flex;
   visibility: hidden;
 }
-//LOGIN MEDIAS
-@media screen and (max-width: 600px) and (orientation: portrait){
-  .login_input {
-    width: 50%;
-  }
-  .login_div {
-    flex-direction: column;
-  }
 
-  .login_logo {
-    width: 45%;
-  }
-  .login_button {
-    width: 65%;
-
-  }
-
-  .theme__inputElement___2akQt{
-    font-size: 12px;
-  }
-}
-
-@media screen and (max-width: 640px) and (orientation: landscape){
-  .login_input {
-      width: 40%;
-  }
-  .login_div {
-    flex-direction: column;
-    padding-top: 0.3em;
-  }
-
-  .login_logo {
-    width: 20%;
-  }
-  .login_button {
-    width: 45%;
-  }
-}
-
-@media screen and (max-width: 736px) and (min-width: 641px) and (orientation: landscape){
-  .theme__inputElement___2akQt{
-    font-size: 12px;
-  }
-}
-
-
-//interrupciones media
-
-
-@media screen and (max-width: 360px)  and (orientation: portrait){
-  .theme__appBar___b1hGI {
-    padding: 0;
-    width: 100%;
-  }
-
-  .img_logo {
-      width: 4em;
-      height: 2em;
-      margin: 1em 0em 1em 0.5em;
-  }
-
-  .theme__panel___2AHlZ{
-    display: flex;
-  }
-
-   .widgetMenu_container{
-    position: absolute;
-    margin-top: 4.4em;
-    background: #23496f;
-    font-size: 9px;
-    height: 3.3rem;
-    width: 100%;
-   }
-
-  .esriSimpleSliderTL{
-    top: 45px;
-  }
-
-  .simbologia_container{
-    padding: 1em 0.5em 0em 0.5em;
-    height: auto;
-    width: 15%;
-  }
-
-  .simbologia_container img{
-    width: 100%;
-  }
-  .onlineStatistics_h6_title{
-    display: none;
-  }
-
-  .estatisticas_wrapper_content{
-    margin-top: 2.4rem;
-  }
-
-  .estadisticas_mainTab_title{
-    font-size: 8px;
-  }
-
-  .theme__label___3Q1BH{
-    font-size: 8px;
-  }
-}
-//nexus 4, iphone 6
-@media screen and (max-width: 384px) and (min-width: 361px) and (orientation: portrait){
-  .theme__appBar___b1hGI {
-    padding: 0;
-    width: 100%;
-  }
-  .img_logo {
-      width: 4em;
-      height: 2em;
-      margin: 1em 0em 1em 0.5em;
-  }
-  .theme__panel___2AHlZ{
-    display: flex;
-  }
-   .widgetMenu_container{
-    position: absolute;
-    margin-top: 3.4em;
-    background: #23496f;
-    font-size: 12.2px;
-    height: 3.3rem;
-    width: 100%;
-   }
-
-  .esriSimpleSliderTL{
-    top: 45px;
-  }
-
-  .simbologia_container{
-    padding: 1em 0.5em 0em 0.5em;
-    height: auto;
-    width: 15%;
-  }
-
-  .simbologia_container img{
-    width: 100%;
-  }
-  .onlineStatistics_h6_title{
-    display: none;
-  }
-
-  .estatisticas_wrapper_content{
-    margin-top: 3rem;
-  }
-
-  .estadisticas_mainTab_title{
-    font-size: 1.1rem;
-  }
-}
-
-@media screen and (max-width: 412px) and (min-width: 385px) and (orientation: portrait){
-  .theme__appBar___b1hGI {
-    padding: 0;
-    width: 100%;
-  }
-  .img_logo {
-      width: 4em;
-      height: 2em;
-      margin: 1em 0em 1em 0.5em;
-  }
-  .theme__panel___2AHlZ{
-    display: flex;
-  }
-   .widgetMenu_container{
-     position: absolute;
-     margin-top: 3.4em;
-     background: #23496f;
-     font-size: 10.2px;
-     height: 3.3rem;
-     width: 100%;
-   }
-
-  .esriSimpleSliderTL{
-    top: 45px;
-  }
-
-  .simbologia_container{
-    padding: 1em 0.5em 0em 0.5em;
-    height: auto;
-    width: 15%;
-  }
-
-  .simbologia_container img{
-    width: 100%;
-  }
-  .onlineStatistics_h6_title{
-    display: none;
-  }
-
-  .estatisticas_wrapper_content{
-  margin-top: 2rem;
-  }
-
-  .estadisticas_mainTab_title{
-    font-size: 1rem;
-  }
-
-  .theme__label___3Q1BH {
-    font-size: 1.2rem;
-  }
-
-  .onlineStatistics_h6_title{
-    display: flex;
-    font-size: small;
-  }
-}
-
-@media screen and (max-width: 600px) and (min-width: 413px) and (orientation: portrait){
-  .theme__appBar___b1hGI {
-    padding: 0;
-    width: 100%;
-  }
-  .img_logo {
-    width: 6em;
-    height: 3em;
-    margin: 0.3em 0em 1em 0.5em
-  }
-  .theme__panel___2AHlZ{
-    display: flex;
-  }
-   .widgetMenu_container{
-     position: absolute;
-      margin-top: 3.1em;
-     background: #23496f;
-    font-size: 14.2px;
-     height: 3.3rem;
-     width: 100%;
-   }
-
-  .esriSimpleSliderTL{
-    top: 45px;
-  }
-
-  .simbologia_container{
-    padding: 1em 0.5em 0em 0.5em;
-    height: auto;
-    width: 15%;
-  }
-
-  .simbologia_container img{
-    width: 100%;
-  }
-  .onlineStatistics_h6_title{
-    display: none;
-  }
-
-  .estatisticas_wrapper_content{
-    margin-top: 3.2rem;
-  }
-
-  .estadisticas_mainTab_title{
-    font-size: 1rem;
-  }
-
-  .theme__label___3Q1BH {
-    font-size: 1.2rem;
-  }
-
-  .onlineStatistics_h6_title{
-    display: flex;
-    font-size: larger;
-  }
-
-  .onlineStatistics_wrapper{
-    font-size: x-small;
-  }
-}
-
-@media screen and (max-width: 768px) and (min-width: 601px) and (orientation: portrait){
-  .theme__appBar___b1hGI {
-    padding: 0;
-    width: 100%;
-  }
-  .img_logo {
-    width: 6em;
-    height: 3em;
-    margin: 0.3em 0em 1em 0.5em
-  }
-  .theme__panel___2AHlZ{
-    display: flex;
-  }
-   .widgetMenu_container{
-     position: absolute;
-      margin-top: 3.1em;
-     background: #23496f;
-    font-size: 14.2px;
-     height: 3.3rem;
-     width: 100%;
-   }
-
-  .esriSimpleSliderTL{
-    top: 45px;
-  }
-
-  .simbologia_container{
-    padding: 1em 0.5em 0em 0.5em;
-    height: auto;
-    width: 15%;
-  }
-
-  .simbologia_container img{
-    width: 100%;
-  }
-  .onlineStatistics_h6_title{
-    display: none;
-  }
-
-  .estatisticas_wrapper_content{
-    margin-top: 2.2rem;
-  }
-
-  .estadisticas_mainTab_title{
-    font-size: 1rem;
-  }
-
-  .theme__label___3Q1BH {
-    font-size: 1.2rem;
-  }
-
-  .onlineStatistics_h6_title{
-    display: flex;
-    font-size: larger;
-  }
-
-  .onlineStatistics_wrapper{
-    font-size: x-small;
-  }
-}
-
-@media screen and (max-width: 800px) and (min-width: 769px) and (orientation: portrait){
-  .theme__appBar___b1hGI {
-    padding: 0;
-    width: 100%;
-  }
-  .img_logo {
-    width: 6em;
-    height: 3em;
-    margin: 0.3em 0em 1em 0.5em
-  }
-  .theme__panel___2AHlZ{
-    display: flex;
-  }
-   .widgetMenu_container{
-     position: absolute;
-      margin-top: 3.1em;
-     background: #23496f;
-    font-size: 14.2px;
-     height: 3.3rem;
-     width: 100%;
-   }
-
-  .esriSimpleSliderTL{
-    top: 45px;
-  }
-
-  .simbologia_container{
-    padding: 1em 0.5em 0em 0.5em;
-    height: auto;
-    width: 15%;
-  }
-
-  .simbologia_container img{
-    width: 100%;
-  }
-  .onlineStatistics_h6_title{
-    display: none;
-  }
-
-  .estatisticas_wrapper_content{
-    margin-top: 2.2rem;
-  }
-
-  .estadisticas_mainTab_title{
-    font-size: 1rem;
-  }
-
-  .theme__label___3Q1BH {
-    font-size: 1.2rem;
-  }
-
-  .onlineStatistics_h6_title{
-    display: flex;
-    font-size: larger;
-  }
-
-  .onlineStatistics_wrapper{
-    font-size: x-small;
-  }
-}
-
-//landscape
-@media screen and (max-width: 600px) and (orientation: landscape){
-  .simbologia_container{
-    padding: 1em 0.5em 0em 0.5em;
-    height: 55%;
-      width: 10%;
-  }
-
-  .simbologia_container img{
-    width: 90%;
-  }
-
-  .img_logo{
-    width: 4em;
-    margin: 1em 0em 0.5em 0;
-    height: 2em;
-  }
-
-  .theme__appBar___b1hGI {
-    padding: 0;
-    width: 100%;
-  }
-
-  .img_logo {
-      width: 4em;
-      height: 2em;
-      margin: 1em 0em 1em 0.5em;
-  }
-
-  //
-  .theme__panel___2AHlZ{
-    display: flex;
-  }
-
-   .widgetMenu_container{
-    position: absolute;
-    margin-top: 4.4em;
-    background: #23496f;
-    font-size: 9px;
-    height: 3.3rem;
-    width: 100%;
-   }
-
-  .esriSimpleSliderTL{
-    top: 45px;
-  }
-
-  .onlineStatistics_h6_title{
-    display: flex;
-    font-size: 12px;
-  }
-
-  .estatisticas_wrapper_content{
-    margin-top: 2.4rem;
-  }
-
-  .estadisticas_mainTab_title{
-    font-size: 8px;
-  }
-
-  .theme__label___3Q1BH{
-    font-size: 8px;
-  }
-}
-
-@media screen and (max-width: 640px) and (min-width:601px) and (orientation: landscape){
-  .simbologia_container{
-    padding: 1em 0.5em 0em 0.5em;
-    height: 55%;
-      width: 10%;
-  }
-
-  .simbologia_container img{
-    width: 90%;
-  }
-
-  .img_logo{
-    width: 4em;
-    margin: 1em 0em 0.5em 0;
-    height: 2em;
-  }
-
-  .theme__appBar___b1hGI {
-    padding: 0;
-    width: 100%;
-  }
-
-  .img_logo {
-      width: 4em;
-      height: 2em;
-      margin: 1em 0em 1em 0.5em;
-  }
-
-  //
-  .theme__panel___2AHlZ{
-    display: flex;
-  }
-
-   .widgetMenu_container{
-    position: absolute;
-    margin-top: 4.4em;
-    background: #23496f;
-    font-size: 9px;
-    height: 3.3rem;
-    width: 100%;
-   }
-
-  .esriSimpleSliderTL{
-    top: 45px;
-  }
-
-  .onlineStatistics_h6_title{
-    display: flex;
-    font-size: 12px;
-  }
-
-  .estatisticas_wrapper_content{
-    margin-top: 2.4rem;
-  }
-
-  .estadisticas_mainTab_title{
-    font-size: 8px;
-  }
-
-  .theme__label___3Q1BH{
-    font-size: 8px;
-  }
-}
-
-@media screen and (max-width: 736px) and (min-width:641px) and (orientation: landscape){
-  .simbologia_container{
-    padding: 1em 0.5em 0em 0.5em;
-    height: 55%;
-      width: 10%;
-  }
-
-  .simbologia_container img{
-    width: 90%;
-  }
-
-  .img_logo{
-    width: 4em;
-    margin: 1em 0em 0.5em 0;
-    height: 2em;
-  }
-
-  .theme__appBar___b1hGI {
-    padding: 0;
-    width: 100%;
-  }
-
-  .img_logo {
-      width: 4em;
-      height: 2em;
-      margin: 1em 0em 1em 0.5em;
-  }
-
-  //
-  .theme__panel___2AHlZ{
-    display: flex;
-  }
-
-   .widgetMenu_container{
-    position: absolute;
-    margin-top: 4.4em;
-    background: #23496f;
-    font-size: 9px;
-    height: 3.3rem;
-    width: 100%;
-   }
-
-  .esriSimpleSliderTL{
-    top: 45px;
-  }
-
-  .onlineStatistics_h6_title{
-    display: flex;
-    font-size: 12px;
-  }
-
-  .estatisticas_wrapper_content{
-    margin-top: 2.4rem;
-  }
-
-  .estadisticas_mainTab_title{
-    font-size: 8px;
-  }
-
-  .theme__label___3Q1BH{
-    font-size: 8px;
-  }
-}
-
-
-/**/
 .wallop_itemsCustom{
 
 }
@@ -992,4 +406,398 @@ flex-direction: column;
 
 .muniTitulo{
   font-size: 2em;
+}
+
+
+//LOGIN MEDIAS
+@media screen and (max-width: 600px) and (orientation: portrait){
+  .login_input {
+    width: 50%;
+  }
+  .login_div {
+    flex-direction: column;
+  }
+
+  .login_logo {
+    width: 45%;
+  }
+  .login_button {
+    width: 65%;
+
+  }
+
+  .theme__inputElement___2akQt{
+    font-size: 12px;
+  }
+}
+
+@media screen and (max-width: 640px) and (orientation: landscape){
+  .login_input {
+      width: 40%;
+  }
+  .login_div {
+    flex-direction: column;
+    padding-top: 0.3em;
+  }
+
+  .login_logo {
+    width: 20%;
+  }
+  .login_button {
+    width: 45%;
+  }
+}
+
+@media screen and (max-width: 736px) and (min-width: 641px) and (orientation: landscape){
+  .theme__inputElement___2akQt{
+    font-size: 12px;
+  }
+
+  .welcome_logout_wrapper {
+    padding-left: 1em;
+  }
+
+}
+
+
+/*DASHBOARD MEDIAS*/
+
+@media screen and (max-width: 320px)  and (orientation: portrait){
+
+
+  .theme__appBar___b1hGI{
+    padding-left: 0;
+    padding-right: 0.5em;
+    height: 3.6rem;
+  }
+  .img_logo {
+    width: 4em;
+    margin: 1em;
+    height: 1.8em;
+  }
+
+  h6 {
+    font-size: 10px;
+  }
+
+  .Wallop-list {
+    margin-bottom: 0;
+  }
+
+  .Wallop{
+    margin: 0;
+      padding: 0;
+      max-width: 177px !important;
+      top: -1em;
+      max-height: 480px;
+  }
+
+  .wrapperbuttons_ap{
+    margin-top: 1em;
+  }
+}
+@media screen and (min-width: 321px) and (max-width: 360px)  and (orientation: portrait){
+  .theme__appBar___b1hGI{
+    padding-left: 0;
+    padding-right: 0.5em;
+  }
+  h6 {
+    font-size: 10px;
+  }
+
+  .Wallop-list {
+    margin-bottom: 0;
+  }
+
+  .Wallop{
+    margin: 0;
+      padding: 0;
+      max-width: 177px !important;
+      top: -1em;
+      max-height: 480px;
+  }
+
+  .wrapperbuttons_ap{
+    margin-top: 1em;
+  }
+}
+
+//nexus 4, iphone 6
+@media screen and (max-width: 384px) and (min-width: 361px) and (orientation: portrait){
+  .theme__appBar___b1hGI{
+    padding-left: 0;
+    padding-right: 0.5em;
+  }
+
+  h6 {
+    font-size: 10px;
+  }
+  .Wallop-list {
+    margin-bottom: 0;
+  }
+
+
+  .Wallop{
+    margin: 0;
+      padding: 0;
+      max-width: 240px !important;
+      top: -3em;
+      max-height: 480px;
+  }
+  .wrapperbuttons_ap{
+    margin-top: 1em;
+  }
+}
+
+@media screen and (max-width: 412px) and (min-width: 385px) and (orientation: portrait){
+  .theme__appBar___b1hGI{
+    padding-left: 0;
+    padding-right: 0.5em;
+  }
+
+  h6 {
+    font-size: 10px;
+  }
+  .Wallop-list {
+    margin-bottom: 0;
+  }
+
+  .Wallop{
+    margin: 0;
+      padding: 0;
+      max-width: 240px !important;
+      top: -3em;
+      max-height: 480px;
+  }
+  .wrapperbuttons_ap{
+    margin-top: 1em;
+  }
+}
+
+@media screen and (max-width: 600px) and (min-width: 413px) and (orientation: portrait){
+  .theme__appBar___b1hGI{
+    padding-left: 0;
+    padding-right: 0.5em;
+  }
+  h6 {
+    font-size: 10px;
+  }
+  .Wallop-list {
+    margin-bottom: 0;
+  }
+
+  .Wallop{
+    margin: 0;
+      padding: 0;
+      max-width: 240px !important;
+      top: -3em;
+      max-height: 480px;
+  }
+  .wrapperbuttons_ap{
+    margin-top: 1em;
+  }
+}
+
+@media screen and (max-width: 768px) and (min-width: 601px) and (orientation: portrait){}
+
+@media screen and (max-width: 800px) and (min-width: 769px) and (orientation: portrait){}
+
+//landscape
+@media screen and (max-width: 320px)  and (orientation: landscape){
+
+
+  .theme__appBar___b1hGI{
+    padding-left: 0;
+    padding-right: 0.5em;
+    height: 3.6rem;
+  }
+  .img_logo {
+    width: 4em;
+    margin: 1em;
+    height: 1.8em;
+  }
+
+  h6 {
+    font-size: 10px;
+  }
+
+  .Wallop-list {
+    margin-bottom: 0;
+  }
+
+  .Wallop{
+    margin: 0;
+      padding: 0;
+      max-width: 177px !important;
+      top: -1em;
+      max-height: 480px;
+  }
+
+  .wrapperbuttons_ap{
+    margin-top: 1em;
+  }
+}
+@media screen and (max-width: 600px) and (orientation: landscape){
+  .wrapper_gallery {
+    display: flex;
+    width: 100%;
+    align-content: space-between;
+    background: #1976d2;
+    position: fixed;
+    height: 100%;
+    flex-direction: row;
+  }
+
+  .Wallop{
+    max-width: 100% !important;
+    display: flex;
+    flex-direction: column;
+    top: -3em;
+  }
+
+  .Wallop-list{
+    max-width: 84px;
+    display: flex;
+    margin: 1em;
+    align-self: center;
+  }
+
+  .wrapperbuttons_ap {
+    display: flex;
+    width: 100%;
+    justify-content: center;
+        margin-top: 2em;
+  }
+
+}
+
+@media screen and (max-width: 640px) and (min-width:601px) and (orientation: landscape){
+  .wrapper_gallery {
+    display: flex;
+    width: 100%;
+    align-content: space-between;
+    background: #1976d2;
+    position: fixed;
+    height: 100%;
+    flex-direction: row;
+  }
+
+  .Wallop{
+    max-width: 100% !important;
+    display: flex;
+    flex-direction: column;
+    top: -3em;
+  }
+
+  .Wallop-list{
+    max-width: 84px;
+    display: flex;
+    margin: 1em;
+    align-self: center;
+  }
+
+  .wrapperbuttons_ap {
+    display: flex;
+    width: 100%;
+    justify-content: center;
+        margin-top: 2em;
+  }
+}
+
+@media screen and (max-width: 734px) and (min-width:641px) and (orientation: landscape){
+  .wrapper_gallery {
+    display: flex;
+    width: 100%;
+    align-content: space-between;
+    background: #1976d2;
+    position: fixed;
+    height: 100%;
+    flex-direction: row;
+  }
+
+  .Wallop{
+    max-width: 100% !important;
+    display: flex;
+    flex-direction: column;
+    top: -3em;
+  }
+
+  .Wallop-list{
+    max-width: 84px;
+    display: flex;
+    margin: 1em;
+    align-self: center;
+  }
+
+  .wrapperbuttons_ap {
+    display: flex;
+    width: 100%;
+    justify-content: center;
+        margin-top: 2em;
+  }
+}
+
+@media screen and (max-width: 800px) and (min-width:735px) and (orientation: landscape){
+  .wrapper_gallery {
+    display: flex;
+    width: 100%;
+    align-content: space-between;
+    background: #1976d2;
+    position: fixed;
+    height: 100%;
+    flex-direction: row;
+  }
+
+  .Wallop{
+    max-width: 100% !important;
+    display: flex;
+    flex-direction: column;
+    top: -3em;
+  }
+
+  .Wallop-list{
+    max-width: 84px;
+    display: flex;
+    margin: 1em;
+    align-self: center;
+  }
+
+  .wrapperbuttons_ap {
+    display: flex;
+    width: 100%;
+    justify-content: center;
+        margin-top: 2em;
+  }
+}
+@media screen and (max-width: 1024px) and (min-width:801px) and (orientation: landscape){
+  .wrapper_gallery {
+    display: flex;
+    width: 100%;
+    align-content: space-between;
+    background: #1976d2;
+    position: fixed;
+    /* height: 100%; */
+    flex-direction: row;
+  }
+
+  .Wallop {
+      max-width: 260px !important;
+      display: flex;
+      flex-direction: column;
+      top: -3em;
+  }
+
+  .Wallop-list {
+      max-width: 177px;
+      display: flex;
+      margin: 1em;
+      align-self: center;
+  }
+
+  .wrapperbuttons_ap {
+    display: flex;
+    width: 100%;
+    justify-content: center;
+        margin-top: 2em;
+  }
 }

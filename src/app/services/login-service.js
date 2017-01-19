@@ -7,8 +7,8 @@ import _ from 'lodash';
 import $ from 'jquery';
 import {regionsExtent} from '../services/regionsExtent-service';
 import QueryTask from 'esri/tasks/QueryTask';
-import my_AP_Settings from '../services/ap_settings-service'
-
+import my_AP_Settings from '../services/ap_settings-service';
+import env from '../services/config';
 //09/11
 function login(user, pass, app, callback){
   console.log("mi usuario es vialactea o no sin muni al principio", user);
@@ -79,7 +79,7 @@ function login(user, pass, app, callback){
 
       case 'REACT_AP_WEB':
           //return callback();
-          let appli = "REACT_AP_WEB_DESA";
+          let appli = env.SAVEAPPLICATIONNAME;
           ap_login(appli, myToken, user, (cback)=>{
             if(cback){
               let snackbarRet = {
@@ -135,8 +135,10 @@ function interrupciones_login(page, tkn, user, callback){
 function ap_login(page, tkn, user, callback){
   console.log('Requesting service access..., logging in to gisred-ap');
   token.write(tkn);
-  const module = "AP_CHQ_DESA";
+  const module = env.SAVEAPPLICATIONMODULE;
 
+  //19/01/2017: agregar usuario que loguea a dashboard.
+  cookieHandler.set('usrnm',user);
   saveLogin(user,page,module,tkn, (cb)=>{
     if(cb){
       return callback(true)

@@ -19,8 +19,12 @@ class DashboardHeader extends React.Component {
   }
 
   handleLogout(){
+    if(env.ENVIRONMENT=='DEVELOPMENT'){
+      browserHistory.push(env.ROUTEPATH);
+    }else{
+      window.location.href = env.WEBSERVERADDRESS;
+    }
 
-    browserHistory.push("/");
   }
 
   render() {

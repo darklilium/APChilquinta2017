@@ -5,6 +5,7 @@ import DashboardHeader from "./DashboardHeader.jsx";
 import Wallop from 'Wallop';
 import {Button, IconButton} from 'react-toolbox/lib/button';
 import MuniImages from '../services/APMuniImages';
+import cookieHandler from 'cookie-handler';
 
 // Helpers
 function addClass(element, className) {
@@ -94,7 +95,7 @@ onClickEntrar(){
 
     return (
       <div className="wrapper_APDashboard">
-        <DashboardHeader user="Evelyn"/>
+        <DashboardHeader user={cookieHandler.get('usrnm')}/>
         <h6></h6>
         <div className="wrapper_gallery">
           <div className="Wallop Wallop--fade wallopDiv">

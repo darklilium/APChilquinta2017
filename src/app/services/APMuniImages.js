@@ -298,13 +298,6 @@ const MuniImages = [
     queryName: 'SAN JAVIER'
   },
   {
-    original:  env.CSSDIRECTORY + 'images/logos/logos_menu/sanjavier.png',
-    name: 'sanjavier',
-    originalName: 'San Javier',
-    extent: [-71.7369,  -35.5908],
-    queryName: 'SAN JAVIER'
-  },
-  {
     original:  env.CSSDIRECTORY + 'images/logos/logos_menu/santamaria.png',
     name: 'santamaria',
     originalName: 'Santa María',

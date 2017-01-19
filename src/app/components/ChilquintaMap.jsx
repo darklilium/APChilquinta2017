@@ -229,6 +229,7 @@ class ChilquintaMap extends React.Component {
           rotulo : event.graphic.attributes['rotulo'],
           observaciones: event.graphic.attributes['obs'],
           geometria: event.graphic.geometry
+
         }
         console.log("en modificaciones", luminariaModificada);
         //buscar la correlacion para modificar de la luminaria de acuerdi al id_nodo:
@@ -254,7 +255,8 @@ class ChilquintaMap extends React.Component {
               tipoLuminaria: callback[1][0].attributes['TIPO'],
               tipoPotencia: callback[1][0].attributes['POTENCIA'],
               tipoPropiedad: callback[1][0].attributes['PROPIEDAD'],
-              rotulo: callback[1][0].attributes['ROTULO']
+              rotulo: callback[1][0].attributes['ROTULO'],
+              selectedTab: 0
             });
           }else{
             console.log("No hay datos de luminaria cercana");
