@@ -6,17 +6,8 @@ import Wallop from 'Wallop';
 import {Button, IconButton} from 'react-toolbox/lib/button';
 import MuniImages from '../services/APMuniImages';
 import cookieHandler from 'cookie-handler';
+import Select from 'react-select';
 
-// Helpers
-function addClass(element, className) {
-  if (!element) { return; }
-  element.className = element.className.replace(/\s+$/gi, '') + ' ' + className;
-}
-
-function removeClass(element, className) {
-  if (!element) { return; }
-  element.className = element.className.replace(className, '');
-}
 
 
 class AP_Dashboard extends React.Component {
@@ -25,13 +16,25 @@ class AP_Dashboard extends React.Component {
     super(props);
 
     this.state = {
-      comuna: '',
-      comunaIndex: ''
+
+      comunaIndex: '',
+      selectedComuna: 'algarrobo',
+      todasLasComunas: [],
+      fotoComuna: MuniImages[0].original
     }
 
   }
   componentDidMount(){
-    var that = this;
+    let comunas = MuniImages.map((comuna, index)=>{
+      let c = {
+        value: comuna.name,
+        label: comuna.originalName,
+        pic: comuna.original
+      };
+      return c;
+    });
+    this.setState({todasLasComunas: comunas});
+    /*  var that = this;
     var wallopEl = document.querySelector('.Wallop');
     var wallop = new Wallop(wallopEl);
 
@@ -40,7 +43,7 @@ class AP_Dashboard extends React.Component {
     /*
     Attach click listener on the dots
     */
-    paginationDots.forEach(function (dotEl, index) {
+    /*  paginationDots.forEach(function (dotEl, index) {
 
       dotEl.addEventListener('click', function() {
         console.log(dotEl, index, "en dot..")
@@ -51,66 +54,64 @@ class AP_Dashboard extends React.Component {
     /*
     Listen to wallop change and update classes
     */
-    wallop.on('change', function(event) {
+    /*  wallop.on('change', function(event) {
       console.log(event, paginationDots[event.detail.currentItemIndex], event.detail.currentItemIndex);
       removeClass(document.querySelector('.Wallop-dot--current'), 'Wallop-dot--current');
       addClass(paginationDots[event.detail.currentItemIndex], 'Wallop-dot--current');
       that.setState({comunaIndex: event.detail.currentItemIndex});
     });
-
-
-
-}
+    */
+  }
 
 
 onClickEntrar(){
-  console.log(this.state.comunaIndex,"tengo el valor de..");
-  console.log("representa a :",MuniImages[this.state.comunaIndex].name);
-  this.setState({comuna:MuniImages[this.state.comunaIndex].name});
-  browserHistory.push(`muni${MuniImages[this.state.comunaIndex].name}`);
+  console.log(this.state.selectedComuna,"tengo el valor de..");
+
+  browserHistory.push(`muni${this.state.selectedComuna}`);
+}
+
+onChangePic(e){
+  if(e.value==""){
+    console.log(e);
+    this.setState({selectedComuna: MuniImages[0].name, fotoComuna: MuniImages[0].original})
+  }else{
+    this.setState({selectedComuna: e.value, fotoComuna: e.pic})
+
+  }
+  
 }
 
   render(){
-    let logosMuni = MuniImages.map((logoMuni, index)=>{
-      let allLogos;
 
-      if(index==0){
-        return <div key={index} id={logoMuni.name} className="Wallop-item Wallop-item--current"><img key={index} src={logoMuni.original}/></div>;
-      }else{
-        return <div key={index} id={logoMuni.name} className="Wallop-item"><img key={index} src={logoMuni.original} /></div>;
-      }
-
-    });
-
-    let dots =MuniImages.map((dotsMuni, index)=>{
-
-
-      if(index==0){
-        return <button key={index} className="Wallop-dot Wallop-dot--current">{index}</button>;
-      }else{
-        return <button key={index} className="Wallop-dot">{index}</button>;
-      }
-
-    });
 
     return (
       <div className="wrapper_APDashboard">
         <DashboardHeader user={cookieHandler.get('usrnm')}/>
         <h6></h6>
         <div className="wrapper_gallery">
-          <div className="Wallop Wallop--fade wallopDiv">
-            <div className="Wallop-list">
-              {logosMuni}
+          <div className="">
+            <div className="">
+              <img src={this.state.fotoComuna}></img>
             </div>
 
-            <div className="Wallop-pagination">
-              {dots}
+            <div className="">
+            {/*  {dots} */}
+              <Select
+                  name="form-field-name"
+                  value={this.state.nombreComuna}
+                  options={this.state.todasLasComunas}
+                  value={this.state.selectedComuna}
+                  onChange={this.onChangePic.bind(this)}
+                  clearable={false}
+                  searchable={false}
+
+                  />
             </div>
             <div className="wrapperbuttons_ap" >
               <div className="btn-group apmenu_buttongroup" role="group" aria-label="...">
-                <Button className="Wallop-buttonPrevious" icon='navigate_before' label='' raised primary />
+                {/*<Button className="Wallop-buttonPrevious" icon='navigate_before' label='' raised primary />*/}
                   <Button onClick={this.onClickEntrar.bind(this)} className="btnEntrarMuni" icon='power_settings_new' label='Entrar' raised primary/>
-                <Button className="Wallop-buttonNext " icon='navigate_next' label='' raised primary />
+                {/*  <Button className="Wallop-buttonNext " icon='navigate_next' label='' raised primary />*/}
 
               </div>
 

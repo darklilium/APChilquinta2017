@@ -824,6 +824,7 @@ class DrawerTest extends React.Component {
         <IconButton icon='settings_input_svideo' inverse={ true } onClick={this.handleToggle4} />
         <IconButton icon='lightbulb_outline' inverse={ true } onClick={this.handleToggle5.bind(this)} />
         <IconButton icon='settings_power' inverse={ true } onClick={this.handleLogout.bind(this)} />
+        
 
         <Drawer active={this.state.active} onOverlayClick={this.handleToggle}>
           <div className="drawer_banner">
@@ -849,6 +850,7 @@ class DrawerTest extends React.Component {
             </div>
           </div>
         </Drawer>
+
 
         <Drawer active={this.state.active2} onOverlayClick={this.handleToggle2}>
           <div className="drawer_banner">
