@@ -24,6 +24,27 @@ import Slider from 'react-slick';
 import env from '../services/config';
 import {nuevoQuery} from '../services/addQuery';
 import ProgressBar from 'react-toolbox/lib/progress_bar';
+import { Layout, NavDrawer, Panel, Sidebar } from 'react-toolbox';
+import { AppBar, Checkbox, IconButton } from 'react-toolbox';
+import { List, ListItem, ListSubHeader, ListDivider, ListCheckbox } from 'react-toolbox/lib/list';
+import {searchRotulo, searchIDNodo, gLayerFind} from '../services/searchbar_service';
+import {makeInfowindow} from '../utils/makeInfowindow';
+import {getMedidores,
+  getLuminariasAsociadas,
+  getMedidorLocation,
+  getTramosMedidor,
+  getLuminariaLocation,
+  gLayerMedidor,
+  gLayerTramos,
+  gLayerLumAsoc,
+  gLayerLuminarias, getTodasLasLuminarias} from '../services/queryData';
+import { RadioGroup, RadioButton } from 'react-toolbox/lib/radio';
+import VETiledLayer from 'esri/virtualearth/VETiledLayer';
+
+var options = [
+    { value: 'ROTULO', label: 'Rótulo' },
+    { value: 'IDNODO', label: 'ID Nodo' }
+];
 
 const opcionesTipo = [
   { value: 'NA', label: 'NA', type: 'tipoluminaria' },
@@ -87,7 +108,13 @@ const opcionesPotencia = [
 ]
 var defaultPic = (<div><img id="foto0" src={env.CSSDIRECTORY + "images/nofoto.png"}></img></div>);
 
-class ChilquintaMap extends React.Component {
+var busquedaa = (
+  <div>
+
+  </div>
+);
+
+class APMap extends React.Component {
   constructor(props){
     super(props);
     this.state = {
@@ -110,7 +137,34 @@ class ChilquintaMap extends React.Component {
       slider : '',
       rotateImgAngle: 0,
       showThumbs: false,
-      currentPic: 'foto0'
+      currentPic: 'foto0',
+
+      active: false,
+      active2: false,
+      active3: false,
+      active4: false,
+      active5: false,
+      checkbox: true,
+      checkbox2: true,
+      checkbox3: true,
+      checkbox4: true,
+      tipoBusqueda: '',
+      valorBusqueda: '',
+      labelBusqueda: 'Valor',
+      snackbarMessage: '',
+      activeSnackbar: false,
+      snackbarIcon: 'error',
+      mapSelected: 'topo',
+      rowMetaData: '',
+      dataMedidores: '',
+      dataLuminarias: '',
+      dataTodasLuminarias: '',
+      numeroMedidor: '',
+      labelNumeroMedidor: 'Luminarias de Medidor N°: ',
+      selectedRowId: 0,
+      selectedRowId2: 0,
+      selectedRowId3: 0,
+      layersOrder: ''
     }
 
 
@@ -331,24 +385,20 @@ class ChilquintaMap extends React.Component {
     this.setState({active: !this.state.active});
   }
 
-  logChange(valor) {
-      console.log("Selected: " + valor.value);
+  logChange(val) {
+      console.log("Selected: " + val.value);
+      this.setState({tipoBusqueda: val.value});
 
-      switch (valor.type) {
-        case 'tipoluminaria':
-            this.setState({tipoLuminaria: valor.value});
+      switch (val.value) {
+        case 'ROTULO':
+            this.setState({labelBusqueda: 'N° ROTULO'});
           break;
-          case 'tipoconexion':
-              this.setState({tipoConexion: valor.value});
+          case 'IDNODO':
+              this.setState({labelBusqueda: 'N° ID NODO'});
             break;
-            case 'tipopropiedad':
-                this.setState({tipoPropiedad: valor.value});
-              break;
-              case 'tipopotencia':
-                  this.setState({tipoPotencia: valor.value});
-                break;
-        default:
 
+        default:
+          this.setState({tipoBusqueda: 'ROTULO'});
       }
 
   }
@@ -515,6 +565,7 @@ class ChilquintaMap extends React.Component {
 
 
   }
+
   afterChange(e){
     console.log(e,"traigo esto after change");
     let c = "foto"+e;
@@ -529,14 +580,286 @@ class ChilquintaMap extends React.Component {
     $('.muniTitulo').css('font-size','2em');
   }
 
+  handleToggle = () => {
+    //disable all the rest of drawers.
+      $('#cambiarMapaDrawer').removeClass('drawerVisibility_show').addClass('drawerVisibility_notShow');
+      $('.contenido_drawerleft2').css('width','0%');
+
+    this.setState({active: !this.state.active});
+    $('#busquedaDrawer').removeClass('drawerVisibility_notShow').addClass('drawerVisibility_show');
+    $('.contenido_mapa').css('width','80%');
+    $('.contenido_drawerleft1').css('width','20%');
+
+  };
+  handleToggle2 = () => {
+    //disable all the rest of drawers.
+      $('#busquedaDrawer').removeClass('drawerVisibility_show').addClass('drawerVisibility_notShow');
+      $('.contenido_drawerleft1').css('width','0%');
+
+    this.setState({active2: !this.state.active2});
+    $('#cambiarMapaDrawer').removeClass('drawerVisibility_notShow').addClass('drawerVisibility_show');
+    $('.contenido_mapa').css('width','80%');
+    $('.contenido_drawerleft2').css('width','20%');
+  };
+  handleToggle3 = () => {
+    var mapp = mymap.getMap();
+    console.log(mapp.graphicsLayerIds);
+
+    this.setState({active3: !this.state.active3, layersOrder: mapp.graphicsLayerIds});
+  };
+  handleToggle4 = () => {
+    this.setState({active4: !this.state.active4});
+  };
+  handleToggle5 = () => {
+    this.setState({active5: !this.state.active5});
+  };
+
+  handleLogout(){
+    if(env.ENVIRONMENT=='DEVELOPMENT'){
+      browserHistory.push(env.ROUTEPATH);
+    }else{
+      window.location.href = env.WEBSERVERADDRESS;
+    }
+  }
+
+  handleChange = (name, value) => {
+   this.setState({...this.state, [name]: value});
+  };
+
+  onClickBusqueda(){
+    var mapp = mymap.getMap();
+    console.log("Buscando para:",this.state.tipoBusqueda);
+    $('.drawer_progressBar').css('visibility','visible');
+
+    if( (_.isEmpty(this.state.tipoBusqueda)) || (_.isEmpty(this.state.valorBusqueda)) ){
+      console.log("Vacio");
+      this.handleToggle();
+      this.setState({snackbarMessage: "Ingrese todos los campos antes de buscar", activeSnackbar: true, snackbarIcon: "warning" });
+      $('.theme__icon___4OQx3').css('color',"red");
+      $('.drawer_progressBar').css('visibility','hidden');
+
+      return;
+
+    }
+
+    switch (this.state.tipoBusqueda) {
+
+      case 'ROTULO':
+        console.log("searching for ROTULO...");
+        searchRotulo(this.state.valorBusqueda, (nisFound)=>{
+
+          this.handleToggle();
+          this.setState({snackbarMessage: nisFound[2], activeSnackbar: true, snackbarIcon: nisFound[3] });
+          $('.theme__icon___4OQx3').css('color',nisFound[4]);
+          $('.drawer_progressBar').css('visibility','hidden');
+        });
+      break;
+
+      case 'IDNODO':
+        console.log("searching for IDNODO...");
+        searchIDNodo(this.state.valorBusqueda, (incidenciaFound)=>{
+
+          this.handleToggle();
+          this.setState({snackbarMessage: incidenciaFound[2], activeSnackbar: true, snackbarIcon: incidenciaFound[3] });
+          $('.theme__icon___4OQx3').css('color',incidenciaFound[4]);
+          $('.drawer_progressBar').css('visibility','hidden');
+
+        });
+      break;
+
+      default:
+
+    }
+  }
+
+  onClickLimpiarBusqueda(){
+      var mapp = mymap.getMap();
+      //mapp.graphics.clear();
+        //mapp.removeLayer(gLayer);
+      gLayerMedidor.clear();
+
+      gLayerTramos.clear();
+
+      gLayerLumAsoc.clear();
+
+      gLayerLuminarias.clear();
+
+      gLayerFind.clear();
+
+      this.setState({valorBusqueda: '', tipoBusqueda: 'NIS', activeSnackbar:false});
+
+  }
+
+  handleRadioMapas(mapaNow) {
+
+    var mapp = mymap.getMap();
+    $('.drawer_progressBar').css('visibility','visible');
+    this.setState({mapSelected: mapaNow});
+      mapp.on('basemap-change',(basemapChange)=>{
+        $('.drawer_progressBar').css('visibility','hidden');
+      });
+
+    /*
+        if(mapaNow!='chilquinta'){
+          mapp.setBasemap(mapaNow);
+          $('.drawer_progressBar').css('visibility','hidden');
+        }
+    */
+
+    var veTileRoad = new VETiledLayer({
+      bingMapsKey: "Asrn2IMtRwnOdIRPf-7q30XVUrZuOK7K2tzhCACMg7QZbJ4EPsOcLk6mE9-sNvUe",
+      mapStyle: VETiledLayer.MAP_STYLE_ROAD,
+      id:"veroad"
+    });
+
+    var veTileAerial = new VETiledLayer({
+      bingMapsKey: "Asrn2IMtRwnOdIRPf-7q30XVUrZuOK7K2tzhCACMg7QZbJ4EPsOcLk6mE9-sNvUe",
+      mapStyle: VETiledLayer.MAP_STYLE_AERIAL,
+      id:"veaerial"
+    });
+
+    var veTileWithLabels = new VETiledLayer({
+      bingMapsKey: "Asrn2IMtRwnOdIRPf-7q30XVUrZuOK7K2tzhCACMg7QZbJ4EPsOcLk6mE9-sNvUe",
+      mapStyle: VETiledLayer.MAP_STYLE_AERIAL_WITH_LABELS,
+      id:"velabels"
+    });
+
+    switch (mapaNow) {
+      case 'topo':
+        mapp.setBasemap(mapaNow);
+        //desabilitar ve tiled layers (bing maps)
+        if(mapp.getLayer("veroad")){
+          console.log("habilitado veroad");
+          mapp.removeLayer(mapp.getLayer("veroad"));
+        }
+
+        if(mapp.getLayer("veaerial")){
+          console.log("habilitado veaerial");
+          mapp.removeLayer(mapp.getLayer("veaerial"));
+        }
+
+        if(mapp.getLayer("velabels")){
+          console.log("habilitado velabels");
+          mapp.removeLayer(mapp.getLayer("velabels"));
+        }
+
+        $('.drawer_progressBar').css('visibility','hidden');
+      break;
+
+      case 'hybrid':
+        mapp.setBasemap(mapaNow);
+        //desabilitar ve tiled layers (bing maps)
+        if(mapp.getLayer("veroad")){
+          console.log("habilitado veroad");
+          mapp.removeLayer(mapp.getLayer("veroad"));
+        }
+
+        if(mapp.getLayer("veaerial")){
+          console.log("habilitado veaerial");
+          mapp.removeLayer(mapp.getLayer("veaerial"));
+        }
+
+        if(mapp.getLayer("velabels")){
+          console.log("habilitado velabels");
+          mapp.removeLayer(mapp.getLayer("velabels"));
+        }
+
+        $('.drawer_progressBar').css('visibility','hidden');
+      break;
+      //bing map: satelite
+      case 'calles':
+
+        //desabilitar ve tiled layers (bing maps)
+        if(mapp.getLayer("veroad")){
+          console.log("habilitado veroad");
+          mapp.removeLayer(mapp.getLayer("veroad"));
+        }
+
+        if(mapp.getLayer("veaerial")){
+          console.log("habilitado veaerial");
+          mapp.removeLayer(mapp.getLayer("veaerial"));
+        }
+
+        if(mapp.getLayer("velabels")){
+          console.log("habilitado velabels");
+          mapp.removeLayer(mapp.getLayer("velabels"));
+        }
+
+        if(this.state.mapSelected=='hybrid'){
+            console.log("habilitado hybrid");
+            mapp.setBasemap('topo');
+        }
+
+        mapp.addLayer(veTileRoad,1);
+
+        $('.drawer_progressBar').css('visibility','hidden');
+      break;
+
+      case 'satelite':
+
+        if(mapp.getLayer("veroad")){
+          console.log("habilitado veroad");
+          mapp.removeLayer(mapp.getLayer("veroad"));
+        }
+
+        if(mapp.getLayer("veaerial")){
+          console.log("habilitado veaerial");
+          mapp.removeLayer(mapp.getLayer("veaerial"));
+        }
+
+        if(mapp.getLayer("velabels")){
+          console.log("habilitado velabels");
+          mapp.removeLayer(mapp.getLayer("velabels"));
+        }
+        if(this.state.mapSelected=='hybrid'){
+            console.log("habilitado hybrid");
+            mapp.setBasemap('topo');
+        }
+
+        mapp.addLayer(veTileAerial,1);
+
+        $('.drawer_progressBar').css('visibility','hidden');
+      break;
+
+      case 'satelitewithlabels':
+
+        if(mapp.getLayer("veroad")){
+          console.log("habilitado veroad");
+          mapp.removeLayer(mapp.getLayer("veroad"));
+        }
+
+        if(mapp.getLayer("veaerial")){
+          console.log("habilitado veaerial");
+          mapp.removeLayer(mapp.getLayer("veaerial"));
+        }
+
+        if(mapp.getLayer("velabels")){
+          console.log("habilitado velabels");
+          mapp.removeLayer(mapp.getLayer("velabels"));
+        }
+        if(this.state.mapSelected=='hybrid'){
+            console.log("habilitado hybrid");
+            mapp.setBasemap('topo');
+        }
+
+        mapp.addLayer(veTileWithLabels,1);
+        $('.drawer_progressBar').css('visibility','hidden');
+      break;
+      default:
+
+    }
+
+  };
+
   render(){
     let logoName = this.props.params.muni;
+    let src = env.CSSDIRECTORY  + "images/logos/logos_menu/"+ this.props.params.muni + ".png";
+    let DisplayPics;
+
     var settings = {
       dots: true
     };
     let nofoto= env.CSSDIRECTORY + "images/nofoto.png";
-
-    let DisplayPics;
 
     if(this.state.fotografias.length){
       let fotos  = this.state.fotografias.map((foto,index)=>{
@@ -544,192 +867,94 @@ class ChilquintaMap extends React.Component {
       })
       DisplayPics = fotos;
 
-
-
     }else{
       DisplayPics = (<div><img id="foto0" src={env.CSSDIRECTORY + "images/nofoto.png"}></img></div>);
-
-
     }
 
     return (
-        <div className="map_container">
-          <div id="myDrawer" className="pusherDrawer">
-            <div className="drawer_banner drawer_banner_custom">
-              <div className="drawer_c">
-                <Logo />
-                <h6 className="drawer_banner_title">Editar Luminaria</h6>
-              </div>
-              <div className="drawer_cerrarButton">
-                <Button className="btnCerrarDrawer" icon='close' label='Cerrar' flat  onClick={this.onCerrarVentana.bind(this)} />
+      <div className="contenido">
+        {/* BARRA EDICION */}
+        <div className="contenido_drawerleft1">
+          {/* DRAWER BUSQUEDA */}
+          <div id="busquedaDrawer" className="drawerVisibility_notShow">
+            <div className="drawer_banner">
+              <Logo />
+              <h6 className="drawer_banner_title">Búsqueda</h6>
+            </div>
+            <div className="drawer_content">
+              <List selectable ripple>
+                <ListSubHeader className="drawer_listSubHeader drawer_busquedaTitle" caption='Seleccione un tipo de búsqueda:' />
+              </List>
+              <Select
+                  name="form-field-name"
+                  value={this.state.tipoBusqueda}
+                  options={options}
+                  onChange={this.logChange.bind(this)}
+              />
+              <Input className="drawer_input" type='text' label={this.state.labelBusqueda} name='name' value={this.state.valorBusqueda} onChange={this.handleChange.bind(this, 'valorBusqueda')} maxLength={16} />
+              <div className="drawer_buttonsContent">
+                <Button className="drawer_button" icon='search' label='Buscar' raised primary onClick={this.onClickBusqueda.bind(this)} />
+                <Button icon='delete_sweep' label='Limpiar Búsqueda' raised primary onClick={this.onClickLimpiarBusqueda.bind(this)} />
+                <ProgressBar type="circular" mode="indeterminate" className="drawer_progressBar" />
               </div>
             </div>
-            <ProgressBar className="drawer_progressBar" type="linear" mode="indeterminate" />
-            <div className="drawer_content">
-
-              <Tabs onSelect={this.handleSelect.bind(this)} selectedIndex={this.state.selectedTab}>
-                <TabList>
-                  <Tab><i className="fa fa-pencil"></i></Tab>
-                  <Tab><i className="fa fa-camera button-span" aria-hidden="true"></i></Tab>
-                </TabList>
-                {/* tab de edicion */}
-                <TabPanel>
-                  <div className="drawer_griddle_medidores">
-                    <div className="drawer_exportarButtonContainer">
-                      <h7><b>Edite la información de la luminaria</b></h7>
-                    </div>
-                    <hr />
-
-                    <div className="drawer_elements">
-                      <div className="drawer_elements_group">
-                        <div className="drawer_column_titles">
-                          <h6>ID Luminaria: </h6>
-                        </div>
-
-                        <div className="drawer_column_values">
-                          <h6>{this.state.datosLuminariaAEditar.id_luminaria}</h6>
-                          <h8 className="drawer_h8_modificaciones">{this.state.datosLuminariaModificada.id_luminaria}</h8>
-                        </div>
-                      </div>
-
-                      <div className="drawer_elements_group">
-                        <div className="drawer_column_titles">
-                          <h6>ID Nodo: </h6>
-                        </div>
-
-                        <div className="drawer_column_values">
-                          <h6>{this.state.datosLuminariaAEditar.id_nodo}</h6>
-                          <h8 className="drawer_h8_modificaciones">{this.state.datosLuminariaModificada.id_nodo}</h8>
-                        </div>
-                      </div>
-
-                      <div className="drawer_elements_group">
-                        <div className="drawer_column_titles">
-                          <h6>Tipo Conexión:</h6>
-                        </div>
-
-                        <div className="drawer_column_values">
-                          <Select
-                            name="form-field-name"
-                            value={this.state.tipoConexion}
-                            options={opcionesTipoConexion}
-                            onChange={this.logChange.bind(this)}
-                          />
-                          <h8 className="drawer_h8_modificaciones">{this.state.datosLuminariaModificada.tipo_conexion}</h8>
-                        </div>
-                      </div>
-
-                      <div className="drawer_elements_group">
-                        <div className="drawer_column_titles">
-                          <h6>Tipo:</h6>
-                        </div>
-
-                        <div className="drawer_column_values">
-                          <Select
-                            name="form-field-name"
-                            value={this.state.tipoLuminaria}
-                            options={opcionesTipo}
-                            onChange={this.logChange.bind(this)}
-                          />
-                          <h8 className="drawer_h8_modificaciones">{this.state.datosLuminariaModificada.tipo}</h8>
-                        </div>
-                      </div>
-
-                      <div className="drawer_elements_group">
-                        <div className="drawer_column_titles">
-                          <h6>Potencia:</h6>
-                        </div>
-
-                        <div className="drawer_column_values">
-                          <Select
-                            name="form-field-name"
-                            value={this.state.tipoPotencia}
-                            options={opcionesPotencia}
-                            onChange={this.logChange.bind(this)}
-                          />
-                          <h8 className="drawer_h8_modificaciones">{this.state.datosLuminariaModificada.potencia}</h8>
-                        </div>
-                      </div>
-
-                      <div className="drawer_elements_group">
-                        <div className="drawer_column_titles">
-                          <h6>Propiedad:</h6>
-                        </div>
-
-                        <div className="drawer_column_values">
-                          <Select
-                            name="form-field-name"
-                            value={this.state.tipoPropiedad}
-                            options={opcionesPropiedad}
-                            onChange={this.logChange.bind(this)}
-                          />
-                          <h8 className="drawer_h8_modificaciones">{this.state.datosLuminariaModificada.propiedad}</h8>
-                        </div>
-                      </div>
-
-                      <div className="drawer_elements_group">
-                        <div className="drawer_column_titles">
-                          <h6>Rótulo:</h6>
-                        </div>
-
-                        <div className="drawer_column_values">
-                          <Input className="drawer_input" type='text' value={this.state.rotulo}  name='name' onChange={this.handleChangeRotulo.bind(this)} maxLength={16} />
-                          <h8 className="drawer_h8_modificaciones">{this.state.datosLuminariaModificada.rotulo}</h8>
-                        </div>
-                      </div>
-
-                      <div className="drawer_elements_group">
-                        <div className="drawer_column_titles">
-                          <h6>Observación:</h6>
-                        </div>
-
-                        <div className="drawer_column_values">
-                          <Input className="drawer_input" type='text' value={this.state.observaciones}  name='name' onChange={this.handleChangeObservaciones.bind(this)} maxLength={16} />
-                          <h8 className="drawer_h8_modificaciones">{this.state.datosLuminariaModificada.observaciones}</h8>
-                        </div>
-                      </div>
-                    </div>
-
-                  </div>
-
-                  <div className="drawer_editarButtons">
-                    <Button icon='update' label='Actualizar' className="editar_button" raised primary onClick={this.onActualizar.bind(this)}  />
-                    <Button icon='delete_sweep' label='Eliminar' className="editar_button" raised primary onClick={this.onEliminar.bind(this)}  />
-                    <Button icon='create' label='Nuevo' className="editar_button" raised primary onClick={this.onNuevo.bind(this)}  />
-                  </div>
-
-                </TabPanel>
-
-                {/* Tabs de fotos */}
-                <TabPanel>
-                  <div className="sliderContainer">
-                    <Slider {...settings} afterChange={this.afterChange.bind(this)}>
-                     {DisplayPics}
-                   </Slider>
-                  </div>
-                  <div className="drawer_viewerButton_container">
-                    <Button icon='photo_camera' label='Ir a Viewer' className="editar_button" raised primary onClick={this.onVerFotografía.bind(this)}  />
-                  </div>
-
-                </TabPanel>
-
-                </Tabs>
-              </div>
           </div>
-          
-          <div className="conttentt">
-            <MuniHeader logoName={logoName} titulo = {this.state.comuna}   />
-            <div id="map"></div>
-            <Snackbar className={this.state.snackbarStyle} action='Aceptar' active={this.state.activeSnackbar} icon={this.state.snackbarIcon} label={this.state.snackbarMessage} onClick={this.handleSnackbarClick.bind(this)} type='cancel' />
-          </div>
-
-          <Snackbar action='Aceptar' active={this.state.activeSnackbar} icon={this.state.snackbarIcon} label={this.state.snackbarMessage} onClick={this.handleSnackbarClick.bind(this)} type='cancel' />
-
         </div>
 
+        <div className="contenido_drawerleft2">
+          <div id="cambiarMapaDrawer">
+            <div className="drawer_banner">
+              <Logo />
+              <h6  className="drawer_banner_title">Seleccionar Mapa</h6>
+            </div>
+            <ListSubHeader className="drawer_listSubHeader" caption='Seleccione un mapa para visualizar:' />
+            <RadioGroup className="drawer_radiogroup" name='mapSelector' value={this.state.mapSelected} onChange={this.handleRadioMapas.bind(this)}>
+              <RadioButton label='Topográfico' value='topo'/>
+              <RadioButton label='Híbrido' value='hybrid'/>
+              <RadioButton label='Aéreo' value='satelite'/>
+              <RadioButton label='Aéreo con Etiquetas' value='satelitewithlabels'/>
+              <RadioButton label='Caminos' value='calles'/>
+
+            </RadioGroup>
+            <ProgressBar type="circular" mode="indeterminate" className="drawer_progressBar" />
+          </div>
+        </div>
+
+        <div className="contenido_mapa">
+          {/* BARRA DE TITULO */}
+          <Panel>
+              <AppBar>
+                <div className="wrapperTop">
+                  <Logo />
+                  <div className="wrapperTop_midTitle">
+                    <h6>Ilustre Municipalidad de </h6>
+                    <h5 className="muniTitulo">{this.state.comuna[0].originalName}</h5>
+                  </div>
+                  <div className="welcome_logout_wrapper">
+                    <img src={src} ></img>
+                    <div className="drawer_buttons">
+                      <IconButton icon='search' inverse={ true } onClick={this.handleToggle} />
+                      <IconButton icon='map' inverse={ true } onClick={this.handleToggle2} />
+                      <IconButton icon='layers' inverse={ true } onClick={this.handleToggle3} />
+                      <IconButton icon='settings_input_svideo' inverse={ true } onClick={this.handleToggle4} />
+                      <IconButton icon='lightbulb_outline' inverse={ true } onClick={this.handleToggle5.bind(this)} />
+                      <IconButton icon='settings_power' inverse={ true } onClick={this.handleLogout.bind(this)} />
+                    </div>
+                  </div>
+                </div>
+              </AppBar>
+          </Panel>
+
+          {/* MAPA */}
+          <div className="map_container">
+            <div id="map"></div>
+          </div>
+        </div>
+
+      </div>
 
     );
   }
 }
 
-export default ChilquintaMap;
+export default APMap;

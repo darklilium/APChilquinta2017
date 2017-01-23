@@ -67,7 +67,7 @@ html, body ,#app,#map{
 }
 
 .rowContent{
-      height: 93%;
+      height: 100%;
 }
 
 .container{
@@ -77,6 +77,9 @@ html, body ,#app,#map{
 .map_container{
   height: 99.6%;
 }
+
+
+
 .widgetMenu_container, {
 //  display: flex;
   display: flex;
@@ -96,6 +99,21 @@ html, body ,#app,#map{
 width: 100%;
 height: 6.4rem;
 background-color: #007bf7;
+
+}
+
+.drawer_banner_custom{
+
+justify-content: space-between;
+}
+.drawer_c{
+  display: flex;
+}
+
+.drawer_cerrarButton{
+  display: flex;
+justify-content: center;
+align-items: center;
 }
 
 .drawer_banner_title{
@@ -408,6 +426,96 @@ flex-direction: column;
   font-size: 2em;
 }
 
+.wrapper_main{
+  display: flex;
+    flex-direction: row;
+    height: 100%;
+}
+
+#map{
+  width: 100%;
+}
+
+.drawer_left{
+  display: none;
+
+}
+
+.page_content{
+  display: flex;
+  /* width: 100%; */
+  height: 100%;
+}
+
+.drawer_wrapper {
+    margin: 0em;
+    display: flex;
+    flex-direction: column;
+}
+
+.map_container {
+  height: 99.6%;
+width: 100%;
+display: flex;
+flex-direction: row;
+}
+
+.pusherDrawer {
+    width: 0%;
+    display: none;
+    visibility: hidden;
+    flex-direction: column;
+    transition: width 1s;
+}
+
+.pusherDrawer_pushed{
+  visibility: visible;
+    transition: width 1s;
+    width: 40%;
+}
+
+.conttentt {
+  width: 100%;
+}
+
+.btnCerrarDrawer{
+  color: white !important;
+}
+
+
+/*//////////////////////////////////////////////////////////////////////////////*/
+//23/01/2017
+.contenido{
+  display: flex;
+height: 100%;
+}
+
+.contenido_drawerleft1, .contenido_drawerleft2{
+  display: flex;
+  flex-direction: column;
+  visibility: hidden;
+  width: 0;
+}
+
+.contenido_mapa{
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+
+}
+
+.drawerVisibility_show{
+  display: flex;
+  visibility: visible;
+  flex-direction: column;
+
+}
+
+.drawerVisibility_notShow{
+  display: none;
+  visibility: hidden;
+  width: 0%;
+}
 
 //LOGIN MEDIAS
 @media screen and (max-width: 600px) and (orientation: portrait){

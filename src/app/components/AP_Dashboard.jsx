@@ -78,7 +78,7 @@ onChangePic(e){
     this.setState({selectedComuna: e.value, fotoComuna: e.pic})
 
   }
-  
+
 }
 
   render(){
@@ -112,14 +112,9 @@ onChangePic(e){
                 {/*<Button className="Wallop-buttonPrevious" icon='navigate_before' label='' raised primary />*/}
                   <Button onClick={this.onClickEntrar.bind(this)} className="btnEntrarMuni" icon='power_settings_new' label='Entrar' raised primary/>
                 {/*  <Button className="Wallop-buttonNext " icon='navigate_next' label='' raised primary />*/}
-
               </div>
-
-
             </div>
           </div>
-
-
         </div>
       </div>
 

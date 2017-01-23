@@ -13,6 +13,7 @@ import {MainLayout} from "./components/MainLayout.jsx";
 import HomeLayout from "./components/HomeLayout.jsx";
 import {Login} from './components/Login.jsx';
 import ChilquintaMap from './components/ChilquintaMap.jsx';
+import APMap from './components/APMap.jsx';
 import AP_Dashboard from './components/AP_Dashboard.jsx';
 import APHomeLayout from './components/APHomeLayout.jsx';
 import env from './services/config';
@@ -36,7 +37,7 @@ class App extends React.Component {
       </Route>
 
       <Route component={APHomeLayout}>
-        <Route path={"muni:muni"} component={ChilquintaMap}></Route>
+        <Route path={"muni:muni"} component={APMap}></Route>
       </Route>
 
     </Route>
