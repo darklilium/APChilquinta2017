@@ -619,7 +619,8 @@ class APMap extends React.Component {
     $('.contenido_drawerleft3').css('width','20%');
   };
   handleToggle4 = () => {
-
+    //Habilitar barra de progreso en carga.
+    $('.drawer_progressBar').css('visibility','visible');
     //disable all the rest of drawers.
 
       $('#busquedaDrawer').removeClass('drawerVisibility_show').addClass('drawerVisibility_notShow');
@@ -665,10 +666,15 @@ class APMap extends React.Component {
         return data;
       })
       this.setState({dataMedidores: m});
+      //Deshabilitar barra de progreso.
+      $('.drawer_progressBar').css('visibility','hidden');
     });
 
   };
   handleToggle5 = () => {
+    //Habilitar barra de progreso en carga.
+    $('.drawer_progressBar').css('visibility','visible');
+
     //disable all the rest of drawers.
       $('#busquedaDrawer').removeClass('drawerVisibility_show').addClass('drawerVisibility_notShow');
       $('.contenido_drawerleft1').css('width','0%');
@@ -714,6 +720,8 @@ class APMap extends React.Component {
         return data;
       })
       this.setState({dataTodasLuminarias: l});
+      //Deshabilitar barra de progreso.
+      $('.drawer_progressBar').css('visibility','hidden');
     });
   };
 
@@ -1112,6 +1120,9 @@ class APMap extends React.Component {
   }
 
   onRowClick(gridRow, event) {
+    //Habilitar barra de progreso en carga.
+    $('.drawer_progressBar').css('visibility','visible');
+
     //  console.log("onrowclick",event,gridRow);
     this.setState({ selectedRowId: gridRow.props.data['ID EQUIPO'] });
     this.setState({numeroMedidor: gridRow.props.data['ID EQUIPO'], labelNumeroMedidor: "Luminarias de Medidor N°: " +gridRow.props.data['ID EQUIPO'] });
@@ -1122,7 +1133,8 @@ class APMap extends React.Component {
 
         this.setState({snackbarMessage: callback[2], activeSnackbar: true, snackbarIcon: callback[3] });
         $('.theme__icon___4OQx3').css('color',"red");
-
+        //Deshabilitar barra de progreso.
+        $('.drawer_progressBar').css('visibility','hidden');
         return;
       }
 
@@ -1150,7 +1162,8 @@ class APMap extends React.Component {
 
           this.setState({snackbarMessage: callback[2], activeSnackbar: true, snackbarIcon: callback[3] });
           $('.theme__icon___4OQx3').css('color',"red");
-
+          //Deshabilitar barra de progreso.
+          $('.drawer_progressBar').css('visibility','hidden');
           return;
         }
     });
@@ -1162,14 +1175,19 @@ class APMap extends React.Component {
 
         this.setState({snackbarMessage: callback[2], activeSnackbar: true, snackbarIcon: callback[3] });
         $('.theme__icon___4OQx3').css('color',"red");
-
+        //Deshabilitar barra de progreso.
+        $('.drawer_progressBar').css('visibility','hidden');
         return;
       }
     });
+    //Deshabilitar barra de progreso.
+    $('.drawer_progressBar').css('visibility','hidden');
   }
 
   onRowClickLuminariasAsociadas(gridRow, event){
-    console.log("onrowclick",event,gridRow, gridRow.props.data['ID LUMINARIA']);
+    //Habilitar barra de progreso en carga.
+    $('.drawer_progressBar').css('visibility','visible');
+
     this.setState({ selectedRowId2: gridRow.props.data['ID LUMINARIA'] });
 
       //Dibujar ubicación luminaria
@@ -1179,15 +1197,19 @@ class APMap extends React.Component {
 
             this.setState({snackbarMessage: callback[2], activeSnackbar: true, snackbarIcon: callback[3] });
             $('.theme__icon___4OQx3').css('color',"red");
-
+            //Deshabilitar barra de progreso.
+            $('.drawer_progressBar').css('visibility','hidden');
             return;
           }
+          //Deshabilitar barra de progreso.
+          $('.drawer_progressBar').css('visibility','hidden');
       });
 
   }
 
   onRowClickLuminarias(gridRow, event){
-    console.log("onrowclick",event,gridRow, gridRow.props.data['ID LUMINARIA']);
+    //Habilitar barra de progreso en carga.
+    $('.drawer_progressBar').css('visibility','visible');
     this.setState({ selectedRowId3: gridRow.props.data['ID LUMINARIA'] });
 
       //Dibujar ubicación luminaria
@@ -1197,9 +1219,12 @@ class APMap extends React.Component {
 
             this.setState({snackbarMessage: callback[2], activeSnackbar: true, snackbarIcon: callback[3] });
             $('.theme__icon___4OQx3').css('color',"red");
-
+            //Deshabilitar barra de progreso.
+            $('.drawer_progressBar').css('visibility','hidden');
             return;
           }
+          //Deshabilitar barra de progreso.
+          $('.drawer_progressBar').css('visibility','hidden');
       });
 
   }
@@ -1436,8 +1461,8 @@ class APMap extends React.Component {
               <h6 className="drawer_banner_title">Medidores y Luminarias Asociadas</h6>
               <IconButton className="btnCerrarDrawer" icon='close' accent onClick={this.onClickCerrarDrawer.bind(this,"medidores")} />
             </div>
+            <ProgressBar className="drawer_progressBar" type="linear" mode="indeterminate" />
             <div className="drawer_content">
-
               <div className="drawer_griddle_medidores">
                 <div className="drawer_exportarButtonContainer">
                   <h7><b>Seleccione un medidor para ver sus luminarias asociadas y ubicación</b></h7>
@@ -1468,8 +1493,8 @@ class APMap extends React.Component {
               <h6 className="drawer_banner_title">Lista de Luminarias de la comuna</h6>
               <IconButton className="btnCerrarDrawer" icon='close' accent onClick={this.onClickCerrarDrawer.bind(this,"luminarias")} />
             </div>
+            <ProgressBar className="drawer_progressBar" type="linear" mode="indeterminate" />
             <div className="drawer_content">
-
               <div className="drawer_griddle_medidores">
                 <div className="drawer_exportarButtonContainer">
                   <h7><b>Seleccione una luminaria para ver su ubicación</b></h7>

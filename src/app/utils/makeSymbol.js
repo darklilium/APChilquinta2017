@@ -9,7 +9,7 @@ function makeSymbol(){
           new esri.Color([0, 40, 255, 0.9]),
           1
         ),
-        new esri.Color([255, 128, 0, 1])
+        new esri.Color([255, 51, 255, 1])
       );
 
       return mySymbol;
