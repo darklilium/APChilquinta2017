@@ -3,13 +3,13 @@ function makeSymbol(){
     makePoint(){
       var mySymbol = new esri.symbol.SimpleMarkerSymbol(
         esri.symbol.SimpleMarkerSymbol.STYLE_CIRCLE,
-        20,
+        30,
         new esri.symbol.SimpleLineSymbol(
           esri.symbol.SimpleLineSymbol.STYLE_SOLID,
           new esri.Color([0, 40, 255, 0.9]),
           1
         ),
-        new esri.Color([0, 255, 255, 0.5])
+        new esri.Color([255, 128, 0, 1])
       );
 
       return mySymbol;

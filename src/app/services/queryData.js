@@ -45,7 +45,7 @@ function getTodasLasLuminarias(comuna, callback){
     qLuminarias.where = "comuna ='" + comuna + "' AND ID_LUMINARIA <> 0";
 
     qTaskLuminarias.execute(qLuminarias, (featureSet)=>{
-    
+
       if(!featureSet.features.length){
         return callback([false,[],"Luminarias no encontradas","clear","red"]);
       }

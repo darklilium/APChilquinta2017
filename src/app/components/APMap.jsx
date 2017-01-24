@@ -40,6 +40,9 @@ import {getMedidores,
   gLayerLuminarias, getTodasLasLuminarias} from '../services/queryData';
 import { RadioGroup, RadioButton } from 'react-toolbox/lib/radio';
 import VETiledLayer from 'esri/virtualearth/VETiledLayer';
+import {exportToExcel} from '../utils/exportToExcel';
+import Griddle from 'griddle-react';
+import {HeaderComponent, HeaderComponent2, HeaderComponent3} from './HeaderComponents';
 
 var options = [
     { value: 'ROTULO', label: 'Rótulo' },
@@ -181,12 +184,6 @@ class APMap extends React.Component {
   }
 
   componentDidMount(){
-
-  /*var mapp = new Map("map",{basemap: "topo",  //For full list of pre-defined basemaps, navigate to http://arcg.is/1JVo6Wd
-          center: [-71.2905, -33.1009], // longitude, latitude
-          zoom: 9});
-  */
-  //console.log("tengo estas props en map",this.props.params.muni);
 
   var mapp = mymap.createMap("map","topo",this.state.comuna[0].extent[0], this.state.comuna[0].extent[1],12);
 
@@ -357,7 +354,6 @@ class APMap extends React.Component {
         */
 
       });
-
 
 }
 
@@ -577,6 +573,10 @@ class APMap extends React.Component {
       $('.contenido_drawerleft2').css('width','0%');
       $('#cambiarLayersDrawer').removeClass('drawerVisibility_show').addClass('drawerVisibility_notShow');
       $('.contenido_drawerleft3').css('width','0%');
+      $('#mostrarMedidoresDrawer').removeClass('drawerVisibility_show').addClass('drawerVisibility_notShow');
+      $('.contenido_drawerleft4').css('width','0%');
+      $('#mostrarLuminariasDrawer').removeClass('drawerVisibility_show').addClass('drawerVisibility_notShow');
+      $('.contenido_drawerleft5').css('width','0%');
 
     this.setState({active: !this.state.active});
     $('#busquedaDrawer').removeClass('drawerVisibility_notShow').addClass('drawerVisibility_show');
@@ -590,6 +590,10 @@ class APMap extends React.Component {
       $('.contenido_drawerleft1').css('width','0%');
       $('#cambiarLayersDrawer').removeClass('drawerVisibility_show').addClass('drawerVisibility_notShow');
       $('.contenido_drawerleft3').css('width','0%');
+      $('#mostrarMedidoresDrawer').removeClass('drawerVisibility_show').addClass('drawerVisibility_notShow');
+      $('.contenido_drawerleft4').css('width','0%');
+      $('#mostrarLuminariasDrawer').removeClass('drawerVisibility_show').addClass('drawerVisibility_notShow');
+      $('.contenido_drawerleft5').css('width','0%');
 
     this.setState({active2: !this.state.active2});
     $('#cambiarMapaDrawer').removeClass('drawerVisibility_notShow').addClass('drawerVisibility_show');
@@ -600,10 +604,14 @@ class APMap extends React.Component {
     var mapp = mymap.getMap();
     console.log(mapp.graphicsLayerIds);
     //disable all the rest of drawers.
-      $('#cambiarMapaDrawer').removeClass('drawerVisibility_show').addClass('drawerVisibility_notShow');
-      $('.contenido_drawerleft2').css('width','0%');
       $('#busquedaDrawer').removeClass('drawerVisibility_show').addClass('drawerVisibility_notShow');
       $('.contenido_drawerleft1').css('width','0%');
+      $('#cambiarMapaDrawer').removeClass('drawerVisibility_show').addClass('drawerVisibility_notShow');
+      $('.contenido_drawerleft2').css('width','0%');
+      $('#mostrarMedidoresDrawer').removeClass('drawerVisibility_show').addClass('drawerVisibility_notShow');
+      $('.contenido_drawerleft4').css('width','0%');
+      $('#mostrarLuminariasDrawer').removeClass('drawerVisibility_show').addClass('drawerVisibility_notShow');
+      $('.contenido_drawerleft5').css('width','0%');
 
     this.setState({active3: !this.state.active3, layersOrder: mapp.graphicsLayerIds});
     $('#cambiarLayersDrawer').removeClass('drawerVisibility_notShow').addClass('drawerVisibility_show');
@@ -611,10 +619,102 @@ class APMap extends React.Component {
     $('.contenido_drawerleft3').css('width','20%');
   };
   handleToggle4 = () => {
+
+    //disable all the rest of drawers.
+
+      $('#busquedaDrawer').removeClass('drawerVisibility_show').addClass('drawerVisibility_notShow');
+      $('.contenido_drawerleft1').css('width','0%');
+      $('#cambiarMapaDrawer').removeClass('drawerVisibility_show').addClass('drawerVisibility_notShow');
+      $('.contenido_drawerleft2').css('width','0%');
+      $('#cambiarLayersDrawer').removeClass('drawerVisibility_show').addClass('drawerVisibility_notShow');
+      $('.contenido_drawerleft3').css('width','0%');
+      $('#mostrarLuminariasDrawer').removeClass('drawerVisibility_show').addClass('drawerVisibility_notShow');
+      $('.contenido_drawerleft5').css('width','0%');
+
+      $('.wrapperTop_midTitle h6').addClass('wrapperTop_midTitle-h6');
+      $('.muniTitulo').addClass('muniTitulo-40percent');
+
     this.setState({active4: !this.state.active4});
+    $('#mostrarMedidoresDrawer').removeClass('drawerVisibility_notShow').addClass('drawerVisibility_show');
+    $('.contenido_mapa').css('width','60%');
+    $('.contenido_drawerleft4').css('width','40%');
+
+    //Obtener todos los medidores de la comuna.
+    getMedidores(this.state.comuna[0].queryName,(callback)=>{
+      if(!callback[0]){
+        console.log("Vacio getMedidores");
+
+        this.setState({snackbarMessage: callback[2], activeSnackbar: true, snackbarIcon: 'error' });
+        $('.theme__icon___4OQx3').css('color',"red");
+
+        return;
+      }
+
+      let m = callback[1].map((feature)=>{
+
+        let data = {
+          "ID EQUIPO": feature.attributes.id_medidor,
+          "NIS": feature.attributes.nis,
+          "CANT. LUMINARIAS": feature.attributes.luminarias,
+          "CANT. TRAMOS": feature.attributes.tramos_ap,
+          "TIPO": feature.attributes.descripcion,
+          "ROTULO": feature.attributes.rotulo,
+          "Geometry": feature.geometry
+        }
+
+        return data;
+      })
+      this.setState({dataMedidores: m});
+    });
+
   };
   handleToggle5 = () => {
+    //disable all the rest of drawers.
+      $('#busquedaDrawer').removeClass('drawerVisibility_show').addClass('drawerVisibility_notShow');
+      $('.contenido_drawerleft1').css('width','0%');
+      $('#cambiarMapaDrawer').removeClass('drawerVisibility_show').addClass('drawerVisibility_notShow');
+      $('.contenido_drawerleft2').css('width','0%');
+      $('#mostrarMedidoresDrawer').removeClass('drawerVisibility_show').addClass('drawerVisibility_notShow');
+      $('.contenido_drawerleft3').css('width','0%');
+      $('#cambiarLayersDrawer').removeClass('drawerVisibility_show').addClass('drawerVisibility_notShow');
+      $('.contenido_drawerleft4').css('width','0%');
+
+      $('.wrapperTop_midTitle h6').addClass('wrapperTop_midTitle-h6');
+      $('.muniTitulo').addClass('muniTitulo-40percent');
+
     this.setState({active5: !this.state.active5});
+    $('#mostrarLuminariasDrawer').removeClass('drawerVisibility_notShow').addClass('drawerVisibility_show');
+    $('.contenido_mapa').css('width','60%');
+    $('.contenido_drawerleft5').css('width','40%');
+
+    //Obtener todas las luminarias de la comuna
+    getTodasLasLuminarias(this.state.comuna[0].queryName,(callback)=>{
+
+      if(!callback[0]){
+        console.log("Vacio getTodasLasLuminarias");
+
+        this.setState({snackbarMessage: callback[2], activeSnackbar: true, snackbarIcon: callback[3] });
+        $('.theme__icon___4OQx3').css('color',"red");
+
+        return;
+      }
+
+      let l = callback[1].map((feature)=>{
+
+        let data = {
+          "ID LUMINARIA": feature.attributes['ID_LUMINARIA'] ,
+          "TIPO CONEXION": feature.attributes['TIPO_CONEXION'] ,
+          "PROPIEDAD": feature.attributes['PROPIEDAD'] ,
+          "MEDIDO": feature.attributes['MEDIDO_TERRENO'] ,
+          "DESCRIPCION": feature.attributes['DESCRIPCION'] ,
+          "ROTULO": feature.attributes['ROTULO'] ,
+          "Geometry": feature.geometry
+        }
+
+        return data;
+      })
+      this.setState({dataTodasLuminarias: l});
+    });
   };
 
   handleLogout(){
@@ -855,7 +955,7 @@ class APMap extends React.Component {
   };
 
   onClickCerrarDrawer(e,f){
-  
+
     switch (e) {
       case 'busqueda':
       $('#busquedaDrawer').removeClass('drawerVisibility_show').addClass('drawerVisibility_notShow');
@@ -873,6 +973,22 @@ class APMap extends React.Component {
         $('#cambiarLayersDrawer').removeClass('drawerVisibility_show').addClass('drawerVisibility_notShow');
         $('.contenido_drawerleft3').css('width','0%');
         $('.contenido_mapa').css('width','100%');
+      break;
+      case 'medidores':
+        $('#mostrarMedidoresDrawer').removeClass('drawerVisibility_show').addClass('drawerVisibility_notShow');
+        $('.contenido_drawerleft4').css('width','0%');
+        $('.contenido_mapa').css('width','100%');
+
+        $('.wrapperTop_midTitle h6').removeClass('wrapperTop_midTitle-h6');
+        $('.muniTitulo').removeClass('muniTitulo-40percent');
+      break;
+      case 'luminarias':
+        $('#mostrarLuminariasDrawer').removeClass('drawerVisibility_show').addClass('drawerVisibility_notShow');
+        $('.contenido_drawerleft5').css('width','0%');
+        $('.contenido_mapa').css('width','100%');
+
+        $('.wrapperTop_midTitle h6').removeClass('wrapperTop_midTitle-h6');
+        $('.muniTitulo').removeClass('muniTitulo-40percent');
       break;
 
       default:
@@ -973,6 +1089,122 @@ class APMap extends React.Component {
     }
   };
 
+  onClickExportarMedidores(){
+    exportToExcel(this.state.dataMedidores, "MedidoresAP_", true);
+  }
+
+  onClickExportarAsociadas(){
+    if( _.isEmpty(this.state.dataLuminarias) ){
+
+      this.setState({snackbarMessage: "Seleccione un medidor para extraer los datos de sus luminarias asociadas", activeSnackbar: true, snackbarIcon: "warning" });
+      return;
+    }
+    exportToExcel(this.state.dataLuminarias, "LuminariasAP_Asociadas_Medidor_"+ this.state.numeroMedidor, true);
+  }
+
+  onClickExportarLuminarias(){
+    if( _.isEmpty(this.state.dataTodasLuminarias) ){
+
+      this.setState({snackbarMessage: "No existen luminarias para extraer información.", activeSnackbar: true, snackbarIcon: "warning" });
+      return;
+    }
+    exportToExcel(this.state.dataTodasLuminarias, "LuminariasAP_Todas", true);
+  }
+
+  onRowClick(gridRow, event) {
+    //  console.log("onrowclick",event,gridRow);
+    this.setState({ selectedRowId: gridRow.props.data['ID EQUIPO'] });
+    this.setState({numeroMedidor: gridRow.props.data['ID EQUIPO'], labelNumeroMedidor: "Luminarias de Medidor N°: " +gridRow.props.data['ID EQUIPO'] });
+    console.log(gridRow.props.data['Geometry']);
+    getLuminariasAsociadas(gridRow.props.data['ID EQUIPO'],(callback)=>{
+      if(!callback[0]){
+        console.log("Vacio getLuminariasAsociadas");
+
+        this.setState({snackbarMessage: callback[2], activeSnackbar: true, snackbarIcon: callback[3] });
+        $('.theme__icon___4OQx3').css('color',"red");
+
+        return;
+      }
+
+      let m = callback[1].map((feature)=>{
+
+        let data = {
+          "ID LUMINARIA": feature.attributes.ID_LUMINARIA ,
+          "TIPO CONEXION": feature.attributes.TIPO_CONEXION ,
+          "PROPIEDAD": feature.attributes.PROPIEDAD ,
+          "MEDIDO": feature.attributes.MEDIDO_TERRENO ,
+          "DESCRIPCION": feature.attributes.DESCRIPCION ,
+          "ROTULO": feature.attributes.ROTULO ,
+          "Geometry": feature.geometry
+        }
+
+        return data;
+      })
+      this.setState({dataLuminarias: m});
+    });
+
+    //Dibujar ubicación medidor
+    getMedidorLocation(gridRow.props.data['ID EQUIPO'], (callback)=>{
+        if(!callback[0]){
+          console.log("Vacio getMedidorLocation");
+
+          this.setState({snackbarMessage: callback[2], activeSnackbar: true, snackbarIcon: callback[3] });
+          $('.theme__icon___4OQx3').css('color',"red");
+
+          return;
+        }
+    });
+
+    //dibujar ubicación tramos asociados al medidor
+    getTramosMedidor(gridRow.props.data['ID EQUIPO'], (callback)=>{
+      if(!callback[0]){
+        console.log("Vacio getTramosMedidor");
+
+        this.setState({snackbarMessage: callback[2], activeSnackbar: true, snackbarIcon: callback[3] });
+        $('.theme__icon___4OQx3').css('color',"red");
+
+        return;
+      }
+    });
+  }
+
+  onRowClickLuminariasAsociadas(gridRow, event){
+    console.log("onrowclick",event,gridRow, gridRow.props.data['ID LUMINARIA']);
+    this.setState({ selectedRowId2: gridRow.props.data['ID LUMINARIA'] });
+
+      //Dibujar ubicación luminaria
+      getLuminariaLocation( gridRow.props.data['ID LUMINARIA'], (callback)=>{
+          if(!callback[0]){
+            console.log("Vacio getLuminariaLocation");
+
+            this.setState({snackbarMessage: callback[2], activeSnackbar: true, snackbarIcon: callback[3] });
+            $('.theme__icon___4OQx3').css('color',"red");
+
+            return;
+          }
+      });
+
+  }
+
+  onRowClickLuminarias(gridRow, event){
+    console.log("onrowclick",event,gridRow, gridRow.props.data['ID LUMINARIA']);
+    this.setState({ selectedRowId3: gridRow.props.data['ID LUMINARIA'] });
+
+      //Dibujar ubicación luminaria
+      getLuminariaLocation( gridRow.props.data['ID LUMINARIA'], (callback)=>{
+          if(!callback[0]){
+            console.log("Vacio getLuminariaLocation2");
+
+            this.setState({snackbarMessage: callback[2], activeSnackbar: true, snackbarIcon: callback[3] });
+            $('.theme__icon___4OQx3').css('color',"red");
+
+            return;
+          }
+      });
+
+  }
+
+
   render(){
     let logoName = this.props.params.muni;
     let src = env.CSSDIRECTORY  + "images/logos/logos_menu/"+ this.props.params.muni + ".png";
@@ -993,17 +1225,129 @@ class APMap extends React.Component {
       DisplayPics = (<div><img id="foto0" src={env.CSSDIRECTORY + "images/nofoto.png"}></img></div>);
     }
 
+
+    var columnMetaMedidores = [
+            {
+            "columnName": "ID EQUIPO",
+            "customHeaderComponent": HeaderComponent,
+            "customHeaderComponentProps": { color: '#da291c' }
+            },
+            {
+            "columnName": "NIS",
+            "customHeaderComponent": HeaderComponent,
+            "customHeaderComponentProps": { color: '#da291c' }
+            },
+            {
+            "columnName": "CANT. LUMINARIAS",
+            "customHeaderComponent": HeaderComponent,
+            "customHeaderComponentProps": { color: '#da291c' }
+            },
+            {
+            "columnName": "CANT. TRAMOS",
+            "customHeaderComponent": HeaderComponent,
+            "customHeaderComponentProps": { color: '#da291c' }
+            },
+            {
+            "columnName": "TIPO",
+            "customHeaderComponent": HeaderComponent,
+            "customHeaderComponentProps": { color: '#da291c' }
+            },
+            {
+            "columnName": "ROTULO",
+            "customHeaderComponent": HeaderComponent,
+            "customHeaderComponentProps": { color: '#da291c' }
+            }
+        ];
+    var columnMetaLuminariasAsociadas = [
+      {
+        "columnName": "ID LUMINARIA",
+        "customHeaderComponent": HeaderComponent2,
+        "customHeaderComponentProps": { color: '#da291c' }
+      },
+      {
+        "columnName": "TIPO CONEXION",
+        "customHeaderComponent": HeaderComponent2,
+        "customHeaderComponentProps": { color: '#da291c' }
+      },
+      {
+        "columnName": "PROPIEDAD",
+        "customHeaderComponent": HeaderComponent2,
+        "customHeaderComponentProps": { color: '#da291c' }
+      },
+      {
+        "columnName": "MEDIDO",
+        "customHeaderComponent": HeaderComponent2,
+        "customHeaderComponentProps": { color: '#da291c' }
+      },
+      {
+        "columnName": "DESCRIPCION",
+        "customHeaderComponent": HeaderComponent2,
+        "customHeaderComponentProps": { color: '#da291c' }
+      },
+      {
+        "columnName": "ROTULO",
+        "customHeaderComponent": HeaderComponent2,
+        "customHeaderComponentProps": { color: '#da291c' }
+      }
+    ];
+
+    var columnMetaLuminarias = [
+      {
+        "columnName": "ID LUMINARIA",
+        "customHeaderComponent": HeaderComponent3,
+        "customHeaderComponentProps": { color: '#da291c' }
+      },
+      {
+        "columnName": "TIPO CONEXION",
+        "customHeaderComponent": HeaderComponent3,
+        "customHeaderComponentProps": { color: '#da291c' }
+      },
+      {
+        "columnName": "PROPIEDAD",
+        "customHeaderComponent": HeaderComponent3,
+        "customHeaderComponentProps": { color: '#da291c' }
+      },
+      {
+        "columnName": "MEDIDO",
+        "customHeaderComponent": HeaderComponent3,
+        "customHeaderComponentProps": { color: '#da291c' }
+      },
+      {
+        "columnName": "DESCRIPCION",
+        "customHeaderComponent": HeaderComponent3,
+        "customHeaderComponentProps": { color: '#da291c' }
+      },
+      {
+        "columnName": "ROTULO",
+        "customHeaderComponent": HeaderComponent3,
+        "customHeaderComponentProps": { color: '#da291c' }
+      }
+    ];
+
+    const rowMetadata = {
+      bodyCssClassName: rowData => (rowData['ID EQUIPO'] === this.state.selectedRowId ? 'selected' : ''),
+    };
+
+    const rowMetadata2 = {
+      bodyCssClassName: rowData => (rowData['ID LUMINARIA'] === this.state.selectedRowId2 ? 'selected' : ''),
+    };
+
+    const rowMetadata3 = {
+      bodyCssClassName: rowData => (rowData['ID LUMINARIA'] === this.state.selectedRowId3 ? 'selected' : ''),
+    };
+
     return (
       <div className="contenido">
-        {/* BARRA EDICION */}
+        {/* DRAWER BUSQUEDA */}
         <div className="contenido_drawerleft1">
-          {/* DRAWER BUSQUEDA */}
+
           <div id="busquedaDrawer" className="drawerVisibility_notShow">
             <div className="drawer_banner">
               <Logo />
               <h6 className="drawer_banner_title">Búsqueda</h6>
              <IconButton className="btnCerrarDrawer" icon='close' accent onClick={this.onClickCerrarDrawer.bind(this,"busqueda")} />
             </div>
+            <ProgressBar className="drawer_progressBar" type="linear" mode="indeterminate" />
             <div className="drawer_content">
               <List selectable ripple>
                 <ListSubHeader className="drawer_listSubHeader drawer_busquedaTitle" caption='Seleccione un tipo de búsqueda:' />
@@ -1018,7 +1362,6 @@ class APMap extends React.Component {
               <div className="drawer_buttonsContent">
                 <Button className="drawer_button" icon='search' label='Buscar' raised primary onClick={this.onClickBusqueda.bind(this)} />
                 <Button icon='delete_sweep' label='Limpiar Búsqueda' raised primary onClick={this.onClickLimpiarBusqueda.bind(this)} />
-                <ProgressBar type="circular" mode="indeterminate" className="drawer_progressBar" />
               </div>
             </div>
 
@@ -1046,6 +1389,7 @@ class APMap extends React.Component {
           </div>
         </div>
 
+        {/* DRAWER LAYERS */}
         <div className="contenido_drawerleft3">
           <div id="cambiarLayersDrawer">
             <div className="drawer_banner">
@@ -1083,6 +1427,67 @@ class APMap extends React.Component {
             </List>
           </div>
         </div>
+
+        {/* DRAWER MEDIDORES */}
+        <div className="contenido_drawerleft4">
+          <div id="mostrarMedidoresDrawer">
+            <div className="drawer_banner">
+              <Logo />
+              <h6 className="drawer_banner_title">Medidores y Luminarias Asociadas</h6>
+              <IconButton className="btnCerrarDrawer" icon='close' accent onClick={this.onClickCerrarDrawer.bind(this,"medidores")} />
+            </div>
+            <div className="drawer_content">
+
+              <div className="drawer_griddle_medidores">
+                <div className="drawer_exportarButtonContainer">
+                  <h7><b>Seleccione un medidor para ver sus luminarias asociadas y ubicación</b></h7>
+                  <Button icon='file_download' label='Exportar' accent onClick={this.onClickExportarMedidores.bind(this)} />
+                </div>
+                <Griddle rowMetadata={rowMetadata} columnMetadata={columnMetaMedidores} ref="griddleTable" className="drawer_griddle_medidores" results={this.state.dataMedidores} columns={["ID EQUIPO","NIS","CANT. LUMINARIAS","CANT. TRAMOS","TIPO","ROTULO"]} onRowClick = {this.onRowClick.bind(this)} uniqueIdentifier="ID EQUIPO" />
+              </div>
+              <div className="drawer_griddle_medidores">
+                <div className="drawer_exportarButtonContainer">
+
+                <h7><b>{this.state.labelNumeroMedidor}</b></h7>
+                  <Button icon='file_download' label='Exportar' accent onClick={this.onClickExportarAsociadas.bind(this)} />
+                </div>
+                <Griddle rowMetadata={rowMetadata2} columnMetadata={columnMetaLuminariasAsociadas}  ref="griddleTable" className="drawer_griddle_medidores" results={this.state.dataLuminarias} columns={["ID LUMINARIA","TIPO CONEXION","PROPIEDAD","DESCRIPCION","ROTULO"]} onRowClick = {this.onRowClickLuminariasAsociadas.bind(this)} uniqueIdentifier="ID LUMINARIA" />
+              </div>
+            </div>
+            <div className="drawer_medidoresButtons">
+              <Button icon='delete_sweep' label='Limpiar ubicación' raised primary onClick={this.onClickLimpiarBusqueda.bind(this)} />
+            </div>
+          </div>
+        </div>
+
+        {/* DRAWER LUMINARIAS */}
+        <div className="contenido_drawerleft5">
+          <div id="mostrarLuminariasDrawer">
+            <div className="drawer_banner">
+              <Logo />
+              <h6 className="drawer_banner_title">Lista de Luminarias de la comuna</h6>
+              <IconButton className="btnCerrarDrawer" icon='close' accent onClick={this.onClickCerrarDrawer.bind(this,"luminarias")} />
+            </div>
+            <div className="drawer_content">
+
+              <div className="drawer_griddle_medidores">
+                <div className="drawer_exportarButtonContainer">
+                  <h7><b>Seleccione una luminaria para ver su ubicación</b></h7>
+                  <Button icon='file_download' label='Exportar' accent onClick={this.onClickExportarLuminarias.bind(this)} />
+                </div>
+                <Griddle  ref="griddleTable3" className="drawer_griddle_medidores" rowMetadata={rowMetadata3}
+                columnMetadata={columnMetaLuminarias}
+                results={this.state.dataTodasLuminarias}
+                columns={["ID LUMINARIA","TIPO CONEXION","PROPIEDAD","MEDIDO","DESCRIPCION", "ROTULO"]}
+                onRowClick = {this.onRowClickLuminarias.bind(this)} uniqueIdentifier="ID LUMINARIA"  />
+              </div>
+            </div>
+            <div className="drawer_medidoresButtons">
+              <Button icon='delete_sweep' label='Limpiar ubicación' raised primary onClick={this.onClickLimpiarBusqueda.bind(this)} />
+            </div>
+          </div>
+        </div>
+
 
         <div className="contenido_mapa">
           {/* BARRA DE TITULO */}
