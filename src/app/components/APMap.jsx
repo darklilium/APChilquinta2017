@@ -245,11 +245,6 @@ class APMap extends React.Component {
       });
 
       this.setState({active: true, datosLuminariaAEditar: editarLuminaria, datosLuminariaModificada: {}});
-      // Mover parte del mapa a un lado.
-      $('#myDrawer').removeClass('pusherDrawer').addClass('pusherDrawer_pushed');
-      $('.conttentt').css('width','60%');
-      $('.wrapperTop_midTitle h6').css('font-size', 'xx-small');
-      $('.muniTitulo').css('font-size','21px');
 
       //Luego se buscan si existen modificaciones para esa luminaria.
 
@@ -292,11 +287,7 @@ class APMap extends React.Component {
 
         }
         console.log("en modificaciones", luminariaModificada);
-        // Mover parte del mapa a un lado.
-        $('#myDrawer').removeClass('pusherDrawer').addClass('pusherDrawer_pushed');
-        $('.conttentt').css('width','60%');
-        $('.wrapperTop_midTitle h6').css('font-size', 'xx-small');
-        $('.muniTitulo').css('font-size','21px');
+
 
         //buscar la correlacion para modificar de la luminaria de acuerdi al id_nodo:
         getInfoLuminariaSeleccionada(event.graphic.attributes['id_luminaria'], callback=>{
@@ -584,6 +575,8 @@ class APMap extends React.Component {
     //disable all the rest of drawers.
       $('#cambiarMapaDrawer').removeClass('drawerVisibility_show').addClass('drawerVisibility_notShow');
       $('.contenido_drawerleft2').css('width','0%');
+      $('#cambiarLayersDrawer').removeClass('drawerVisibility_show').addClass('drawerVisibility_notShow');
+      $('.contenido_drawerleft3').css('width','0%');
 
     this.setState({active: !this.state.active});
     $('#busquedaDrawer').removeClass('drawerVisibility_notShow').addClass('drawerVisibility_show');
@@ -595,6 +588,8 @@ class APMap extends React.Component {
     //disable all the rest of drawers.
       $('#busquedaDrawer').removeClass('drawerVisibility_show').addClass('drawerVisibility_notShow');
       $('.contenido_drawerleft1').css('width','0%');
+      $('#cambiarLayersDrawer').removeClass('drawerVisibility_show').addClass('drawerVisibility_notShow');
+      $('.contenido_drawerleft3').css('width','0%');
 
     this.setState({active2: !this.state.active2});
     $('#cambiarMapaDrawer').removeClass('drawerVisibility_notShow').addClass('drawerVisibility_show');
@@ -604,8 +599,16 @@ class APMap extends React.Component {
   handleToggle3 = () => {
     var mapp = mymap.getMap();
     console.log(mapp.graphicsLayerIds);
+    //disable all the rest of drawers.
+      $('#cambiarMapaDrawer').removeClass('drawerVisibility_show').addClass('drawerVisibility_notShow');
+      $('.contenido_drawerleft2').css('width','0%');
+      $('#busquedaDrawer').removeClass('drawerVisibility_show').addClass('drawerVisibility_notShow');
+      $('.contenido_drawerleft1').css('width','0%');
 
     this.setState({active3: !this.state.active3, layersOrder: mapp.graphicsLayerIds});
+    $('#cambiarLayersDrawer').removeClass('drawerVisibility_notShow').addClass('drawerVisibility_show');
+    $('.contenido_mapa').css('width','80%');
+    $('.contenido_drawerleft3').css('width','20%');
   };
   handleToggle4 = () => {
     this.setState({active4: !this.state.active4});
@@ -851,6 +854,125 @@ class APMap extends React.Component {
 
   };
 
+  onClickCerrarDrawer(e,f){
+  
+    switch (e) {
+      case 'busqueda':
+      $('#busquedaDrawer').removeClass('drawerVisibility_show').addClass('drawerVisibility_notShow');
+        $('.contenido_drawerleft1').css('width','0%');
+        $('.contenido_mapa').css('width','100%');
+        break;
+
+      case 'mapas':
+        $('#cambiarMapaDrawer').removeClass('drawerVisibility_show').addClass('drawerVisibility_notShow');
+        $('.contenido_drawerleft2').css('width','0%');
+        $('.contenido_mapa').css('width','100%');
+      break;
+
+      case 'layers':
+        $('#cambiarLayersDrawer').removeClass('drawerVisibility_show').addClass('drawerVisibility_notShow');
+        $('.contenido_drawerleft3').css('width','0%');
+        $('.contenido_mapa').css('width','100%');
+      break;
+
+      default:
+
+    }
+
+  }
+
+  handleCheckboxChange = (e) => {
+    var mapp = mymap.getMap();
+
+      switch (e) {
+      case 'LUMINARIAS':
+        this.setState({checkbox: !this.state.checkbox});
+        if(!this.state.checkbox){
+          console.log("en true, prender LUMINARIAS",this.state.comuna[0].queryName );
+
+          //var luminariasLayer = new esri.layers.FeatureLayer(myLayers.read_luminarias(),{id:"ap_luminarias", mode: esri.layers.FeatureLayer.MODE_ONDEMAND, minScale: 5000});
+          //luminariasLayer.setDefinitionExpression("COMUNA = '"+ this.props.comunaName+"'" );
+          var luminariasLayer = mapp.getLayer("ap_luminarias");
+
+          luminariasLayer.show();
+          var index = _.findIndex(this.state.layersOrder, function(l) { return l == "ap_luminarias"; });
+          //mapp.addLayer(luminariasLayer,index);
+
+        }else{
+          console.log("en false, apagar LUMINARIAS");
+          var luminariasLayer = mapp.getLayer("ap_luminarias");
+          luminariasLayer.hide();
+          //mapp.removeLayer(mapp.getLayer("ap_luminarias"));
+        }
+      break;
+
+      case 'TRAMOSAP':
+        this.setState({checkbox2: !this.state.checkbox2});
+        if(!this.state.checkbox2){
+          console.log("en true, prender TRAMOSAP",this.state.comuna[0].queryName);
+
+          //var tramosAPLayer = new esri.layers.FeatureLayer(myLayers.read_tramosAP(),{id:"ap_tramos", mode: esri.layers.FeatureLayer.MODE_ONDEMAND, minScale: 5000});
+          //tramosAPLayer.setDefinitionExpression("comuna  = '"+ this.props.comunaName +"'" );
+          var tramosAPLayer = mapp.getLayer("ap_tramos");
+          var index = _.findIndex(this.state.layersOrder, function(l) { return l == "ap_tramos"; });
+          tramosAPLayer.show();
+          //mapp.addLayer(tramosAPLayer,index);
+
+        }else{
+          console.log("en false, apagar TRAMOSAP");
+          var tramosAPLayer = mapp.getLayer("ap_tramos");
+          tramosAPLayer.hide();
+          //mapp.removeLayer(mapp.getLayer("ap_tramos"));
+        }
+      break;
+
+      case 'MODIFICACIONES':
+        this.setState({checkbox3: !this.state.checkbox3});
+        if(!this.state.checkbox3){
+          console.log("en true, prender MODIFICACIONES");
+
+          //var modificadasLayer = new esri.layers.FeatureLayer(myLayers.read_modificacionesAP(),{id:"ap_modificaciones", mode: esri.layers.FeatureLayer.MODE_ONDEMAND, minScale: 5000});
+          //modificadasLayer.setDefinitionExpression("Comuna  = '"+ this.props.comunaName +"'" );
+          var modificadasLayer = mapp.getLayer("ap_modificaciones");
+          var index = _.findIndex(this.state.layersOrder, function(l) { return l == "ap_modificaciones"; });
+          modificadasLayer.show();
+        /*  alimLayer.setInfoTemplates({
+            0: {infoTemplate: myinfotemplate.getAlimentadorInfoWindow()}
+          });
+          */
+          //mapp.addLayer(modificadasLayer,index);
+
+        }else{
+          console.log("en false, apagar MODIFICACIONES");
+          var modificadasLayer = mapp.getLayer("ap_modificaciones");
+          modificadasLayer.hide();
+          //mapp.removeLayer(mapp.getLayer("ap_modificaciones"));
+        }
+      break;
+
+      case 'LIMITECOMUNAL':
+        this.setState({checkbox4: !this.state.checkbox4});
+        if(!this.state.checkbox4){
+          console.log("en true, prender LIMITECOMUNAL");
+          //var limiteComunalLayer = new esri.layers.FeatureLayer(myLayers.read_limiteComunal(),{id:"ap_limiteComunal", mode: esri.layers.FeatureLayer.MODE_ONDEMAND});
+          //limiteComunalLayer.setDefinitionExpression("nombre   = '"+ this.props.comunaName +"'" );
+          var limiteComunalLayer = mapp.getLayer("ap_limiteComunal");
+          var index = _.findIndex(this.state.layersOrder, function(l) { return l == "ap_limiteComunal"; });
+          limiteComunalLayer.show();
+        //  mapp.addLayer(limiteComunalLayer,index);
+
+        }else{
+          console.log("en false, apagar alim");
+          var limiteComunalLayer = mapp.getLayer("ap_limiteComunal");
+          limiteComunalLayer.hide();
+          //mapp.removeLayer(mapp.getLayer("ap_limiteComunal"));
+        }
+      break;
+      default:
+
+    }
+  };
+
   render(){
     let logoName = this.props.params.muni;
     let src = env.CSSDIRECTORY  + "images/logos/logos_menu/"+ this.props.params.muni + ".png";
@@ -880,6 +1002,7 @@ class APMap extends React.Component {
             <div className="drawer_banner">
               <Logo />
               <h6 className="drawer_banner_title">Búsqueda</h6>
+             <IconButton className="btnCerrarDrawer" icon='close' accent onClick={this.onClickCerrarDrawer.bind(this,"busqueda")} />
             </div>
             <div className="drawer_content">
               <List selectable ripple>
@@ -898,14 +1021,17 @@ class APMap extends React.Component {
                 <ProgressBar type="circular" mode="indeterminate" className="drawer_progressBar" />
               </div>
             </div>
+
           </div>
         </div>
 
+        {/* DRAWER MAPAS */}
         <div className="contenido_drawerleft2">
           <div id="cambiarMapaDrawer">
             <div className="drawer_banner">
               <Logo />
               <h6  className="drawer_banner_title">Seleccionar Mapa</h6>
+              <IconButton className="btnCerrarDrawer" icon='close' accent onClick={this.onClickCerrarDrawer.bind(this,"mapas")} />
             </div>
             <ListSubHeader className="drawer_listSubHeader" caption='Seleccione un mapa para visualizar:' />
             <RadioGroup className="drawer_radiogroup" name='mapSelector' value={this.state.mapSelected} onChange={this.handleRadioMapas.bind(this)}>
@@ -914,9 +1040,47 @@ class APMap extends React.Component {
               <RadioButton label='Aéreo' value='satelite'/>
               <RadioButton label='Aéreo con Etiquetas' value='satelitewithlabels'/>
               <RadioButton label='Caminos' value='calles'/>
-
             </RadioGroup>
             <ProgressBar type="circular" mode="indeterminate" className="drawer_progressBar" />
+
+          </div>
+        </div>
+
+        <div className="contenido_drawerleft3">
+          <div id="cambiarLayersDrawer">
+            <div className="drawer_banner">
+              <Logo />
+              <h6  className="drawer_banner_title">Seleccionar Layers</h6>
+              <IconButton className="btnCerrarDrawer" icon='close' accent onClick={this.onClickCerrarDrawer.bind(this,"layers")} />
+            </div>
+            <List selectable ripple>
+              <ListSubHeader className="drawer_listSubHeader" caption='Seleccione uno o más layers para visualizar:' />
+              <ListCheckbox
+                caption='Luminarias'
+                checked={this.state.checkbox}
+                legend=''
+                onChange={this.handleCheckboxChange.bind(this,"LUMINARIAS")}
+              />
+              <ListCheckbox
+                caption='Tramos AP'
+                checked={this.state.checkbox2}
+                legend=''
+                onChange={this.handleCheckboxChange.bind(this,"TRAMOSAP")}
+              />
+              <ListCheckbox
+                caption='Modificaciones'
+                checked={this.state.checkbox3}
+                legend=''
+                onChange={this.handleCheckboxChange.bind(this,"MODIFICACIONES")}
+              />
+              <ListCheckbox
+                caption='Límite Comunal'
+                checked={this.state.checkbox4}
+                legend=''
+                onChange={this.handleCheckboxChange.bind(this,"LIMITECOMUNAL")}
+              />
+              <ListDivider />
+            </List>
           </div>
         </div>
 
@@ -949,6 +1113,8 @@ class APMap extends React.Component {
           <div className="map_container">
             <div id="map"></div>
           </div>
+          <Snackbar action='Aceptar' active={this.state.activeSnackbar} icon={this.state.snackbarIcon} label={this.state.snackbarMessage} onClick={this.handleSnackbarClick.bind(this)} type='cancel' />
+
         </div>
 
       </div>
