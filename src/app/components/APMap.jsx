@@ -568,6 +568,8 @@ class APMap extends React.Component {
   }
 
   handleToggle = () => {
+    $('.wrapperTop_midTitle h6').removeClass('wrapperTop_midTitle-h6');
+    $('.muniTitulo').removeClass('muniTitulo-40percent');
     //disable all the rest of drawers.
       $('#cambiarMapaDrawer').removeClass('drawerVisibility_show').addClass('drawerVisibility_notShow');
       $('.contenido_drawerleft2').css('width','0%');
@@ -585,6 +587,8 @@ class APMap extends React.Component {
 
   };
   handleToggle2 = () => {
+    $('.wrapperTop_midTitle h6').removeClass('wrapperTop_midTitle-h6');
+    $('.muniTitulo').removeClass('muniTitulo-40percent');
     //disable all the rest of drawers.
       $('#busquedaDrawer').removeClass('drawerVisibility_show').addClass('drawerVisibility_notShow');
       $('.contenido_drawerleft1').css('width','0%');
@@ -601,6 +605,8 @@ class APMap extends React.Component {
     $('.contenido_drawerleft2').css('width','20%');
   };
   handleToggle3 = () => {
+    $('.wrapperTop_midTitle h6').removeClass('wrapperTop_midTitle-h6');
+    $('.muniTitulo').removeClass('muniTitulo-40percent');
     var mapp = mymap.getMap();
     console.log(mapp.graphicsLayerIds);
     //disable all the rest of drawers.
@@ -621,6 +627,8 @@ class APMap extends React.Component {
   handleToggle4 = () => {
     //Habilitar barra de progreso en carga.
     $('.drawer_progressBar').css('visibility','visible');
+    $('.wrapperTop_midTitle h6').removeClass('wrapperTop_midTitle-h6');
+    $('.muniTitulo').removeClass('muniTitulo-40percent');
     //disable all the rest of drawers.
 
       $('#busquedaDrawer').removeClass('drawerVisibility_show').addClass('drawerVisibility_notShow');
@@ -674,7 +682,8 @@ class APMap extends React.Component {
   handleToggle5 = () => {
     //Habilitar barra de progreso en carga.
     $('.drawer_progressBar').css('visibility','visible');
-
+    $('.wrapperTop_midTitle h6').removeClass('wrapperTop_midTitle-h6');
+    $('.muniTitulo').removeClass('muniTitulo-40percent');
     //disable all the rest of drawers.
       $('#busquedaDrawer').removeClass('drawerVisibility_show').addClass('drawerVisibility_notShow');
       $('.contenido_drawerleft1').css('width','0%');
@@ -1229,7 +1238,6 @@ class APMap extends React.Component {
 
   }
 
-
   render(){
     let logoName = this.props.params.muni;
     let src = env.CSSDIRECTORY  + "images/logos/logos_menu/"+ this.props.params.muni + ".png";
@@ -1513,6 +1521,166 @@ class APMap extends React.Component {
           </div>
         </div>
 
+        {/* DRAWER EDICION */}
+        <div className="contenido_drawerleftEspecial">
+          <div id="mostrarLuminariasDrawer">
+            <div className="drawer_banner">
+            <Logo />
+            <h6 className="drawer_banner_title">Editar Luminaria</h6>
+            <IconButton className="btnCerrarDrawer" icon='close' accent onClick={this.onClickCerrarDrawer.bind(this,"edicion")} />
+          </div>
+          <ProgressBar className="drawer_progressBar" type="linear" mode="indeterminate" />
+          <div className="drawer_content">
+
+            <Tabs onSelect={this.handleSelect.bind(this)} selectedIndex={this.state.selectedTab}>
+              <TabList>
+                <Tab><i className="fa fa-pencil"></i></Tab>
+                <Tab><i className="fa fa-camera button-span" aria-hidden="true"></i></Tab>
+              </TabList>
+              {/* tab de edicion */}
+              <TabPanel>
+                <div className="drawer_griddle_medidores">
+                  <div className="drawer_exportarButtonContainer">
+                    <h7><b>Edite la información de la luminaria</b></h7>
+                  </div>
+                  <hr />
+
+                  <div className="drawer_elements">
+                    <div className="drawer_elements_group">
+                      <div className="drawer_column_titles">
+                        <h6>ID Luminaria: </h6>
+                      </div>
+
+                      <div className="drawer_column_values">
+                        <h6>{this.state.datosLuminariaAEditar.id_luminaria}</h6>
+                        <h8 className="drawer_h8_modificaciones">{this.state.datosLuminariaModificada.id_luminaria}</h8>
+                      </div>
+                    </div>
+
+                    <div className="drawer_elements_group">
+                      <div className="drawer_column_titles">
+                        <h6>ID Nodo: </h6>
+                      </div>
+
+                      <div className="drawer_column_values">
+                        <h6>{this.state.datosLuminariaAEditar.id_nodo}</h6>
+                        <h8 className="drawer_h8_modificaciones">{this.state.datosLuminariaModificada.id_nodo}</h8>
+                      </div>
+                    </div>
+
+                    <div className="drawer_elements_group">
+                      <div className="drawer_column_titles">
+                        <h6>Tipo Conexión:</h6>
+                      </div>
+
+                      <div className="drawer_column_values">
+                        <Select
+                          name="form-field-name"
+                          value={this.state.tipoConexion}
+                          options={opcionesTipoConexion}
+                          onChange={this.logChange.bind(this)}
+                        />
+                        <h8 className="drawer_h8_modificaciones">{this.state.datosLuminariaModificada.tipo_conexion}</h8>
+                      </div>
+                    </div>
+
+                    <div className="drawer_elements_group">
+                      <div className="drawer_column_titles">
+                        <h6>Tipo:</h6>
+                      </div>
+
+                      <div className="drawer_column_values">
+                        <Select
+                          name="form-field-name"
+                          value={this.state.tipoLuminaria}
+                          options={opcionesTipo}
+                          onChange={this.logChange.bind(this)}
+                        />
+                        <h8 className="drawer_h8_modificaciones">{this.state.datosLuminariaModificada.tipo}</h8>
+                      </div>
+                    </div>
+
+                    <div className="drawer_elements_group">
+                      <div className="drawer_column_titles">
+                        <h6>Potencia:</h6>
+                      </div>
+
+                      <div className="drawer_column_values">
+                        <Select
+                          name="form-field-name"
+                          value={this.state.tipoPotencia}
+                          options={opcionesPotencia}
+                          onChange={this.logChange.bind(this)}
+                        />
+                        <h8 className="drawer_h8_modificaciones">{this.state.datosLuminariaModificada.potencia}</h8>
+                      </div>
+                    </div>
+
+                    <div className="drawer_elements_group">
+                      <div className="drawer_column_titles">
+                        <h6>Propiedad:</h6>
+                      </div>
+
+                      <div className="drawer_column_values">
+                        <Select
+                          name="form-field-name"
+                          value={this.state.tipoPropiedad}
+                          options={opcionesPropiedad}
+                          onChange={this.logChange.bind(this)}
+                        />
+                        <h8 className="drawer_h8_modificaciones">{this.state.datosLuminariaModificada.propiedad}</h8>
+                      </div>
+                    </div>
+
+                    <div className="drawer_elements_group">
+                      <div className="drawer_column_titles">
+                        <h6>Rótulo:</h6>
+                      </div>
+
+                      <div className="drawer_column_values">
+                        <Input className="drawer_input" type='text' value={this.state.rotulo}  name='name' onChange={this.handleChangeRotulo.bind(this)} maxLength={16} />
+                        <h8 className="drawer_h8_modificaciones">{this.state.datosLuminariaModificada.rotulo}</h8>
+                      </div>
+                    </div>
+
+                    <div className="drawer_elements_group">
+                      <div className="drawer_column_titles">
+                        <h6>Observación:</h6>
+                      </div>
+
+                      <div className="drawer_column_values">
+                        <Input className="drawer_input" type='text' value={this.state.observaciones}  name='name' onChange={this.handleChangeObservaciones.bind(this)} maxLength={16} />
+                        <h8 className="drawer_h8_modificaciones">{this.state.datosLuminariaModificada.observaciones}</h8>
+                      </div>
+                    </div>
+                  </div>
+
+                </div>
+
+                <div className="drawer_editarButtons">
+                  <Button icon='update' label='Actualizar' className="editar_button" raised primary onClick={this.onActualizar.bind(this)}  />
+                  <Button icon='delete_sweep' label='Eliminar' className="editar_button" raised primary onClick={this.onEliminar.bind(this)}  />
+                  <Button icon='create' label='Nuevo' className="editar_button" raised primary onClick={this.onNuevo.bind(this)}  />
+                </div>
+
+              </TabPanel>
+
+              {/* Tabs de fotos */}
+              <TabPanel>
+                <div className="sliderContainer">
+                  <Slider {...settings} afterChange={this.afterChange.bind(this)}>
+                   {DisplayPics}
+                 </Slider>
+                </div>
+                <div className="drawer_viewerButton_container">
+                  <Button icon='photo_camera' label='Ir a Viewer' className="editar_button" raised primary onClick={this.onVerFotografía.bind(this)}  />
+                </div>
+              {/* Tabs de circuito asociado */}
+              </TabPanel>
+              </Tabs>
+            </div>
+          </div>
+        </div>
 
         <div className="contenido_mapa">
           {/* BARRA DE TITULO */}
