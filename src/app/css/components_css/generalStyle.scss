@@ -272,15 +272,15 @@ color:#333;
 }
 
 .drawer_elements{
-  display: flex;
+  //display: flex;
     flex-direction: column;
-    margin: 1em;
+  //  margin: 1em;
 }
 .drawer_elements_group{
   display: flex;
   flex-direction: row;
-  justify-content: space-between;
-  margin: 1em;
+  //justify-content: space-between;
+  margin: 0.5em;
   align-items: center;
 }
 .drawer_column_values{
@@ -357,6 +357,11 @@ input:not([type=checkbox]):not([type=radio]) {
 }
 
 .drawer_progressBar{
+  display: flex;
+  visibility: hidden;
+}
+
+.drawer_progressBar2{
   display: flex;
   visibility: hidden;
 }

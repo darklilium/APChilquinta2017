@@ -12,7 +12,7 @@ var gLayerMedidor = new GraphicsLayer();
 var gLayerLumAsoc = new GraphicsLayer();
 var gLayerTramos = new GraphicsLayer();
 var gLayerLuminarias = new GraphicsLayer();
-
+var gLayerLuminariaSearch = new GraphicsLayer();
 function getMedidores(comuna, callback){
 
     var qTaskMedidores = new esri.tasks.QueryTask(layers.read_medidores());
@@ -209,7 +209,7 @@ function getLuminariaLocation(idluminaria, callback){
 }
 
 function getFotografías(idnodo, callback){
-
+  console.log("buscando fotos para nodo...:",idnodo);
   var map = mymap.getMap();
 
   var qTaskFotografías = new esri.tasks.QueryTask(layers.read_fotos());
@@ -292,10 +292,10 @@ function getInfoLuminariaModificaciones(idnodo, idluminaria, callback){
 }
 
 function getInfoLuminariaCercana(geometry, callback){
-  console.log(geometry);
+
   var map = mymap.getMap();
 
-  var myRectangulo = crearRectangulo(geometry,1);
+  var myRectangulo = crearRectangulo(geometry,10);
 
   var qTaskLuminariaSelected = new esri.tasks.QueryTask(layers.read_luminarias());
   var qLuminariaSelected = new esri.tasks.Query();
@@ -308,14 +308,14 @@ function getInfoLuminariaCercana(geometry, callback){
   qTaskLuminariaSelected.execute(qLuminariaSelected, (featureSet)=>{
     console.log("luminaria seleccionada ",featureSet.features.length);
     if(!featureSet.features.length){
-      return callback([false,[]]);
+      return callback([false,[],"Luminarias no encontradas, intente haciendo clic en otro sitio","clear","red"]);
     }
 
-    return callback([true,featureSet.features,"Luminaria bajo modificacion encontrada","check","greenyellow"])
+    return callback([true,featureSet.features,"Luminaris(s) encontradas","check","greenyellow"])
 
 
   }, (Errorq)=>{
-    console.log(Errorq,"Error doing query for getInfoLuminariaSeleccionada");
+    console.log(Errorq,"Error doing query for getInfoLuminariaCercana");
     return callback([false,[],"Información de Luminaria no encontrada","clear","red"]);
   });
 
@@ -337,6 +337,7 @@ export {getMedidores,
    gLayerTramos,
    gLayerLumAsoc,
    gLayerLuminarias,
+   gLayerLuminariaSearch,
    getTodasLasLuminarias,
    getFotografías,
    getInfoLuminariaSeleccionada,

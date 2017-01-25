@@ -37,12 +37,14 @@ import {getMedidores,
   gLayerMedidor,
   gLayerTramos,
   gLayerLumAsoc,
-  gLayerLuminarias, getTodasLasLuminarias} from '../services/queryData';
+  gLayerLuminarias, gLayerLuminariaSearch, getTodasLasLuminarias} from '../services/queryData';
 import { RadioGroup, RadioButton } from 'react-toolbox/lib/radio';
 import VETiledLayer from 'esri/virtualearth/VETiledLayer';
 import {exportToExcel} from '../utils/exportToExcel';
 import Griddle from 'griddle-react';
 import {HeaderComponent, HeaderComponent2, HeaderComponent3} from './HeaderComponents';
+import Graphic from 'esri/graphic';
+import makeSymbol from '../utils/makeSymbol';
 
 var options = [
     { value: 'ROTULO', label: 'Rótulo' },
@@ -111,16 +113,14 @@ const opcionesPotencia = [
 ]
 var defaultPic = (<div><img id="foto0" src={env.CSSDIRECTORY + "images/nofoto.png"}></img></div>);
 
-var busquedaa = (
-  <div>
-
-  </div>
-);
-
 class APMap extends React.Component {
   constructor(props){
     super(props);
     this.state = {
+      counter: 0,
+      counterTotal: 0,
+      allElements: [],
+      currentIndex: 0,
       comuna: '',
       layers: '',
       activeSnackbar: false,
@@ -169,8 +169,8 @@ class APMap extends React.Component {
       selectedRowId3: 0,
       layersOrder: ''
     }
-
-
+    this.onShowCurrent = this.onShowCurrent.bind(this);
+    this.onLimpiarFormEdicion = this.onLimpiarFormEdicion.bind(this);
   }
 
   componentWillMount(){
@@ -204,6 +204,64 @@ class APMap extends React.Component {
 
   this.setState({layers: [luminariasLayer,tramosAPLayer,modificadasLayer,limiteComunalLayer]})
 
+  mapp.on('click',(e)=>{
+    $('.drawer_progressBar2').css('visibility',"visible");
+
+    getInfoLuminariaCercana(e.mapPoint,(cb)=>{
+      if(!cb[0]){
+        this.setState({snackbarMessage: cb[2], activeSnackbar: true, snackbarIcon: cb[3] });
+        $('.theme__icon___4OQx3').css('color',cb[4]);
+        $('.drawer_progressBar2').css('visibility','hidden');
+        this.setState({counterTotal: "--", counter: 0, currentIndex: 0, allElements: []});
+        $('.wrapperTop_midTitle h6').removeClass('wrapperTop_midTitle-h6');
+        $('.muniTitulo').removeClass('muniTitulo-40percent');
+        this.onLimpiarFormEdicion();
+        return;
+
+      }
+
+      //disable all the rest of drawers.
+        $('#busquedaDrawer').removeClass('drawerVisibility_show').addClass('drawerVisibility_notShow');
+        $('.contenido_drawerleft1').css('width','0%');
+        $('#cambiarMapaDrawer').removeClass('drawerVisibility_show').addClass('drawerVisibility_notShow');
+        $('.contenido_drawerleft2').css('width','0%');
+        $('#mostrarMedidoresDrawer').removeClass('drawerVisibility_show').addClass('drawerVisibility_notShow');
+        $('.contenido_drawerleft3').css('width','0%');
+        $('#cambiarLayersDrawer').removeClass('drawerVisibility_show').addClass('drawerVisibility_notShow');
+        $('.contenido_drawerleft4').css('width','0%');
+        $('#mostrarLuminariasDrawer').removeClass('drawerVisibility_show').addClass('drawerVisibility_notShow');
+        $('.contenido_drawerleft5').css('width','0%');
+        $('.contenido_mapa').css('width','100%');
+
+        $('.wrapperTop_midTitle h6').addClass('wrapperTop_midTitle-h6');
+        $('.muniTitulo').addClass('muniTitulo-40percent');
+
+        $('#mostrarEdicionDrawer').removeClass('drawerVisibility_notShow').addClass('drawerVisibility_show');
+        $('.contenido_mapa').css('width','60%');
+        $('.contenido_drawerleftEspecial').css('width','40%');
+
+
+      //console.log(cb[1][0].geometry);
+      //dibuja geometria seleccionado en el mapa
+      let mySymbol = makeSymbol.makePointRelated();
+      gLayerLuminariaSearch.clear();
+      var g = new Graphic( cb[1][0].geometry,mySymbol);
+      gLayerLuminariaSearch.add(g);
+      mapp.addLayer(gLayerLuminariaSearch,1);
+      mapp.centerAndZoom( cb[1][0].geometry,20);
+      this.onShowCurrent(cb[1],0);
+
+      //obtener el primer registro (o único).
+      this.setState({counterTotal: cb[1].length, counter: 1, allElements: cb[1], currentIndex: 0});
+      $('.drawer_progressBar2').css('visibility',"hidden");
+      $('.wrapperTop_midTitle h6').addClass('wrapperTop_midTitle-h6');
+      $('.muniTitulo').addClass('muniTitulo-40percent');
+
+    });
+
+  });
+
+  //Muestra información cuando se pasa el mouse encima de la capa luminarias.
   luminariasLayer.on('mouse-over',(event)=>{
 
         ap_infoWindow(event.graphic.attributes['ID_LUMINARIA'],
@@ -213,149 +271,38 @@ class APMap extends React.Component {
           event.graphic.attributes['PROPIEDAD'],
           event.graphic.attributes['MEDIDO_TERRENO'],
           event.graphic.geometry);
-      });
-
-    //abre editor de luminarias
-
-  //cuando se hace click en una luminaria sin modificaciones, se buscan los valores.
-  luminariasLayer.on('click',(event)=>{
-
-      let editarLuminaria = {
-        id_luminaria: event.graphic.attributes['ID_LUMINARIA'],
-        id_nodo: event.graphic.attributes['ID_NODO'],
-        tipo_conexion: event.graphic.attributes['TIPO_CONEXION'],
-        tipo: event.graphic.attributes['TIPO'],
-        potencia:  event.graphic.attributes['POTENCIA'],
-        propiedad: event.graphic.attributes['PROPIEDAD'],
-        rotulo : event.graphic.attributes['ROTULO'],
-        observaciones: event.graphic.attributes['OBSERVACION'],
-        geometria: event.graphic.geometry
-      }
-
-      this.setState({
-        tipoLuminaria:  event.graphic.attributes['TIPO'],
-        tipoConexion: event.graphic.attributes['TIPO_CONEXION'],
-        tipoPropiedad: event.graphic.attributes['PROPIEDAD'],
-        tipoPotencia: event.graphic.attributes['POTENCIA'],
-        rotulo: event.graphic.attributes['ROTULO'],
-        selectedTab: 0
-      });
-
-      this.setState({active: true, datosLuminariaAEditar: editarLuminaria, datosLuminariaModificada: {}});
-
-      //Luego se buscan si existen modificaciones para esa luminaria.
-
-      getInfoLuminariaModificaciones(event.graphic.attributes['ID_NODO'], event.graphic.attributes['ID_LUMINARIA'], (callback)=>{
-        if(callback[0]){
-          console.log(callback,"tengo esto de vuelta");
-          let luminariaModificada = {
-            id_luminaria: callback[1][0].attributes['id_luminaria'],
-            id_nodo: callback[1][0].attributes['id_nodo'],
-            tipo_conexion: callback[1][0].attributes['tipo_cnx'],
-            tipo: callback[1][0].attributes['tipo'],
-            potencia:  callback[1][0].attributes['potencia'],
-            propiedad:callback[1][0].attributes['propiedad'],
-            rotulo : callback[1][0].attributes['rotulo'],
-            observaciones: callback[1][0].attributes['obs'],
-            geometria: callback[1][0].geometry
-          }
-          this.setState({datosLuminariaModificada: luminariaModificada})
-        }else{
-          console.log("No hay datos de modificacion");
-        }
-      });
-    });
-
-  //cuando se hace click en una luminaria modificada . Setear los campos en rojo para la modificacion
-  modificadasLayer.on('click',(event)=>{
-
-    console.log("modificada", event.graphic.attributes['id_nodo']);
-
-        let luminariaModificada = {
-          id_luminaria: event.graphic.attributes['id_luminaria'],
-          id_nodo: event.graphic.attributes['id_nodo'],
-          tipo_conexion: event.graphic.attributes['tipo_cnx'],
-          tipo: event.graphic.attributes['tipo'],
-          potencia:  event.graphic.attributes['potencia'],
-          propiedad: event.graphic.attributes['propiedad'],
-          rotulo : event.graphic.attributes['rotulo'],
-          observaciones: event.graphic.attributes['obs'],
-          geometria: event.graphic.geometry
-
-        }
-        console.log("en modificaciones", luminariaModificada);
-
-
-        //buscar la correlacion para modificar de la luminaria de acuerdi al id_nodo:
-        getInfoLuminariaSeleccionada(event.graphic.attributes['id_luminaria'], callback=>{
-          if(callback[0]){
-            let editarLuminaria = {
-              id_luminaria: callback[1][0].attributes['ID_LUMINARIA'],
-              id_nodo: callback[1][0].attributes['ID_NODO'],
-              tipo_conexion: callback[1][0].attributes['TIPO_CONEXION'],
-              tipo: callback[1][0].attributes['TIPO'],
-              potencia:  callback[1][0].attributes['POTENCIA'],
-              propiedad: callback[1][0].attributes['PROPIEDAD'],
-              rotulo : callback[1][0].attributes['ROTULO'],
-              observaciones: callback[1][0].attributes['OBSERVACION'],
-              geometria: callback[1][0].geometry
-            }
-
-            console.log(callback[1][0].attributes);
-            this.setState({datosLuminariaModificada: luminariaModificada, active: true });
-            this.setState({datosLuminariaAEditar: editarLuminaria});
-            this.setState({
-              tipoConexion: callback[1][0].attributes['TIPO_CONEXION'],
-              tipoLuminaria: callback[1][0].attributes['TIPO'],
-              tipoPotencia: callback[1][0].attributes['POTENCIA'],
-              tipoPropiedad: callback[1][0].attributes['PROPIEDAD'],
-              rotulo: callback[1][0].attributes['ROTULO'],
-              selectedTab: 0
-            });
-          }else{
-            console.log("No hay datos de luminaria cercana");
-          }
-
-        });
-
-      /*  getInfoLuminariaSeleccionada( event.graphic.attributes['id_nodo'], (callback)=>{
-          if(!callback[0]){
-
-            this.setState({snackbarMessage: callback[2], activeSnackbar: true, snackbarIcon: callback[3] });
-            $('.theme__icon___4OQx3').css('color',callback[4]);
-            $('.drawer_progressBar').css('visibility','hidden');
-            return;
-          }
-
-
-          let editarLuminaria = {
-            id_luminaria: callback[1][0].attributes['ID_LUMINARIA'],
-            id_nodo: callback[1][0].attributes['ID_NODO'],
-            tipo_conexion: callback[1][0].attributes['TIPO_CONEXION'],
-            tipo: callback[1][0].attributes['TIPO'],
-            potencia:  callback[1][0].attributes['POTENCIA'],
-            propiedad: callback[1][0].attributes['PROPIEDAD'],
-            rotulo : callback[1][0].attributes['ROTULO'],
-            observaciones:callback[1][0].attributes['OBSERVACION'],
-            geometria: callback[1][0].geometry
-          }
-
-          this.setState({
-            tipoLuminaria: callback[1][0].attributes['TIPO'],
-            tipoConexion: callback[1][0].attributes['TIPO_CONEXION'],
-            tipoPropiedad:callback[1][0].attributes['PROPIEDAD'],
-            tipoPotencia: callback[1][0].attributes['POTENCIA'],
-            rotulo: callback[1][0].attributes['ROTULO'],
-            selectedTab: 0,
-            tipoObservaciones: callback[1][0].attributes['OBSERVACION']
-          });
-
-        });
-        */
-
-      });
+  });
 
 }
+
+  onShowCurrent(elements, showElementNumber){
+      var mapp = mymap.getMap();
+
+    console.log(elements, showElementNumber);
+    let editarLuminaria = {
+      id_luminaria: elements[showElementNumber].attributes['ID_LUMINARIA'],
+      id_nodo: elements[showElementNumber].attributes['ID_NODO'],
+      tipo_conexion: elements[showElementNumber].attributes['TIPO_CONEXION'],
+      tipo: elements[showElementNumber].attributes['TIPO'],
+      potencia:  elements[showElementNumber].attributes['POTENCIA'],
+      propiedad:elements[showElementNumber].attributes['PROPIEDAD'],
+      rotulo :elements[showElementNumber].attributes['ROTULO'],
+      observaciones: elements[showElementNumber].attributes['OBSERVACION'],
+      geometria: elements[showElementNumber].geometry
+    }
+
+    this.setState({
+      tipoLuminaria:  elements[showElementNumber].attributes['TIPO'],
+      tipoConexion: elements[showElementNumber].attributes['TIPO_CONEXION'],
+      tipoPropiedad: elements[showElementNumber].attributes['PROPIEDAD'],
+      tipoPotencia: elements[showElementNumber].attributes['POTENCIA'],
+      rotulo: elements[showElementNumber].attributes['ROTULO'],
+      selectedTab: 0
+    });
+    this.setState({datosLuminariaAEditar: editarLuminaria, datosLuminariaModificada: {}});
+
+
+  }
 
   handleSnackbarClick = () => {
     this.setState({activeSnackbar: false});
@@ -390,6 +337,28 @@ class APMap extends React.Component {
 
   }
 
+  logChangeCombos(valor) {
+      console.log("Selected: " + valor.value);
+
+      switch (valor.type) {
+        case 'tipoluminaria':
+            this.setState({tipoLuminaria: valor.value});
+          break;
+          case 'tipoconexion':
+              this.setState({tipoConexion: valor.value});
+            break;
+            case 'tipopropiedad':
+                this.setState({tipoPropiedad: valor.value});
+              break;
+              case 'tipopotencia':
+                  this.setState({tipoPotencia: valor.value});
+                break;
+        default:
+
+      }
+
+  }
+
   handleChangeRotulo(name, value){
     console.log("name:", name);
     console.log("value:", value);
@@ -407,7 +376,7 @@ class APMap extends React.Component {
   handleSelect(index, last){
 
       this.setState({selectedTab: index});
-      console.log("en tab", index);
+      //console.log("en tab", index);
 
       switch (index) {
         case 1:
@@ -579,6 +548,10 @@ class APMap extends React.Component {
       $('.contenido_drawerleft4').css('width','0%');
       $('#mostrarLuminariasDrawer').removeClass('drawerVisibility_show').addClass('drawerVisibility_notShow');
       $('.contenido_drawerleft5').css('width','0%');
+      $('#mostrarEdicionDrawer').removeClass('drawerVisibility_show').addClass('drawerVisibility_notShow');
+      $('.contenido_drawerleftEspecial').css('width','0%');
+      $('.contenido_mapa').css('width','100%');
+
 
     this.setState({active: !this.state.active});
     $('#busquedaDrawer').removeClass('drawerVisibility_notShow').addClass('drawerVisibility_show');
@@ -598,6 +571,10 @@ class APMap extends React.Component {
       $('.contenido_drawerleft4').css('width','0%');
       $('#mostrarLuminariasDrawer').removeClass('drawerVisibility_show').addClass('drawerVisibility_notShow');
       $('.contenido_drawerleft5').css('width','0%');
+      $('#mostrarEdicionDrawer').removeClass('drawerVisibility_show').addClass('drawerVisibility_notShow');
+      $('.contenido_drawerleftEspecial').css('width','0%');
+      $('.contenido_mapa').css('width','100%');
+
 
     this.setState({active2: !this.state.active2});
     $('#cambiarMapaDrawer').removeClass('drawerVisibility_notShow').addClass('drawerVisibility_show');
@@ -618,6 +595,10 @@ class APMap extends React.Component {
       $('.contenido_drawerleft4').css('width','0%');
       $('#mostrarLuminariasDrawer').removeClass('drawerVisibility_show').addClass('drawerVisibility_notShow');
       $('.contenido_drawerleft5').css('width','0%');
+      $('#mostrarEdicionDrawer').removeClass('drawerVisibility_show').addClass('drawerVisibility_notShow');
+      $('.contenido_drawerleftEspecial').css('width','0%');
+      $('.contenido_mapa').css('width','100%');
+
 
     this.setState({active3: !this.state.active3, layersOrder: mapp.graphicsLayerIds});
     $('#cambiarLayersDrawer').removeClass('drawerVisibility_notShow').addClass('drawerVisibility_show');
@@ -639,6 +620,10 @@ class APMap extends React.Component {
       $('.contenido_drawerleft3').css('width','0%');
       $('#mostrarLuminariasDrawer').removeClass('drawerVisibility_show').addClass('drawerVisibility_notShow');
       $('.contenido_drawerleft5').css('width','0%');
+      $('#mostrarEdicionDrawer').removeClass('drawerVisibility_show').addClass('drawerVisibility_notShow');
+      $('.contenido_drawerleftEspecial').css('width','0%');
+      $('.contenido_mapa').css('width','100%');
+
 
       $('.wrapperTop_midTitle h6').addClass('wrapperTop_midTitle-h6');
       $('.muniTitulo').addClass('muniTitulo-40percent');
@@ -693,6 +678,10 @@ class APMap extends React.Component {
       $('.contenido_drawerleft3').css('width','0%');
       $('#cambiarLayersDrawer').removeClass('drawerVisibility_show').addClass('drawerVisibility_notShow');
       $('.contenido_drawerleft4').css('width','0%');
+      $('#mostrarEdicionDrawer').removeClass('drawerVisibility_show').addClass('drawerVisibility_notShow');
+      $('.contenido_drawerleftEspecial').css('width','0%');
+      $('.contenido_mapa').css('width','100%');
+
 
       $('.wrapperTop_midTitle h6').addClass('wrapperTop_midTitle-h6');
       $('.muniTitulo').addClass('muniTitulo-40percent');
@@ -1007,7 +996,14 @@ class APMap extends React.Component {
         $('.wrapperTop_midTitle h6').removeClass('wrapperTop_midTitle-h6');
         $('.muniTitulo').removeClass('muniTitulo-40percent');
       break;
+      case 'edicion':
+        $('#mostrarEdicionDrawer').removeClass('drawerVisibility_show').addClass('drawerVisibility_notShow');
+        $('.contenido_drawerleftEspecial').css('width','0%');
+        $('.contenido_mapa').css('width','100%');
 
+        $('.wrapperTop_midTitle h6').removeClass('wrapperTop_midTitle-h6');
+        $('.muniTitulo').removeClass('muniTitulo-40percent');
+      break;
       default:
 
     }
@@ -1238,6 +1234,68 @@ class APMap extends React.Component {
 
   }
 
+  onClickSiguienteLuminaria(){
+    //console.log("counter:",this.state.counter, "maximo:",this.state.counterTotal);
+    //console.log("counter+1 sera", this.state.counter+1, "maximo:",this.state.counterTotal);
+    //console.log("supera el total?", (this.state.counter>this.state.counterTotal)? "No" : "Si");
+
+    if(!this.state.allElements.length){
+      console.log("no hay elementos para mostrar");
+
+      return;
+    }
+
+    console.log("index", this.state.currentIndex);
+    //si el counter supera al total.
+    if(this.state.counter + 1 > this.state.counterTotal){
+      console.log("no mostrar más");
+      this.setState({counter: 1});
+
+    }else{
+      this.setState({counter: this.state.counter+1});
+      let index = this.state.currentIndex;
+      this.onShowCurrent(this.state.allElements,index+1);
+      this.setState({currentIndex: index+1});
+    }
+  }
+
+  onClickAnteriorLuminaria(){
+    //console.log("counter:",this.state.counter, "maximo:",this.state.counterTotal);
+    //console.log("counter-1 sera", this.state.counter-1, "maximo:",this.state.counterTotal);
+    //console.log("supera el total?", (this.state.counter>this.state.counterTotal)? "No" : "Si");
+    if(!this.state.allElements.length){
+      console.log("no hay elementos para mostrar");
+
+      return;
+    }
+
+    console.log("index", this.state.currentIndex);
+
+    //si el counter supera al total.
+    if(this.state.counter - 1 <= 0){
+      console.log("no mostrar más");
+      this.setState({counter: 1});
+
+    }else{
+      this.setState({counter: this.state.counter-1});
+      let index = this.state.currentIndex;
+      this.onShowCurrent(this.state.allElements,index-1);
+      this.setState({currentIndex: index-1});
+    }
+  }
+
+  onLimpiarFormEdicion(){
+    this.setState({
+      tipoLuminaria:  '',
+      tipoConexion:'',
+      tipoPropiedad: '',
+      tipoPotencia: '',
+      rotulo: '',
+
+    });
+    this.setState({datosLuminariaAEditar: {}, datosLuminariaModificada: {}});
+  }
+
   render(){
     let logoName = this.props.params.muni;
     let src = env.CSSDIRECTORY  + "images/logos/logos_menu/"+ this.props.params.muni + ".png";
@@ -1323,7 +1381,6 @@ class APMap extends React.Component {
         "customHeaderComponentProps": { color: '#da291c' }
       }
     ];
-
     var columnMetaLuminarias = [
       {
         "columnName": "ID LUMINARIA",
@@ -1523,7 +1580,7 @@ class APMap extends React.Component {
 
         {/* DRAWER EDICION */}
         <div className="contenido_drawerleftEspecial">
-          <div id="mostrarLuminariasDrawer">
+          <div id="mostrarEdicionDrawer">
             <div className="drawer_banner">
             <Logo />
             <h6 className="drawer_banner_title">Editar Luminaria</h6>
@@ -1540,6 +1597,11 @@ class APMap extends React.Component {
               {/* tab de edicion */}
               <TabPanel>
                 <div className="drawer_griddle_medidores">
+                  <div className="drawer_exportarButtonContainer">
+                     <IconButton onClick={this.onClickAnteriorLuminaria.bind(this)} primary icon="keyboard_arrow_left"></IconButton>
+                     <h7>{this.state.counter} de {this.state.counterTotal}</h7>
+                     <IconButton  onClick={this.onClickSiguienteLuminaria.bind(this)} primary icon="keyboard_arrow_right"></IconButton>
+                  </div>
                   <div className="drawer_exportarButtonContainer">
                     <h7><b>Edite la información de la luminaria</b></h7>
                   </div>
@@ -1578,7 +1640,7 @@ class APMap extends React.Component {
                           name="form-field-name"
                           value={this.state.tipoConexion}
                           options={opcionesTipoConexion}
-                          onChange={this.logChange.bind(this)}
+                          onChange={this.logChangeCombos.bind(this)}
                         />
                         <h8 className="drawer_h8_modificaciones">{this.state.datosLuminariaModificada.tipo_conexion}</h8>
                       </div>
@@ -1594,7 +1656,7 @@ class APMap extends React.Component {
                           name="form-field-name"
                           value={this.state.tipoLuminaria}
                           options={opcionesTipo}
-                          onChange={this.logChange.bind(this)}
+                          onChange={this.logChangeCombos.bind(this)}
                         />
                         <h8 className="drawer_h8_modificaciones">{this.state.datosLuminariaModificada.tipo}</h8>
                       </div>
@@ -1610,7 +1672,7 @@ class APMap extends React.Component {
                           name="form-field-name"
                           value={this.state.tipoPotencia}
                           options={opcionesPotencia}
-                          onChange={this.logChange.bind(this)}
+                          onChange={this.logChangeCombos.bind(this)}
                         />
                         <h8 className="drawer_h8_modificaciones">{this.state.datosLuminariaModificada.potencia}</h8>
                       </div>
@@ -1626,7 +1688,7 @@ class APMap extends React.Component {
                           name="form-field-name"
                           value={this.state.tipoPropiedad}
                           options={opcionesPropiedad}
-                          onChange={this.logChange.bind(this)}
+                          onChange={this.logChangeCombos.bind(this)}
                         />
                         <h8 className="drawer_h8_modificaciones">{this.state.datosLuminariaModificada.propiedad}</h8>
                       </div>
@@ -1707,6 +1769,7 @@ class APMap extends React.Component {
               </AppBar>
           </Panel>
 
+          <ProgressBar className="drawer_progressBar2" type="linear" mode="indeterminate" />
           {/* MAPA */}
           <div className="map_container">
             <div id="map"></div>
