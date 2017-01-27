@@ -167,7 +167,9 @@ class APMap extends React.Component {
       selectedRowId: 0,
       selectedRowId2: 0,
       selectedRowId3: 0,
-      layersOrder: ''
+      layersOrder: '',
+      numeroMedidorAsociado: 0,
+      dataLuminariasRelacionadas: ''
     }
     this.onShowCurrent = this.onShowCurrent.bind(this);
     this.onLimpiarFormEdicion = this.onLimpiarFormEdicion.bind(this);
@@ -185,100 +187,107 @@ class APMap extends React.Component {
 
   componentDidMount(){
 
-  var mapp = mymap.createMap("map","topo",this.state.comuna[0].extent[0], this.state.comuna[0].extent[1],12);
+    var mapp = mymap.createMap("map","topo",this.state.comuna[0].extent[0], this.state.comuna[0].extent[1],12);
 
-  //layers para ap.
-  var luminariasLayer = new esri.layers.FeatureLayer(layers.read_luminarias(),{id:"ap_luminarias", mode: esri.layers.FeatureLayer.MODE_ONDEMAND, minScale: 5000, outFields: ["*"]});
-  luminariasLayer.setDefinitionExpression("COMUNA = '"+ this.state.comuna[0].queryName+"'" );
+    //layers para ap.
+    var luminariasLayer = new esri.layers.FeatureLayer(layers.read_luminarias(),{id:"ap_luminarias", mode: esri.layers.FeatureLayer.MODE_ONDEMAND, minScale: 6000, outFields: ["*"]});
+    luminariasLayer.setDefinitionExpression("COMUNA = '"+ this.state.comuna[0].queryName+"'" );
 
-  var tramosAPLayer = new esri.layers.FeatureLayer(layers.read_tramosAP(),{id:"ap_tramos", mode: esri.layers.FeatureLayer.MODE_ONDEMAND, minScale: 5000});
-  tramosAPLayer.setDefinitionExpression("comuna  = '"+ this.state.comuna[0].queryName+"'" );
+    var tramosAPLayer = new esri.layers.FeatureLayer(layers.read_tramosAP(),{id:"ap_tramos", mode: esri.layers.FeatureLayer.MODE_ONDEMAND, minScale: 6000});
+    tramosAPLayer.setDefinitionExpression("comuna  = '"+ this.state.comuna[0].queryName+"'" );
 
-  var modificadasLayer = new esri.layers.FeatureLayer(layers.read_modificacionesAP(),{id:"ap_modificaciones", mode: esri.layers.FeatureLayer.MODE_ONDEMAND, minScale: 5000, outFields: ["*"]});
-  modificadasLayer.setDefinitionExpression("Comuna  = '"+ this.state.comuna[0].queryName+"'" );
+    var modificadasLayer = new esri.layers.FeatureLayer(layers.read_modificacionesAP(),{id:"ap_modificaciones", mode: esri.layers.FeatureLayer.MODE_ONDEMAND,  outFields: ["*"]});
+    modificadasLayer.setDefinitionExpression("Comuna  = '"+ this.state.comuna[0].queryName+"'" );
 
-  var limiteComunalLayer = new esri.layers.FeatureLayer(layers.read_limiteComunal(),{id:"ap_limiteComunal", mode: esri.layers.FeatureLayer.MODE_ONDEMAND});
-  limiteComunalLayer.setDefinitionExpression("nombre   = '"+ this.state.comuna[0].queryName+"'" );
+    var limiteComunalLayer = new esri.layers.FeatureLayer(layers.read_limiteComunal(),{id:"ap_limiteComunal", mode: esri.layers.FeatureLayer.MODE_ONDEMAND});
+    limiteComunalLayer.setDefinitionExpression("nombre   = '"+ this.state.comuna[0].queryName+"'" );
 
-  mapp.addLayers([limiteComunalLayer,tramosAPLayer,luminariasLayer, modificadasLayer]);
+    mapp.addLayers([limiteComunalLayer,tramosAPLayer,luminariasLayer, modificadasLayer]);
 
-  this.setState({layers: [luminariasLayer,tramosAPLayer,modificadasLayer,limiteComunalLayer]})
+    this.setState({layers: [luminariasLayer,tramosAPLayer,modificadasLayer,limiteComunalLayer]})
 
-  mapp.on('click',(e)=>{
-    $('.drawer_progressBar2').css('visibility',"visible");
+    mapp.on('click',(e)=>{
+      $('.drawer_progressBar2').css('visibility',"visible");
 
-    getInfoLuminariaCercana(e.mapPoint,(cb)=>{
-      if(!cb[0]){
-        this.setState({snackbarMessage: cb[2], activeSnackbar: true, snackbarIcon: cb[3] });
-        $('.theme__icon___4OQx3').css('color',cb[4]);
-        $('.drawer_progressBar2').css('visibility','hidden');
-        this.setState({counterTotal: "--", counter: 0, currentIndex: 0, allElements: []});
-        $('.wrapperTop_midTitle h6').removeClass('wrapperTop_midTitle-h6');
-        $('.muniTitulo').removeClass('muniTitulo-40percent');
-        this.onLimpiarFormEdicion();
-        return;
+      getInfoLuminariaCercana(e.mapPoint,(cb)=>{
+        if(!cb[0]){
+          this.setState({snackbarMessage: cb[2], activeSnackbar: true, snackbarIcon: cb[3] });
+          $('.theme__icon___4OQx3').css('color',cb[4]);
+          $('.drawer_progressBar2').css('visibility','hidden');
+          this.setState({counterTotal: "--", counter: 0, currentIndex: 0, allElements: []});
+          $('.wrapperTop_midTitle h6').removeClass('wrapperTop_midTitle-h6');
+          $('.muniTitulo').removeClass('muniTitulo-40percent');
+          this.onLimpiarFormEdicion();
+          return;
 
-      }
+        }
 
-      //disable all the rest of drawers.
-        $('#busquedaDrawer').removeClass('drawerVisibility_show').addClass('drawerVisibility_notShow');
-        $('.contenido_drawerleft1').css('width','0%');
-        $('#cambiarMapaDrawer').removeClass('drawerVisibility_show').addClass('drawerVisibility_notShow');
-        $('.contenido_drawerleft2').css('width','0%');
-        $('#mostrarMedidoresDrawer').removeClass('drawerVisibility_show').addClass('drawerVisibility_notShow');
-        $('.contenido_drawerleft3').css('width','0%');
-        $('#cambiarLayersDrawer').removeClass('drawerVisibility_show').addClass('drawerVisibility_notShow');
-        $('.contenido_drawerleft4').css('width','0%');
-        $('#mostrarLuminariasDrawer').removeClass('drawerVisibility_show').addClass('drawerVisibility_notShow');
-        $('.contenido_drawerleft5').css('width','0%');
-        $('.contenido_mapa').css('width','100%');
+        //disable all the rest of drawers.
+          $('#busquedaDrawer').removeClass('drawerVisibility_show').addClass('drawerVisibility_notShow');
+          $('.contenido_drawerleft1').css('width','0%');
+          $('#cambiarMapaDrawer').removeClass('drawerVisibility_show').addClass('drawerVisibility_notShow');
+          $('.contenido_drawerleft2').css('width','0%');
+          $('#mostrarMedidoresDrawer').removeClass('drawerVisibility_show').addClass('drawerVisibility_notShow');
+          $('.contenido_drawerleft3').css('width','0%');
+          $('#cambiarLayersDrawer').removeClass('drawerVisibility_show').addClass('drawerVisibility_notShow');
+          $('.contenido_drawerleft4').css('width','0%');
+          $('#mostrarLuminariasDrawer').removeClass('drawerVisibility_show').addClass('drawerVisibility_notShow');
+          $('.contenido_drawerleft5').css('width','0%');
+          $('.contenido_mapa').css('width','100%');
 
+          $('.wrapperTop_midTitle h6').addClass('wrapperTop_midTitle-h6');
+          $('.muniTitulo').addClass('muniTitulo-40percent');
+
+          $('#mostrarEdicionDrawer').removeClass('drawerVisibility_notShow').addClass('drawerVisibility_show');
+          $('.contenido_mapa').css('width','60%');
+          $('.contenido_drawerleftEspecial').css('width','40%');
+
+
+        //console.log(cb[1][0].geometry);
+        //dibuja geometria seleccionado en el mapa
+        let mySymbol = makeSymbol.makePointLocated();
+        gLayerLuminariaSearch.clear();
+        var g = new Graphic( cb[1][0].geometry,mySymbol);
+        gLayerLuminariaSearch.add(g);
+        mapp.addLayer(gLayerLuminariaSearch,1);
+        mapp.centerAndZoom( cb[1][0].geometry,20);
+        this.onShowCurrent(cb[1],0);
+
+        //obtener el primer registro (o único).
+        this.setState({counterTotal: cb[1].length, counter: 1, allElements: cb[1], currentIndex: 0});
+        $('.drawer_progressBar2').css('visibility',"hidden");
         $('.wrapperTop_midTitle h6').addClass('wrapperTop_midTitle-h6');
         $('.muniTitulo').addClass('muniTitulo-40percent');
 
-        $('#mostrarEdicionDrawer').removeClass('drawerVisibility_notShow').addClass('drawerVisibility_show');
-        $('.contenido_mapa').css('width','60%');
-        $('.contenido_drawerleftEspecial').css('width','40%');
-
-
-      //console.log(cb[1][0].geometry);
-      //dibuja geometria seleccionado en el mapa
-      let mySymbol = makeSymbol.makePointRelated();
-      gLayerLuminariaSearch.clear();
-      var g = new Graphic( cb[1][0].geometry,mySymbol);
-      gLayerLuminariaSearch.add(g);
-      mapp.addLayer(gLayerLuminariaSearch,1);
-      mapp.centerAndZoom( cb[1][0].geometry,20);
-      this.onShowCurrent(cb[1],0);
-
-      //obtener el primer registro (o único).
-      this.setState({counterTotal: cb[1].length, counter: 1, allElements: cb[1], currentIndex: 0});
-      $('.drawer_progressBar2').css('visibility',"hidden");
-      $('.wrapperTop_midTitle h6').addClass('wrapperTop_midTitle-h6');
-      $('.muniTitulo').addClass('muniTitulo-40percent');
+      });
 
     });
 
-  });
+    //Muestra información cuando se pasa el mouse encima de la capa luminarias.
+    luminariasLayer.on('mouse-over',(event)=>{
 
-  //Muestra información cuando se pasa el mouse encima de la capa luminarias.
-  luminariasLayer.on('mouse-over',(event)=>{
+          ap_infoWindow(event.graphic.attributes['ID_LUMINARIA'],
+            event.graphic.attributes['ROTULO'],
+            event.graphic.attributes['TIPO_CONEXION'],
+            event.graphic.attributes['DESCRIPCION'],
+            event.graphic.attributes['PROPIEDAD'],
+            event.graphic.attributes['MEDIDO_TERRENO'],
+            event.graphic.geometry);
+    });
 
-        ap_infoWindow(event.graphic.attributes['ID_LUMINARIA'],
-          event.graphic.attributes['ROTULO'],
-          event.graphic.attributes['TIPO_CONEXION'],
-          event.graphic.attributes['DESCRIPCION'],
-          event.graphic.attributes['PROPIEDAD'],
-          event.graphic.attributes['MEDIDO_TERRENO'],
-          event.graphic.geometry);
-  });
-
-}
+  }
 
   onShowCurrent(elements, showElementNumber){
       var mapp = mymap.getMap();
 
     console.log(elements, showElementNumber);
+    let idequipoap = 0;
+    if(elements[showElementNumber].attributes['ID_EQUIPO_AP']==0){
+      idequipoap = 'NO TIENE';
+    }else{
+      idequipoap = elements[showElementNumber].attributes['ID_EQUIPO_AP'];
+    }
+
     let editarLuminaria = {
       id_luminaria: elements[showElementNumber].attributes['ID_LUMINARIA'],
       id_nodo: elements[showElementNumber].attributes['ID_NODO'],
@@ -297,7 +306,8 @@ class APMap extends React.Component {
       tipoPropiedad: elements[showElementNumber].attributes['PROPIEDAD'],
       tipoPotencia: elements[showElementNumber].attributes['POTENCIA'],
       rotulo: elements[showElementNumber].attributes['ROTULO'],
-      selectedTab: 0
+      selectedTab: 0,
+      numeroMedidorAsociado: idequipoap
     });
     this.setState({datosLuminariaAEditar: editarLuminaria, datosLuminariaModificada: {}});
 
@@ -417,8 +427,61 @@ class APMap extends React.Component {
           });
 
         break;
+        //obtener info de luminarias asociadas a un medidor:
+        case 2:
+        $('.drawer_progressBar').css('visibility',"visible");
+        if ( (this.state.numeroMedidorAsociado=='NO TIENE') || (this.state.numeroMedidorAsociado==0) ){
+          console.log("Vacio numeroMedidorAsociado");
+          this.setState({dataLuminariasRelacionadas: []});
+          this.setState({snackbarMessage: "Luminarias asociadas en este circuito no han sido encontradas.", activeSnackbar: true, snackbarIcon: 'close' });
+          $('.theme__icon___4OQx3').css('color',"red");
+          //Deshabilitar barra de progreso.
+          $('.drawer_progressBar').css('visibility','hidden');
+          return;
+        }
 
-        case 0:
+        getLuminariasAsociadas(this.state.numeroMedidorAsociado,(callback)=>{
+          if(!callback[0]){
+            console.log("Vacio getLuminariasAsociadas");
+
+            this.setState({snackbarMessage: "Luminarias asociadas en este circuito no han sido encontradas.", activeSnackbar: true, snackbarIcon: 'close' });
+            $('.theme__icon___4OQx3').css('color',"red");
+            //Deshabilitar barra de progreso.
+            $('.drawer_progressBar').css('visibility','hidden');
+            return;
+          }
+
+          let m = callback[1].map((feature)=>{
+
+            let data = {
+              "ID LUMINARIA": feature.attributes.ID_LUMINARIA ,
+              "TIPO CONEXION": feature.attributes.TIPO_CONEXION ,
+              "PROPIEDAD": feature.attributes.PROPIEDAD ,
+              "MEDIDO": feature.attributes.MEDIDO_TERRENO ,
+              "DESCRIPCION": feature.attributes.DESCRIPCION ,
+              "ROTULO": feature.attributes.ROTULO ,
+              "Geometry": feature.geometry
+            }
+
+            return data;
+          })
+          this.setState({dataLuminariasRelacionadas: m});
+        });
+
+        getTramosMedidor(this.state.numeroMedidorAsociado, (cb)=>{
+          if(!cb[0]){
+            console.log("Vacio getTramosMedidor 2");
+
+            this.setState({snackbarMessage: "Tramos asociados no encontrados.", activeSnackbar: true, snackbarIcon: 'close' });
+            $('.theme__icon___4OQx3').css('color',"red");
+            //Deshabilitar barra de progreso.
+            $('.drawer_progressBar').css('visibility','hidden');
+            return;
+          }
+
+          //Deshabilitar barra de progreso.
+          $('.drawer_progressBar').css('visibility','hidden');
+        });
 
         break;
         default:
@@ -1106,13 +1169,30 @@ class APMap extends React.Component {
     exportToExcel(this.state.dataMedidores, "MedidoresAP_", true);
   }
 
-  onClickExportarAsociadas(){
-    if( _.isEmpty(this.state.dataLuminarias) ){
+  onClickExportarAsociadas(e){
 
-      this.setState({snackbarMessage: "Seleccione un medidor para extraer los datos de sus luminarias asociadas", activeSnackbar: true, snackbarIcon: "warning" });
-      return;
+    console.log(e);
+    switch (e) {
+      case 'luminariaEditar':
+      if( _.isEmpty(this.state.dataLuminariasRelacionadas) ){
+
+        this.setState({snackbarMessage: "Seleccione una luminaria a editar para extraer los datos de sus luminarias asociadas", activeSnackbar: true, snackbarIcon: "warning" });
+        return;
+      }
+      exportToExcel(this.state.dataLuminariasRelacionadas, "LuminariasAP_Asociadas_Medidor_"+ this.state.numeroMedidorAsociado, true);
+      break;
+
+      case 'dataLuminarias':
+        if( _.isEmpty(this.state.dataLuminarias) ){
+
+          this.setState({snackbarMessage: "Seleccione un medidor para extraer los datos de sus luminarias asociadas", activeSnackbar: true, snackbarIcon: "warning" });
+          return;
+        }
+        exportToExcel(this.state.dataLuminarias, "LuminariasAP_Asociadas_Medidor_"+ this.state.numeroMedidor, true);
+      default:
+
     }
-    exportToExcel(this.state.dataLuminarias, "LuminariasAP_Asociadas_Medidor_"+ this.state.numeroMedidor, true);
+
   }
 
   onClickExportarLuminarias(){
@@ -1249,7 +1329,7 @@ class APMap extends React.Component {
     //si el counter supera al total.
     if(this.state.counter + 1 > this.state.counterTotal){
       console.log("no mostrar más");
-      this.setState({counter: 1});
+
 
     }else{
       this.setState({counter: this.state.counter+1});
@@ -1274,7 +1354,7 @@ class APMap extends React.Component {
     //si el counter supera al total.
     if(this.state.counter - 1 <= 0){
       console.log("no mostrar más");
-      this.setState({counter: 1});
+
 
     }else{
       this.setState({counter: this.state.counter-1});
@@ -1539,7 +1619,7 @@ class APMap extends React.Component {
                 <div className="drawer_exportarButtonContainer">
 
                 <h7><b>{this.state.labelNumeroMedidor}</b></h7>
-                  <Button icon='file_download' label='Exportar' accent onClick={this.onClickExportarAsociadas.bind(this)} />
+                  <Button icon='file_download' label='Exportar' accent onClick={this.onClickExportarAsociadas.bind(this, "dataLuminarias")} />
                 </div>
                 <Griddle rowMetadata={rowMetadata2} columnMetadata={columnMetaLuminariasAsociadas}  ref="griddleTable" className="drawer_griddle_medidores" results={this.state.dataLuminarias} columns={["ID LUMINARIA","TIPO CONEXION","PROPIEDAD","DESCRIPCION","ROTULO"]} onRowClick = {this.onRowClickLuminariasAsociadas.bind(this)} uniqueIdentifier="ID LUMINARIA" />
               </div>
@@ -1593,6 +1673,7 @@ class APMap extends React.Component {
               <TabList>
                 <Tab><i className="fa fa-pencil"></i></Tab>
                 <Tab><i className="fa fa-camera button-span" aria-hidden="true"></i></Tab>
+                <Tab><i className="fa fa-bolt button-span" aria-hidden="true"></i></Tab>
               </TabList>
               {/* tab de edicion */}
               <TabPanel>
@@ -1737,7 +1818,19 @@ class APMap extends React.Component {
                 <div className="drawer_viewerButton_container">
                   <Button icon='photo_camera' label='Ir a Viewer' className="editar_button" raised primary onClick={this.onVerFotografía.bind(this)}  />
                 </div>
+
+              </TabPanel>
               {/* Tabs de circuito asociado */}
+              <TabPanel>
+
+                <div className="drawer_griddle_medidores">
+                  <div className="drawer_exportarButtonContainer">
+
+                  <h7><b>Luminarias Asociadas al medidor : {this.state.numeroMedidorAsociado}</b></h7>
+                    <Button icon='file_download' label='Exportar' accent onClick={this.onClickExportarAsociadas.bind(this, "luminariaEditar")} />
+                  </div>
+                  <Griddle rowMetadata={rowMetadata2} columnMetadata={columnMetaLuminariasAsociadas}  ref="griddleTable" className="drawer_griddle_medidores" results={this.state.dataLuminariasRelacionadas} columns={["ID LUMINARIA","TIPO CONEXION","PROPIEDAD","DESCRIPCION","ROTULO"]} onRowClick = {this.onRowClickLuminariasAsociadas.bind(this)} uniqueIdentifier="ID LUMINARIA" />
+                </div>
               </TabPanel>
               </Tabs>
             </div>

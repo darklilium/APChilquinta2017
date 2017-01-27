@@ -9,7 +9,21 @@ function makeSymbol(){
           new esri.Color([0, 40, 255, 0.9]),
           1
         ),
-        new esri.Color([255, 51, 255, 1])
+        new esri.Color([255, 51, 255, 0.7])
+      );
+
+      return mySymbol;
+    },
+    makePointLocated(){
+      var mySymbol = new esri.symbol.SimpleMarkerSymbol(
+        esri.symbol.SimpleMarkerSymbol.STYLE_CIRCLE,
+        30,
+        new esri.symbol.SimpleLineSymbol(
+          esri.symbol.SimpleLineSymbol.STYLE_SOLID,
+          new esri.Color([146, 138, 255, 0.5]),
+          1
+        ),
+        new esri.Color([146, 138, 255, 0.7])
       );
 
       return mySymbol;
