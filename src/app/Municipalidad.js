@@ -1,5 +1,6 @@
 
 import React from 'react';
+import ReactDOM from 'react-dom';
 // import 'react-toolbox/lib/commons.scss';           // Import common styles
 
 import { Button } from 'react-toolbox/lib/button'; // Bundled component import
@@ -18,7 +19,7 @@ import AP_Dashboard from './components/AP_Dashboard.jsx';
 import APHomeLayout from './components/APHomeLayout.jsx';
 import env from './services/config';
 
-class App extends React.Component {
+class Municipalidad extends React.Component {
   constructor(props){
     super(props);
   }
@@ -47,10 +48,11 @@ class App extends React.Component {
 */
   render(){
     return (
-        <div><Login /></div>
+        <APMap />
     )
   }
 }
 
 
-export default App;
+//export default Municipalidad;
+ReactDOM.render(<Municipalidad />, document.getElementById('municipalidad'));

@@ -45,6 +45,7 @@ import Griddle from 'griddle-react';
 import {HeaderComponent, HeaderComponent2, HeaderComponent3} from './HeaderComponents';
 import Graphic from 'esri/graphic';
 import makeSymbol from '../utils/makeSymbol';
+import cookieHandler from 'cookie-handler';
 
 var options = [
     { value: 'ROTULO', label: 'Rótulo' },
@@ -178,7 +179,7 @@ class APMap extends React.Component {
   componentWillMount(){
 
       let originalName = MuniImages.filter((logoMuni, index)=>{
-        return logoMuni.name == this.props.params.muni;
+        return logoMuni.name == cookieHandler.get('mn');
       });
 
       this.setState({comuna: originalName, fotografias: [] });
@@ -703,6 +704,7 @@ class APMap extends React.Component {
 
         this.setState({snackbarMessage: callback[2], activeSnackbar: true, snackbarIcon: 'error' });
         $('.theme__icon___4OQx3').css('color',"red");
+        $('.drawer_progressBar').css('visibility','hidden');
 
         return;
       }
@@ -788,7 +790,8 @@ class APMap extends React.Component {
 
   handleLogout(){
     if(env.ENVIRONMENT=='DEVELOPMENT'){
-      browserHistory.push(env.ROUTEPATH);
+      window.location.href = env.WEBSERVERADDRESS;
+      //browserHistory.push(env.ROUTEPATH);
     }else{
       window.location.href = env.WEBSERVERADDRESS;
     }
@@ -1377,8 +1380,8 @@ class APMap extends React.Component {
   }
 
   render(){
-    let logoName = this.props.params.muni;
-    let src = env.CSSDIRECTORY  + "images/logos/logos_menu/"+ this.props.params.muni + ".png";
+    let logoName = cookieHandler.get('mn');
+    let src = env.CSSDIRECTORY  + "images/logos/logos_menu/"+ cookieHandler.get('mn') + ".png";
     let DisplayPics;
 
     var settings = {

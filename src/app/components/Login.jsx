@@ -67,7 +67,8 @@ class Login extends React.Component {
           //  window.location.href = "interrupciones.html";
             //browserHistory.push("chilquinta");
             console.log("mi usuario tiene vialactea, entrar en dashboard de ap");
-            browserHistory.push("dashboard");
+            //browserHistory.push("dashboard");
+            window.location.href = "dashboard.html";
           }else{
             this.setState({snackbarMessage: "Login incorrecto. Trate nuevamente."});
             this.handleClick();
@@ -85,9 +86,10 @@ class Login extends React.Component {
               //  window.location.href = "interrupciones.html";
                 console.log("municipalidad de..:",this.state.username.substring(4,this.state.username.length));
                 let muni = this.state.username.substring(4,this.state.username.length);
-                browserHistory.push(`muni${muni}`);
+              //  browserHistory.push(`muni${muni}`);
                 console.log("mi usuario contiene muni, entrando directamente a la municipalidad que soy");
-
+                cookieHandler.set('mn',muni);
+                window.location.href = "municipalidad.html";
               }else{
                 console.log("mi usuario tiene muni pero se logueo mal");
                 this.setState({snackbarMessage: "Login incorrecto. Trate nuevamente."});
@@ -100,7 +102,8 @@ class Login extends React.Component {
               if(!callback.error){
                   //browserHistory.push("chilquinta");
                   console.log("mi usuario no es municipal, entrando en dashboard de ap");
-                  browserHistory.push("dashboard");
+                  //browserHistory.push("dashboard");
+                  window.location.href = "dashboard.html";
               }else{
                 this.setState({snackbarMessage: "Login incorrecto, intente nuevamente. " +callback.message});
                 this.handleClick();

@@ -67,7 +67,10 @@ class AP_Dashboard extends React.Component {
 onClickEntrar(){
   console.log(this.state.selectedComuna,"tengo el valor de..");
 
-  browserHistory.push(`muni${this.state.selectedComuna}`);
+  //browserHistory.push(`muni${this.state.selectedComuna}`);
+  cookieHandler.set('mn',this.state.selectedComuna);
+  window.location.href = "municipalidad.html";
+
 }
 
 onChangePic(e){

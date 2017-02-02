@@ -8,6 +8,8 @@ module.exports = {
   devtool: 'inline-source-map',
   entry: {
     app: './src/app/Main.js',
+    dashboard: './src/app/Dashboard.js',
+    municipalidad: './src/app/Municipalidad.js',
     vendor: [
       'webpack-hot-middleware/client'
     ]
