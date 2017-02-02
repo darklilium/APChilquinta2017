@@ -7,22 +7,40 @@
 }
 */
 
-#municipalidad{
-  height: 100%;
+//
+.theme__appBar___b1hGI{
+  height: 5rem;
 }
+.theme__toggle___2whJV{
+  width: 2.2em
+}
+.theme__icon___3sEvc{
+  font-size: 1.3em;
+}
+
+span.material-icons.theme__icon___3sEvc{
+  font-size: 1.3em;
+}
+
+.slick-slide img {
+    display: block;
+    max-height: 400px;
+    float: right;
+    position: absolute;
+}
+//
 .Wallop{
       max-width: 260px !important;
 }
 
 .apmenu_buttongroup{
-  display: flex !important;
+display: flex !important;
 }
-
 .wrapperTop{
   display: flex;
   flex-direction: row;
   width: 100%;
-  height: 6.4rem;
+  height: 4rem;
   justify-content: space-between;
 }
 
@@ -61,10 +79,11 @@
 }
 
 
-html, body ,#app,#map{
+html, body ,#app,#map, #municipalidad{
         height: 100%;
         margin: 0;
         padding: 0;
+        font-size: 12px;
 }
 
 .rowNav{
@@ -102,7 +121,7 @@ html, body ,#app,#map{
 .drawer_banner{
   display: flex;
   width: 100%;
-  height: 6.4rem;
+  height: 5rem;
   background-color: #007bf7;
   flex-direction: row;
   justify-content: space-between;
@@ -129,6 +148,7 @@ justify-content: space-between;
   margin-left: 0.5em;
   color: white;
   text-align: center;
+  font-size: initial;
 }
 
 .drawer_radiogroup{
@@ -141,6 +161,7 @@ justify-content: space-between;
   margin: 1em;
   display: flex;
   flex-direction: column;
+  font-size: large;
 }
 
 
@@ -247,7 +268,6 @@ justify-content: space-between;
  .theme__inputElement___2akQt{
   border-bottom: 1px solid rgb(255, 255, 255);
   color: #ffffff;
-  font-size: 1em;
  }
 
 
@@ -291,9 +311,11 @@ color:#333;
 }
 .drawer_column_values{
 width: 50%;
+font-size: 20px;
 }
 .drawer_column_titles{
 width: 50%;
+font-size: 20px;
 }
 
 .editar_button{
@@ -337,10 +359,7 @@ input:not([type=checkbox]):not([type=radio]) {
   color: red;
 }
 
-.slick-slide img {
-    display: block;
-    max-height: 350px;
-}
+
 
 .carousel .slide img {
   max-height: 25em;
@@ -433,6 +452,10 @@ input:not([type=checkbox]):not([type=radio]) {
   display: flex;
 align-items: center;
 flex-direction: column;
+}
+.wrapperTop_midTitle h6{
+  font-size: medium;
+    font-weight: normal;
 }
 
 .muniTitulo{

@@ -1,4 +1,4 @@
-/*const env = {
+const env = {
   ROOT: "dist/css/",
   CSSDIRECTORY: 'dist/css/',
   ROUTEPATH: '/',
@@ -8,16 +8,16 @@
   SAVEAPPLICATIONNAME: 'REACT_AP_WEB_DESA'
 }
 
-*/
+/*
 const env = {
-  ROOT: "css/",
-  CSSDIRECTORY: 'css/',
+  ROOT: "dist/css/",
+  CSSDIRECTORY: 'dist/css/',
   ROUTEPATH: 'index.html',
   ENVIRONMENT: 'PRODUCTION',
   WEBSERVERADDRESS: "http://gisred.chilquinta/AP/",
   SAVEAPPLICATIONMODULE: "AP_CHQ_DESA",
   SAVEAPPLICATIONNAME: 'REACT_AP_WEB_DESA'
 }
-
+*/
 
 export default env;
