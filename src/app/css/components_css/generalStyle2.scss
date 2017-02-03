@@ -28,6 +28,10 @@ span.material-icons.theme__icon___3sEvc{
     float: right;
     position: absolute;
 }
+
+.Select span {
+    font-size: medium;
+}
 //
 .Wallop{
       max-width: 260px !important;
@@ -168,7 +172,9 @@ justify-content: space-between;
 .drawer_input input{
   color: black;
   border-bottom: 1px solid #007bf7;
+  font-size: medium;
 }
+
 .drawer_input label{
   color: #007bf7;
 }

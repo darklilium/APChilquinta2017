@@ -310,8 +310,38 @@ class APMap extends React.Component {
       selectedTab: 0,
       numeroMedidorAsociado: idequipoap
     });
-    this.setState({datosLuminariaAEditar: editarLuminaria, datosLuminariaModificada: {}});
 
+    //mostrar si tiene resultados para modificaciones:
+
+    this.setState({datosLuminariaAEditar: editarLuminaria, datosLuminariaModificada: {}});
+    getInfoLuminariaModificaciones(elements[showElementNumber].attributes['ID_NODO'], elements[showElementNumber].attributes['ID_LUMINARIA'], (callback)=>{
+      console.log(callback,"aa");
+      if(!callback[0]){
+        console.log("no hay modificaciones");
+        this.setState({datosLuminariaModificada: []});
+        this.setState({snackbarMessage: "Modificaciones realizadas para luminaria no encontradas.", activeSnackbar: true, snackbarIcon: 'close' });
+        $('.theme__icon___4OQx3').css('color',"red");
+        //Deshabilitar barra de progreso.
+        $('.drawer_progressBar').css('visibility','hidden');
+        return;
+      }
+
+      //si hay...
+      let editarLuminaria = {
+        id_luminaria: callback[1][0].attributes['id_luminaria'],
+        id_nodo: callback[1][0].attributes['id_nodo'],
+        tipo_conexion: callback[1][0].attributes['tipo_cnx'],
+        tipo: callback[1][0].attributes['tipo'],
+        potencia:  callback[1][0].attributes['potencia'],
+        propiedad:callback[1][0].attributes['propiedad'],
+        rotulo :callback[1][0].attributes['rotulo'],
+        observaciones: callback[1][0].attributes['obs'],
+        geometria: callback[1][0].attributes.geometry
+      }
+
+        this.setState({datosLuminariaModificada: editarLuminaria});
+
+    });
 
   }
 

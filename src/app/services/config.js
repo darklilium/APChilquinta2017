@@ -7,11 +7,11 @@ const env = {
   SAVEAPPLICATIONMODULE: "AP_CHQ_DESA",
   SAVEAPPLICATIONNAME: 'REACT_AP_WEB_DESA'
 }
-
 /*
+
 const env = {
-  ROOT: "dist/css/",
-  CSSDIRECTORY: 'dist/css/',
+  ROOT: "css/",
+  CSSDIRECTORY: 'css/',
   ROUTEPATH: 'index.html',
   ENVIRONMENT: 'PRODUCTION',
   WEBSERVERADDRESS: "http://gisred.chilquinta/AP/",
