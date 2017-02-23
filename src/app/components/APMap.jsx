@@ -461,6 +461,7 @@ class APMap extends React.Component {
         //obtener info de luminarias asociadas a un medidor:
         case 2:
         $('.drawer_progressBar').css('visibility',"visible");
+        console.log("ee")
         if ( (this.state.numeroMedidorAsociado=='NO TIENE') || (this.state.numeroMedidorAsociado==0) ){
           console.log("Vacio numeroMedidorAsociado");
           this.setState({dataLuminariasRelacionadas: []});
@@ -1238,6 +1239,7 @@ class APMap extends React.Component {
   }
 
   onRowClick(gridRow, event) {
+
     //Habilitar barra de progreso en carga.
     $('.drawer_progressBar').css('visibility','visible');
 
@@ -1271,6 +1273,7 @@ class APMap extends React.Component {
         return data;
       })
       this.setState({dataLuminarias: m});
+
     });
 
     //Dibujar ubicación medidor
@@ -1297,9 +1300,10 @@ class APMap extends React.Component {
         $('.drawer_progressBar').css('visibility','hidden');
         return;
       }
+      //Deshabilitar barra de progreso.
+      $('.drawer_progressBar').css('visibility','hidden');
     });
-    //Deshabilitar barra de progreso.
-    $('.drawer_progressBar').css('visibility','hidden');
+
   }
 
   onRowClickLuminariasAsociadas(gridRow, event){
@@ -1545,16 +1549,24 @@ class APMap extends React.Component {
         <div className="contenido_drawerleft1">
 
           <div id="busquedaDrawer" className="drawerVisibility_notShow">
-            <div className="drawer_banner">
-              <Logo />
-              <h6 className="drawer_banner_title">Búsqueda</h6>
-             <IconButton className="btnCerrarDrawer" icon='close' accent onClick={this.onClickCerrarDrawer.bind(this,"busqueda")} />
+            <div className="drawer_banner banner_fix">
+              {/*<Logo />*/}
+              <div className="drawer_banner_divTitle">
+                <h6 className="drawer_banner_title">Búsqueda</h6>
+              </div>
+              <div>
+                <IconButton className="btnCerrarDrawer" icon='close' accent onClick={this.onClickCerrarDrawer.bind(this,"busqueda")} />
+             </div>
             </div>
             <ProgressBar className="drawer_progressBar" type="linear" mode="indeterminate" />
-            <div className="drawer_content">
-              <List selectable ripple>
+            <div className="drawer_title_divh7"><h7><b>Seleccione un tipo de búsqueda:</b></h7></div>
+
+            <div className="drawer_content drawer_busquedas">
+
+              {/*<List selectable ripple>
                 <ListSubHeader className="drawer_listSubHeader drawer_busquedaTitle" caption='Seleccione un tipo de búsqueda:' />
               </List>
+              */}
               <Select
                   name="form-field-name"
                   value={this.state.tipoBusqueda}
@@ -1574,12 +1586,17 @@ class APMap extends React.Component {
         {/* DRAWER MAPAS */}
         <div className="contenido_drawerleft2">
           <div id="cambiarMapaDrawer">
-            <div className="drawer_banner">
-              <Logo />
-              <h6  className="drawer_banner_title">Seleccionar Mapa</h6>
-              <IconButton className="btnCerrarDrawer" icon='close' accent onClick={this.onClickCerrarDrawer.bind(this,"mapas")} />
+            <div className="drawer_banner banner_fix1">
+              {/*<Logo />*/}
+              <div className="drawer_banner_divTitle">
+                <h6  className="drawer_banner_title">Seleccionar Mapa</h6>
+              </div>
+              <div>
+                <IconButton className="btnCerrarDrawer" icon='close' accent onClick={this.onClickCerrarDrawer.bind(this,"mapas")} />
+              </div>
             </div>
-            <ListSubHeader className="drawer_listSubHeader" caption='Seleccione un mapa para visualizar:' />
+          {/* <ListSubHeader className="drawer_listSubHeader" caption='Seleccione un mapa para visualizar:' />*/}
+            <div className="drawer_title_divh7"><h7><b>Seleccione un mapa para visualizar:</b></h7></div>
             <RadioGroup className="drawer_radiogroup" name='mapSelector' value={this.state.mapSelected} onChange={this.handleRadioMapas.bind(this)}>
               <RadioButton label='Topográfico' value='topo'/>
               <RadioButton label='Híbrido' value='hybrid'/>
@@ -1595,13 +1612,18 @@ class APMap extends React.Component {
         {/* DRAWER LAYERS */}
         <div className="contenido_drawerleft3">
           <div id="cambiarLayersDrawer">
-            <div className="drawer_banner">
-              <Logo />
-              <h6  className="drawer_banner_title">Seleccionar Layers</h6>
-              <IconButton className="btnCerrarDrawer" icon='close' accent onClick={this.onClickCerrarDrawer.bind(this,"layers")} />
+            <div className="drawer_banner banner_fix1">
+              {/*<Logo />*/}
+              <div className="drawer_banner_divTitle">
+                <h6  className="drawer_banner_title">Seleccionar Layers</h6>
+              </div>
+              <div>
+                <IconButton className="btnCerrarDrawer" icon='close' accent onClick={this.onClickCerrarDrawer.bind(this,"layers")} />
+              </div>
             </div>
+            <div className="drawer_title_divh7"><h7><b>Seleccione uno o más layers para visualizar:</b></h7></div>
             <List selectable ripple>
-              <ListSubHeader className="drawer_listSubHeader" caption='Seleccione uno o más layers para visualizar:' />
+              {/*<ListSubHeader className="drawer_listSubHeader" caption='Seleccione uno o más layers para visualizar:' />*/}
               <ListCheckbox
                 caption='Luminarias'
                 checked={this.state.checkbox}
@@ -1635,9 +1657,13 @@ class APMap extends React.Component {
         <div className="contenido_drawerleft4">
           <div id="mostrarMedidoresDrawer">
             <div className="drawer_banner">
-              <Logo />
-              <h6 className="drawer_banner_title">Medidores y Luminarias Asociadas</h6>
-              <IconButton className="btnCerrarDrawer" icon='close' accent onClick={this.onClickCerrarDrawer.bind(this,"medidores")} />
+              {/*<Logo />*/}
+              <div className="drawer_banner_divTitle">
+                <h6 className="drawer_banner_title">Medidores y Luminarias Asociadas</h6>
+              </div>
+              <div>
+                <IconButton className="btnCerrarDrawer" icon='close' accent onClick={this.onClickCerrarDrawer.bind(this,"medidores")} />
+              </div>
             </div>
             <ProgressBar className="drawer_progressBar" type="linear" mode="indeterminate" />
             <div className="drawer_content">
@@ -1646,7 +1672,7 @@ class APMap extends React.Component {
                   <h7><b>Seleccione un medidor para ver sus luminarias asociadas y ubicación</b></h7>
                   <Button icon='file_download' label='Exportar' accent onClick={this.onClickExportarMedidores.bind(this)} />
                 </div>
-                <Griddle rowMetadata={rowMetadata} columnMetadata={columnMetaMedidores} ref="griddleTable" className="drawer_griddle_medidores" results={this.state.dataMedidores} columns={["ID EQUIPO","NIS","CANT. LUMINARIAS","CANT. TRAMOS","TIPO","ROTULO"]} onRowClick = {this.onRowClick.bind(this)} uniqueIdentifier="ID EQUIPO" />
+                <Griddle  resultsPerPage={6} rowMetadata={rowMetadata} columnMetadata={columnMetaMedidores} ref="griddleTable" className="drawer_griddle_medidores" results={this.state.dataMedidores} columns={["ID EQUIPO","NIS","CANT. LUMINARIAS","CANT. TRAMOS","TIPO","ROTULO"]} onRowClick = {this.onRowClick.bind(this)} uniqueIdentifier="ID EQUIPO" />
               </div>
               <div className="drawer_griddle_medidores">
                 <div className="drawer_exportarButtonContainer">
@@ -1654,7 +1680,7 @@ class APMap extends React.Component {
                 <h7><b>{this.state.labelNumeroMedidor}</b></h7>
                   <Button icon='file_download' label='Exportar' accent onClick={this.onClickExportarAsociadas.bind(this, "dataLuminarias")} />
                 </div>
-                <Griddle rowMetadata={rowMetadata2} columnMetadata={columnMetaLuminariasAsociadas}  ref="griddleTable" className="drawer_griddle_medidores" results={this.state.dataLuminarias} columns={["ID LUMINARIA","TIPO CONEXION","PROPIEDAD","DESCRIPCION","ROTULO"]} onRowClick = {this.onRowClickLuminariasAsociadas.bind(this)} uniqueIdentifier="ID LUMINARIA" />
+                <Griddle resultsPerPage={6} rowMetadata={rowMetadata2} columnMetadata={columnMetaLuminariasAsociadas}  ref="griddleTable" className="drawer_griddle_medidores" results={this.state.dataLuminarias} columns={["ID LUMINARIA","TIPO CONEXION","PROPIEDAD","DESCRIPCION","ROTULO"]} onRowClick = {this.onRowClickLuminariasAsociadas.bind(this)} uniqueIdentifier="ID LUMINARIA" />
               </div>
             </div>
             <div className="drawer_medidoresButtons">
@@ -1667,9 +1693,13 @@ class APMap extends React.Component {
         <div className="contenido_drawerleft5">
           <div id="mostrarLuminariasDrawer">
             <div className="drawer_banner">
-              <Logo />
-              <h6 className="drawer_banner_title">Lista de Luminarias de la comuna</h6>
-              <IconButton className="btnCerrarDrawer" icon='close' accent onClick={this.onClickCerrarDrawer.bind(this,"luminarias")} />
+              {/*<Logo />*/}
+              <div className="drawer_banner_divTitle">
+                <h6 className="drawer_banner_title">Lista de Luminarias de la comuna</h6>
+              </div>
+              <div>
+                <IconButton className="btnCerrarDrawer" icon='close' accent onClick={this.onClickCerrarDrawer.bind(this,"luminarias")} />
+              </div>
             </div>
             <ProgressBar className="drawer_progressBar" type="linear" mode="indeterminate" />
             <div className="drawer_content">
@@ -1678,7 +1708,7 @@ class APMap extends React.Component {
                   <h7><b>Seleccione una luminaria para ver su ubicación</b></h7>
                   <Button icon='file_download' label='Exportar' accent onClick={this.onClickExportarLuminarias.bind(this)} />
                 </div>
-                <Griddle  ref="griddleTable3" className="drawer_griddle_medidores" rowMetadata={rowMetadata3}
+                <Griddle resultsPerPage={12} ref="griddleTable3" className="drawer_griddle_medidores" rowMetadata={rowMetadata3}
                 columnMetadata={columnMetaLuminarias}
                 results={this.state.dataTodasLuminarias}
                 columns={["ID LUMINARIA","TIPO CONEXION","PROPIEDAD","MEDIDO","DESCRIPCION", "ROTULO"]}
@@ -1695,9 +1725,13 @@ class APMap extends React.Component {
         <div className="contenido_drawerleftEspecial">
           <div id="mostrarEdicionDrawer">
             <div className="drawer_banner">
-            <Logo />
-            <h6 className="drawer_banner_title">Editar Luminaria</h6>
-            <IconButton className="btnCerrarDrawer" icon='close' accent onClick={this.onClickCerrarDrawer.bind(this,"edicion")} />
+            {/*<Logo />*/}
+            <div className="drawer_banner_divTitle">
+              <h6 className="drawer_banner_title">Editar Luminaria</h6>
+            </div>
+            <div>
+              <IconButton className="btnCerrarDrawer" icon='close' accent onClick={this.onClickCerrarDrawer.bind(this,"edicion")} />
+            </div>
           </div>
           <ProgressBar className="drawer_progressBar" type="linear" mode="indeterminate" />
           <div className="drawer_content">
@@ -1849,7 +1883,7 @@ class APMap extends React.Component {
                  </Slider>
                 </div>
                 <div className="drawer_viewerButton_container">
-                  <Button icon='photo_camera' label='Ir a Viewer' className="editar_button" raised primary onClick={this.onVerFotografía.bind(this)}  />
+                  <Button icon='photo_camera' label='Ver en pantalla completa' className="editar_button" raised primary onClick={this.onVerFotografía.bind(this)}  />
                 </div>
 
               </TabPanel>

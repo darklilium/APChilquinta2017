@@ -11,12 +11,14 @@ import {Link} from "react-router";
 import {Logo} from "./Logo.jsx";
 import {OnlineStatistics} from "./OnlineStatistics.jsx";
 import {WidgetsMenu} from './WidgetsMenu.jsx';
+//22:02/2017 : adding config
+import env from '../services/config';
 
 class Simbologia extends React.Component {
 
   render() {
     return (
-        <div className="simbologia_container"><img src="dist/css/images/symbology.png"></img></div>
+        <div className="simbologia_container"><img src={env.CSSDIRECTORY+"/images/symbology.png"}></img></div>
     );
   }
 

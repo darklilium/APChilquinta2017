@@ -825,7 +825,7 @@ class DrawerTest extends React.Component {
         <IconButton icon='lightbulb_outline' inverse={ true } onClick={this.handleToggle5.bind(this)} />
         <IconButton icon='settings_power' inverse={ true } onClick={this.handleLogout.bind(this)} />
 
-        
+
         <Drawer active={this.state.active} onOverlayClick={this.handleToggle}>
           <div className="drawer_banner">
             <Logo />

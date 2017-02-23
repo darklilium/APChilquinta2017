@@ -1,6 +1,8 @@
 @import 'react-select';
 @import 'wallop';
 
+
+
 //logo css
 /**{
   clear: both;
@@ -125,7 +127,7 @@ html, body ,#app,#map, #municipalidad{
 .drawer_banner{
   display: flex;
   width: 100%;
-  height: 5rem;
+  height: 6.1rem;
   background-color: #007bf7;
   flex-direction: row;
   justify-content: space-between;
@@ -166,6 +168,8 @@ justify-content: space-between;
   display: flex;
   flex-direction: column;
   font-size: large;
+  justify-content: space-between;
+    height: 100%;
 }
 
 
@@ -460,7 +464,7 @@ align-items: center;
 flex-direction: column;
 }
 .wrapperTop_midTitle h6{
-  font-size: medium;
+  font-size: inherit;
     font-weight: normal;
 }
 
@@ -551,6 +555,7 @@ height: 100%;
   display: flex;
   visibility: visible;
   flex-direction: column;
+  height: 100%;
 
 }
 
@@ -567,6 +572,48 @@ height: 100%;
 .muniTitulo-40percent{
   font-size: 15px;
 }
+
+//20 02 2017
+.drawer_banner_divTitle{
+  display: flex;
+  align-items: center;
+  width: 100%;
+  justify-content: center;
+}
+
+.drawer_title_divh7{
+  display: flex;
+  justify-content: center;
+  margin: 2em 1em 1em 1em;
+}
+
+.drawer_title_divh7 h7 {
+  font-size: 14px;
+  text-align: center;
+}
+
+.drawer_exportarButtonContainer h7 {
+  font-size: 14px;
+  text-align: center;
+}
+
+.banner_fix{
+    height: 6.0rem;
+}
+
+.banner_fix1{
+    height: 5.0rem;
+}
+
+.wrapperTop_midTitle{
+//justify-content: flex-end;
+align-self: center;
+}
+
+.drawer_busquedas{
+  justify-content: flex-start;
+}
+
 
 //LOGIN MEDIAS
 @media screen and (max-width: 600px) and (orientation: portrait){
