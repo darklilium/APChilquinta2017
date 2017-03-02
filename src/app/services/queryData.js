@@ -8,6 +8,12 @@ import Tooltip from 'react-toolbox/lib/tooltip';
 import React from 'react';
 import FeatureLayer from 'esri/layers/FeatureLayer';
 
+//02/03/2017: probando identify.
+import IdentifyTask from 'esri/tasks/IdentifyTask';
+import IdentifyParameters from 'esri/tasks/IdentifyParameters';
+
+
+
 var gLayerMedidor = new GraphicsLayer();
 var gLayerLumAsoc = new GraphicsLayer();
 var gLayerTramos = new GraphicsLayer();
@@ -327,6 +333,10 @@ function crearRectangulo(geometry,delta){
 
 		return rectangulo;
 }
+
+
+//02/03/2017:
+
 
 export {getMedidores,
   getLuminariasAsociadas,
