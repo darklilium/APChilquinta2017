@@ -562,6 +562,20 @@ height: 100%;
   font-size: 15px;
 }
 
+/**********************************************/
+.ap_error_wrapper{
+  display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    position: absolute;
+    height: 100%;
+}
+
+.ap_error_wrapper img {
+  width: 50%;
+}
+
 //LOGIN MEDIAS
 @media screen and (max-width: 600px) and (orientation: portrait){
   .login_input {

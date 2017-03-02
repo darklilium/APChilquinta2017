@@ -46,6 +46,8 @@ import {HeaderComponent, HeaderComponent2, HeaderComponent3} from './HeaderCompo
 import Graphic from 'esri/graphic';
 import makeSymbol from '../utils/makeSymbol';
 import cookieHandler from 'cookie-handler';
+import {AP_Error} from './AP_PageError.jsx';
+import {getFormatedDate} from '../services/login-service';
 
 var options = [
     { value: 'ROTULO', label: 'Rótulo' },
@@ -820,6 +822,10 @@ class APMap extends React.Component {
   };
 
   handleLogout(){
+    cookieHandler.remove('usrnm');
+    cookieHandler.remove('mn');
+    cookieHandler.remove('tkn');
+
     if(env.ENVIRONMENT=='DEVELOPMENT'){
       window.location.href = env.WEBSERVERADDRESS;
       //browserHistory.push(env.ROUTEPATH);
@@ -1415,6 +1421,9 @@ class APMap extends React.Component {
 
   render(){
     let logoName = cookieHandler.get('mn');
+    let namee = cookieHandler.get('usrnm');
+
+
     let src = env.CSSDIRECTORY  + "images/logos/logos_menu/"+ cookieHandler.get('mn') + ".png";
     let DisplayPics;
 
@@ -1543,402 +1552,424 @@ class APMap extends React.Component {
       bodyCssClassName: rowData => (rowData['ID LUMINARIA'] === this.state.selectedRowId3 ? 'selected' : ''),
     };
 
+    let rendering = null;
+    if(logoName && namee){
+      var d = cookieHandler.get('wllExp');
+        if(d > getFormatedDate()){
+          console.log("dentro del rango");
+          if(!cookieHandler.get('tkn')){
+            console.log("no hay, redirect...");
+            window.location.href = "index.html";
+          }else{
+            rendering = <div className="contenido">
+
+                    {/* DRAWER BUSQUEDA */}
+                    <div className="contenido_drawerleft1">
+
+                      <div id="busquedaDrawer" className="drawerVisibility_notShow">
+                        <div className="drawer_banner banner_fix">
+                          {/*<Logo />*/}
+                          <div className="drawer_banner_divTitle">
+                            <h6 className="drawer_banner_title">Búsqueda</h6>
+                          </div>
+                          <div>
+                            <IconButton className="btnCerrarDrawer" icon='close' accent onClick={this.onClickCerrarDrawer.bind(this,"busqueda")} />
+                         </div>
+                        </div>
+                        <ProgressBar className="drawer_progressBar" type="linear" mode="indeterminate" />
+                        <div className="drawer_title_divh7"><h7><b>Seleccione un tipo de búsqueda:</b></h7></div>
+
+                        <div className="drawer_content drawer_busquedas">
+
+                          {/*<List selectable ripple>
+                            <ListSubHeader className="drawer_listSubHeader drawer_busquedaTitle" caption='Seleccione un tipo de búsqueda:' />
+                          </List>
+                          */}
+                          <Select
+                              name="form-field-name"
+                              value={this.state.tipoBusqueda}
+                              options={options}
+                              onChange={this.logChange.bind(this)}
+                          />
+                          <Input className="drawer_input" type='text' label={this.state.labelBusqueda} name='name' value={this.state.valorBusqueda} onChange={this.handleChange.bind(this, 'valorBusqueda')} maxLength={16} />
+                          <div className="drawer_buttonsContent">
+                            <Button className="drawer_button" icon='search' label='Buscar' raised primary onClick={this.onClickBusqueda.bind(this)} />
+                            <Button icon='delete_sweep' label='Limpiar Búsqueda' raised primary onClick={this.onClickLimpiarBusqueda.bind(this)} />
+                          </div>
+                        </div>
+
+                      </div>
+                    </div>
+
+                    {/* DRAWER MAPAS */}
+                    <div className="contenido_drawerleft2">
+                      <div id="cambiarMapaDrawer">
+                        <div className="drawer_banner banner_fix1">
+                          {/*<Logo />*/}
+                          <div className="drawer_banner_divTitle">
+                            <h6  className="drawer_banner_title">Seleccionar Mapa</h6>
+                          </div>
+                          <div>
+                            <IconButton className="btnCerrarDrawer" icon='close' accent onClick={this.onClickCerrarDrawer.bind(this,"mapas")} />
+                          </div>
+                        </div>
+                      {/* <ListSubHeader className="drawer_listSubHeader" caption='Seleccione un mapa para visualizar:' />*/}
+                        <div className="drawer_title_divh7"><h7><b>Seleccione un mapa para visualizar:</b></h7></div>
+                        <RadioGroup className="drawer_radiogroup" name='mapSelector' value={this.state.mapSelected} onChange={this.handleRadioMapas.bind(this)}>
+                          <RadioButton label='Topográfico' value='topo'/>
+                          <RadioButton label='Híbrido' value='hybrid'/>
+                          <RadioButton label='Aéreo' value='satelite'/>
+                          <RadioButton label='Aéreo con Etiquetas' value='satelitewithlabels'/>
+                          <RadioButton label='Caminos' value='calles'/>
+                        </RadioGroup>
+                        <ProgressBar type="circular" mode="indeterminate" className="drawer_progressBar" />
+
+                      </div>
+                    </div>
+
+                    {/* DRAWER LAYERS */}
+                    <div className="contenido_drawerleft3">
+                      <div id="cambiarLayersDrawer">
+                        <div className="drawer_banner banner_fix1">
+                          {/*<Logo />*/}
+                          <div className="drawer_banner_divTitle">
+                            <h6  className="drawer_banner_title">Seleccionar Layers</h6>
+                          </div>
+                          <div>
+                            <IconButton className="btnCerrarDrawer" icon='close' accent onClick={this.onClickCerrarDrawer.bind(this,"layers")} />
+                          </div>
+                        </div>
+                        <div className="drawer_title_divh7"><h7><b>Seleccione uno o más layers para visualizar:</b></h7></div>
+                        <List selectable ripple>
+                          {/*<ListSubHeader className="drawer_listSubHeader" caption='Seleccione uno o más layers para visualizar:' />*/}
+                          <ListCheckbox
+                            caption='Luminarias'
+                            checked={this.state.checkbox}
+                            legend=''
+                            onChange={this.handleCheckboxChange.bind(this,"LUMINARIAS")}
+                          />
+                          <ListCheckbox
+                            caption='Tramos AP'
+                            checked={this.state.checkbox2}
+                            legend=''
+                            onChange={this.handleCheckboxChange.bind(this,"TRAMOSAP")}
+                          />
+                          <ListCheckbox
+                            caption='Modificaciones'
+                            checked={this.state.checkbox3}
+                            legend=''
+                            onChange={this.handleCheckboxChange.bind(this,"MODIFICACIONES")}
+                          />
+                          <ListCheckbox
+                            caption='Límite Comunal'
+                            checked={this.state.checkbox4}
+                            legend=''
+                            onChange={this.handleCheckboxChange.bind(this,"LIMITECOMUNAL")}
+                          />
+                          <ListDivider />
+                        </List>
+                      </div>
+                    </div>
+
+                    {/* DRAWER MEDIDORES */}
+                    <div className="contenido_drawerleft4">
+                      <div id="mostrarMedidoresDrawer">
+                        <div className="drawer_banner">
+                          {/*<Logo />*/}
+                          <div className="drawer_banner_divTitle">
+                            <h6 className="drawer_banner_title">Medidores y Luminarias Asociadas</h6>
+                          </div>
+                          <div>
+                            <IconButton className="btnCerrarDrawer" icon='close' accent onClick={this.onClickCerrarDrawer.bind(this,"medidores")} />
+                          </div>
+                        </div>
+                        <ProgressBar className="drawer_progressBar" type="linear" mode="indeterminate" />
+                        <div className="drawer_content">
+                          <div className="drawer_griddle_medidores">
+                            <div className="drawer_exportarButtonContainer">
+                              <h7><b>Seleccione un medidor para ver sus luminarias asociadas y ubicación</b></h7>
+                              <Button icon='file_download' label='Exportar' accent onClick={this.onClickExportarMedidores.bind(this)} />
+                            </div>
+                            <Griddle  resultsPerPage={6} rowMetadata={rowMetadata} columnMetadata={columnMetaMedidores} ref="griddleTable" className="drawer_griddle_medidores" results={this.state.dataMedidores} columns={["ID EQUIPO","NIS","CANT. LUMINARIAS","CANT. TRAMOS","TIPO","ROTULO"]} onRowClick = {this.onRowClick.bind(this)} uniqueIdentifier="ID EQUIPO" />
+                          </div>
+                          <div className="drawer_griddle_medidores">
+                            <div className="drawer_exportarButtonContainer">
+
+                            <h7><b>{this.state.labelNumeroMedidor}</b></h7>
+                              <Button icon='file_download' label='Exportar' accent onClick={this.onClickExportarAsociadas.bind(this, "dataLuminarias")} />
+                            </div>
+                            <Griddle resultsPerPage={6} rowMetadata={rowMetadata2} columnMetadata={columnMetaLuminariasAsociadas}  ref="griddleTable" className="drawer_griddle_medidores" results={this.state.dataLuminarias} columns={["ID LUMINARIA","TIPO CONEXION","PROPIEDAD","DESCRIPCION","ROTULO"]} onRowClick = {this.onRowClickLuminariasAsociadas.bind(this)} uniqueIdentifier="ID LUMINARIA" />
+                          </div>
+                        </div>
+                        <div className="drawer_medidoresButtons">
+                          <Button icon='delete_sweep' label='Limpiar ubicación' raised primary onClick={this.onClickLimpiarBusqueda.bind(this)} />
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* DRAWER LUMINARIAS */}
+                    <div className="contenido_drawerleft5">
+                      <div id="mostrarLuminariasDrawer">
+                        <div className="drawer_banner">
+                          {/*<Logo />*/}
+                          <div className="drawer_banner_divTitle">
+                            <h6 className="drawer_banner_title">Lista de Luminarias de la comuna</h6>
+                          </div>
+                          <div>
+                            <IconButton className="btnCerrarDrawer" icon='close' accent onClick={this.onClickCerrarDrawer.bind(this,"luminarias")} />
+                          </div>
+                        </div>
+                        <ProgressBar className="drawer_progressBar" type="linear" mode="indeterminate" />
+                        <div className="drawer_content">
+                          <div className="drawer_griddle_medidores">
+                            <div className="drawer_exportarButtonContainer">
+                              <h7><b>Seleccione una luminaria para ver su ubicación</b></h7>
+                              <Button icon='file_download' label='Exportar' accent onClick={this.onClickExportarLuminarias.bind(this)} />
+                            </div>
+                            <Griddle resultsPerPage={12} ref="griddleTable3" className="drawer_griddle_medidores" rowMetadata={rowMetadata3}
+                            columnMetadata={columnMetaLuminarias}
+                            results={this.state.dataTodasLuminarias}
+                            columns={["ID LUMINARIA","TIPO CONEXION","PROPIEDAD","MEDIDO","DESCRIPCION", "ROTULO"]}
+                            onRowClick = {this.onRowClickLuminarias.bind(this)} uniqueIdentifier="ID LUMINARIA"  />
+                          </div>
+                        </div>
+                        <div className="drawer_medidoresButtons">
+                          <Button icon='delete_sweep' label='Limpiar ubicación' raised primary onClick={this.onClickLimpiarBusqueda.bind(this)} />
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* DRAWER EDICION */}
+                    <div className="contenido_drawerleftEspecial">
+                      <div id="mostrarEdicionDrawer">
+                        <div className="drawer_banner">
+                        {/*<Logo />*/}
+                        <div className="drawer_banner_divTitle">
+                          <h6 className="drawer_banner_title">Editar Luminaria</h6>
+                        </div>
+                        <div>
+                          <IconButton className="btnCerrarDrawer" icon='close' accent onClick={this.onClickCerrarDrawer.bind(this,"edicion")} />
+                        </div>
+                      </div>
+                      <ProgressBar className="drawer_progressBar" type="linear" mode="indeterminate" />
+                      <div className="drawer_content">
+
+                        <Tabs onSelect={this.handleSelect.bind(this)} selectedIndex={this.state.selectedTab}>
+                          <TabList>
+                            <Tab><i className="fa fa-pencil"></i></Tab>
+                            <Tab><i className="fa fa-camera button-span" aria-hidden="true"></i></Tab>
+                            <Tab><i className="fa fa-bolt button-span" aria-hidden="true"></i></Tab>
+                          </TabList>
+                          {/* tab de edicion */}
+                          <TabPanel>
+                            <div className="drawer_griddle_medidores">
+                              <div className="drawer_exportarButtonContainer">
+                                 <IconButton onClick={this.onClickAnteriorLuminaria.bind(this)} primary icon="keyboard_arrow_left"></IconButton>
+                                 <h7>{this.state.counter} de {this.state.counterTotal}</h7>
+                                 <IconButton  onClick={this.onClickSiguienteLuminaria.bind(this)} primary icon="keyboard_arrow_right"></IconButton>
+                              </div>
+                              <div className="drawer_exportarButtonContainer">
+                                <h7><b>Edite la información de la luminaria</b></h7>
+                              </div>
+                              <hr />
+
+                              <div className="drawer_elements">
+                                <div className="drawer_elements_group">
+                                  <div className="drawer_column_titles">
+                                    <h6>ID Luminaria: </h6>
+                                  </div>
+
+                                  <div className="drawer_column_values">
+                                    <h6>{this.state.datosLuminariaAEditar.id_luminaria}</h6>
+                                    <h8 className="drawer_h8_modificaciones">{this.state.datosLuminariaModificada.id_luminaria}</h8>
+                                  </div>
+                                </div>
+
+                                <div className="drawer_elements_group">
+                                  <div className="drawer_column_titles">
+                                    <h6>ID Nodo: </h6>
+                                  </div>
+
+                                  <div className="drawer_column_values">
+                                    <h6>{this.state.datosLuminariaAEditar.id_nodo}</h6>
+                                    <h8 className="drawer_h8_modificaciones">{this.state.datosLuminariaModificada.id_nodo}</h8>
+                                  </div>
+                                </div>
+
+                                <div className="drawer_elements_group">
+                                  <div className="drawer_column_titles">
+                                    <h6>Tipo Conexión:</h6>
+                                  </div>
+
+                                  <div className="drawer_column_values">
+                                    <Select
+                                      name="form-field-name"
+                                      value={this.state.tipoConexion}
+                                      options={opcionesTipoConexion}
+                                      onChange={this.logChangeCombos.bind(this)}
+                                    />
+                                    <h8 className="drawer_h8_modificaciones">{this.state.datosLuminariaModificada.tipo_conexion}</h8>
+                                  </div>
+                                </div>
+
+                                <div className="drawer_elements_group">
+                                  <div className="drawer_column_titles">
+                                    <h6>Tipo:</h6>
+                                  </div>
+
+                                  <div className="drawer_column_values">
+                                    <Select
+                                      name="form-field-name"
+                                      value={this.state.tipoLuminaria}
+                                      options={opcionesTipo}
+                                      onChange={this.logChangeCombos.bind(this)}
+                                    />
+                                    <h8 className="drawer_h8_modificaciones">{this.state.datosLuminariaModificada.tipo}</h8>
+                                  </div>
+                                </div>
+
+                                <div className="drawer_elements_group">
+                                  <div className="drawer_column_titles">
+                                    <h6>Potencia:</h6>
+                                  </div>
+
+                                  <div className="drawer_column_values">
+                                    <Select
+                                      name="form-field-name"
+                                      value={this.state.tipoPotencia}
+                                      options={opcionesPotencia}
+                                      onChange={this.logChangeCombos.bind(this)}
+                                    />
+                                    <h8 className="drawer_h8_modificaciones">{this.state.datosLuminariaModificada.potencia}</h8>
+                                  </div>
+                                </div>
+
+                                <div className="drawer_elements_group">
+                                  <div className="drawer_column_titles">
+                                    <h6>Propiedad:</h6>
+                                  </div>
+
+                                  <div className="drawer_column_values">
+                                    <Select
+                                      name="form-field-name"
+                                      value={this.state.tipoPropiedad}
+                                      options={opcionesPropiedad}
+                                      onChange={this.logChangeCombos.bind(this)}
+                                    />
+                                    <h8 className="drawer_h8_modificaciones">{this.state.datosLuminariaModificada.propiedad}</h8>
+                                  </div>
+                                </div>
+
+                                <div className="drawer_elements_group">
+                                  <div className="drawer_column_titles">
+                                    <h6>Rótulo:</h6>
+                                  </div>
+
+                                  <div className="drawer_column_values">
+                                    <Input className="drawer_input" type='text' value={this.state.rotulo}  name='name' onChange={this.handleChangeRotulo.bind(this)} maxLength={16} />
+                                    <h8 className="drawer_h8_modificaciones">{this.state.datosLuminariaModificada.rotulo}</h8>
+                                  </div>
+                                </div>
+
+                                <div className="drawer_elements_group">
+                                  <div className="drawer_column_titles">
+                                    <h6>Observación:</h6>
+                                  </div>
+
+                                  <div className="drawer_column_values">
+                                    <Input className="drawer_input" type='text' value={this.state.observaciones}  name='name' onChange={this.handleChangeObservaciones.bind(this)} maxLength={16} />
+                                    <h8 className="drawer_h8_modificaciones">{this.state.datosLuminariaModificada.observaciones}</h8>
+                                  </div>
+                                </div>
+                              </div>
+
+                            </div>
+
+                            <div className="drawer_editarButtons">
+                              <Button icon='update' label='Actualizar' className="editar_button" raised primary onClick={this.onActualizar.bind(this)}  />
+                              <Button icon='delete_sweep' label='Eliminar' className="editar_button" raised primary onClick={this.onEliminar.bind(this)}  />
+                              <Button icon='create' label='Nuevo' className="editar_button" raised primary onClick={this.onNuevo.bind(this)}  />
+                            </div>
+
+                          </TabPanel>
+
+                          {/* Tabs de fotos */}
+                          <TabPanel>
+                            <div className="sliderContainer">
+                              <Slider {...settings} afterChange={this.afterChange.bind(this)}>
+                               {DisplayPics}
+                             </Slider>
+                            </div>
+                            <div className="drawer_viewerButton_container">
+                              <Button icon='photo_camera' label='Ver en pantalla completa' className="editar_button" raised primary onClick={this.onVerFotografía.bind(this)}  />
+                            </div>
+
+                          </TabPanel>
+                          {/* Tabs de circuito asociado */}
+                          <TabPanel>
+
+                            <div className="drawer_griddle_medidores">
+                              <div className="drawer_exportarButtonContainer">
+
+                              <h7><b>Luminarias Asociadas al medidor : {this.state.numeroMedidorAsociado}</b></h7>
+                                <Button icon='file_download' label='Exportar' accent onClick={this.onClickExportarAsociadas.bind(this, "luminariaEditar")} />
+                              </div>
+                              <Griddle rowMetadata={rowMetadata2} columnMetadata={columnMetaLuminariasAsociadas}  ref="griddleTable" className="drawer_griddle_medidores" results={this.state.dataLuminariasRelacionadas} columns={["ID LUMINARIA","TIPO CONEXION","PROPIEDAD","DESCRIPCION","ROTULO"]} onRowClick = {this.onRowClickLuminariasAsociadas.bind(this)} uniqueIdentifier="ID LUMINARIA" />
+                            </div>
+                          </TabPanel>
+                          </Tabs>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="contenido_mapa">
+                      {/* BARRA DE TITULO */}
+                      <Panel>
+                          <AppBar>
+                            <div className="wrapperTop">
+                              <Logo />
+                              <div className="wrapperTop_midTitle">
+                                <h6>Ilustre Municipalidad de </h6>
+                                <h5 className="muniTitulo">{this.state.comuna[0].originalName}</h5>
+                              </div>
+                              <div className="welcome_logout_wrapper">
+                                <img src={src} ></img>
+                                <div className="drawer_buttons">
+                                  <IconButton icon='search' inverse={ true } onClick={this.handleToggle} />
+                                  <IconButton icon='map' inverse={ true } onClick={this.handleToggle2} />
+                                  <IconButton icon='layers' inverse={ true } onClick={this.handleToggle3} />
+                                  <IconButton icon='settings_input_svideo' inverse={ true } onClick={this.handleToggle4} />
+                                  <IconButton icon='lightbulb_outline' inverse={ true } onClick={this.handleToggle5.bind(this)} />
+                                  <IconButton icon='settings_power' inverse={ true } onClick={this.handleLogout.bind(this)} />
+                                </div>
+                              </div>
+                            </div>
+                          </AppBar>
+                      </Panel>
+
+                      <ProgressBar className="drawer_progressBar2" type="linear" mode="indeterminate" />
+                      {/* MAPA */}
+                      <div className="map_container">
+                        <div id="map"></div>
+                      </div>
+                      <Snackbar action='Aceptar' active={this.state.activeSnackbar} icon={this.state.snackbarIcon} label={this.state.snackbarMessage} onClick={this.handleSnackbarClick.bind(this)} type='cancel' />
+
+                    </div>
+                </div>;
+          }
+        }else{
+          console.log("Token expired");
+          window.location.href = "index.html";
+        }
+
+
+
+    }else{
+      rendering = <AP_Error />;
+    }
+
     return (
-      <div className="contenido">
-        {/* DRAWER BUSQUEDA */}
-        <div className="contenido_drawerleft1">
-
-          <div id="busquedaDrawer" className="drawerVisibility_notShow">
-            <div className="drawer_banner banner_fix">
-              {/*<Logo />*/}
-              <div className="drawer_banner_divTitle">
-                <h6 className="drawer_banner_title">Búsqueda</h6>
-              </div>
-              <div>
-                <IconButton className="btnCerrarDrawer" icon='close' accent onClick={this.onClickCerrarDrawer.bind(this,"busqueda")} />
-             </div>
-            </div>
-            <ProgressBar className="drawer_progressBar" type="linear" mode="indeterminate" />
-            <div className="drawer_title_divh7"><h7><b>Seleccione un tipo de búsqueda:</b></h7></div>
-
-            <div className="drawer_content drawer_busquedas">
-
-              {/*<List selectable ripple>
-                <ListSubHeader className="drawer_listSubHeader drawer_busquedaTitle" caption='Seleccione un tipo de búsqueda:' />
-              </List>
-              */}
-              <Select
-                  name="form-field-name"
-                  value={this.state.tipoBusqueda}
-                  options={options}
-                  onChange={this.logChange.bind(this)}
-              />
-              <Input className="drawer_input" type='text' label={this.state.labelBusqueda} name='name' value={this.state.valorBusqueda} onChange={this.handleChange.bind(this, 'valorBusqueda')} maxLength={16} />
-              <div className="drawer_buttonsContent">
-                <Button className="drawer_button" icon='search' label='Buscar' raised primary onClick={this.onClickBusqueda.bind(this)} />
-                <Button icon='delete_sweep' label='Limpiar Búsqueda' raised primary onClick={this.onClickLimpiarBusqueda.bind(this)} />
-              </div>
-            </div>
-
-          </div>
-        </div>
-
-        {/* DRAWER MAPAS */}
-        <div className="contenido_drawerleft2">
-          <div id="cambiarMapaDrawer">
-            <div className="drawer_banner banner_fix1">
-              {/*<Logo />*/}
-              <div className="drawer_banner_divTitle">
-                <h6  className="drawer_banner_title">Seleccionar Mapa</h6>
-              </div>
-              <div>
-                <IconButton className="btnCerrarDrawer" icon='close' accent onClick={this.onClickCerrarDrawer.bind(this,"mapas")} />
-              </div>
-            </div>
-          {/* <ListSubHeader className="drawer_listSubHeader" caption='Seleccione un mapa para visualizar:' />*/}
-            <div className="drawer_title_divh7"><h7><b>Seleccione un mapa para visualizar:</b></h7></div>
-            <RadioGroup className="drawer_radiogroup" name='mapSelector' value={this.state.mapSelected} onChange={this.handleRadioMapas.bind(this)}>
-              <RadioButton label='Topográfico' value='topo'/>
-              <RadioButton label='Híbrido' value='hybrid'/>
-              <RadioButton label='Aéreo' value='satelite'/>
-              <RadioButton label='Aéreo con Etiquetas' value='satelitewithlabels'/>
-              <RadioButton label='Caminos' value='calles'/>
-            </RadioGroup>
-            <ProgressBar type="circular" mode="indeterminate" className="drawer_progressBar" />
-
-          </div>
-        </div>
-
-        {/* DRAWER LAYERS */}
-        <div className="contenido_drawerleft3">
-          <div id="cambiarLayersDrawer">
-            <div className="drawer_banner banner_fix1">
-              {/*<Logo />*/}
-              <div className="drawer_banner_divTitle">
-                <h6  className="drawer_banner_title">Seleccionar Layers</h6>
-              </div>
-              <div>
-                <IconButton className="btnCerrarDrawer" icon='close' accent onClick={this.onClickCerrarDrawer.bind(this,"layers")} />
-              </div>
-            </div>
-            <div className="drawer_title_divh7"><h7><b>Seleccione uno o más layers para visualizar:</b></h7></div>
-            <List selectable ripple>
-              {/*<ListSubHeader className="drawer_listSubHeader" caption='Seleccione uno o más layers para visualizar:' />*/}
-              <ListCheckbox
-                caption='Luminarias'
-                checked={this.state.checkbox}
-                legend=''
-                onChange={this.handleCheckboxChange.bind(this,"LUMINARIAS")}
-              />
-              <ListCheckbox
-                caption='Tramos AP'
-                checked={this.state.checkbox2}
-                legend=''
-                onChange={this.handleCheckboxChange.bind(this,"TRAMOSAP")}
-              />
-              <ListCheckbox
-                caption='Modificaciones'
-                checked={this.state.checkbox3}
-                legend=''
-                onChange={this.handleCheckboxChange.bind(this,"MODIFICACIONES")}
-              />
-              <ListCheckbox
-                caption='Límite Comunal'
-                checked={this.state.checkbox4}
-                legend=''
-                onChange={this.handleCheckboxChange.bind(this,"LIMITECOMUNAL")}
-              />
-              <ListDivider />
-            </List>
-          </div>
-        </div>
-
-        {/* DRAWER MEDIDORES */}
-        <div className="contenido_drawerleft4">
-          <div id="mostrarMedidoresDrawer">
-            <div className="drawer_banner">
-              {/*<Logo />*/}
-              <div className="drawer_banner_divTitle">
-                <h6 className="drawer_banner_title">Medidores y Luminarias Asociadas</h6>
-              </div>
-              <div>
-                <IconButton className="btnCerrarDrawer" icon='close' accent onClick={this.onClickCerrarDrawer.bind(this,"medidores")} />
-              </div>
-            </div>
-            <ProgressBar className="drawer_progressBar" type="linear" mode="indeterminate" />
-            <div className="drawer_content">
-              <div className="drawer_griddle_medidores">
-                <div className="drawer_exportarButtonContainer">
-                  <h7><b>Seleccione un medidor para ver sus luminarias asociadas y ubicación</b></h7>
-                  <Button icon='file_download' label='Exportar' accent onClick={this.onClickExportarMedidores.bind(this)} />
-                </div>
-                <Griddle  resultsPerPage={6} rowMetadata={rowMetadata} columnMetadata={columnMetaMedidores} ref="griddleTable" className="drawer_griddle_medidores" results={this.state.dataMedidores} columns={["ID EQUIPO","NIS","CANT. LUMINARIAS","CANT. TRAMOS","TIPO","ROTULO"]} onRowClick = {this.onRowClick.bind(this)} uniqueIdentifier="ID EQUIPO" />
-              </div>
-              <div className="drawer_griddle_medidores">
-                <div className="drawer_exportarButtonContainer">
-
-                <h7><b>{this.state.labelNumeroMedidor}</b></h7>
-                  <Button icon='file_download' label='Exportar' accent onClick={this.onClickExportarAsociadas.bind(this, "dataLuminarias")} />
-                </div>
-                <Griddle resultsPerPage={6} rowMetadata={rowMetadata2} columnMetadata={columnMetaLuminariasAsociadas}  ref="griddleTable" className="drawer_griddle_medidores" results={this.state.dataLuminarias} columns={["ID LUMINARIA","TIPO CONEXION","PROPIEDAD","DESCRIPCION","ROTULO"]} onRowClick = {this.onRowClickLuminariasAsociadas.bind(this)} uniqueIdentifier="ID LUMINARIA" />
-              </div>
-            </div>
-            <div className="drawer_medidoresButtons">
-              <Button icon='delete_sweep' label='Limpiar ubicación' raised primary onClick={this.onClickLimpiarBusqueda.bind(this)} />
-            </div>
-          </div>
-        </div>
-
-        {/* DRAWER LUMINARIAS */}
-        <div className="contenido_drawerleft5">
-          <div id="mostrarLuminariasDrawer">
-            <div className="drawer_banner">
-              {/*<Logo />*/}
-              <div className="drawer_banner_divTitle">
-                <h6 className="drawer_banner_title">Lista de Luminarias de la comuna</h6>
-              </div>
-              <div>
-                <IconButton className="btnCerrarDrawer" icon='close' accent onClick={this.onClickCerrarDrawer.bind(this,"luminarias")} />
-              </div>
-            </div>
-            <ProgressBar className="drawer_progressBar" type="linear" mode="indeterminate" />
-            <div className="drawer_content">
-              <div className="drawer_griddle_medidores">
-                <div className="drawer_exportarButtonContainer">
-                  <h7><b>Seleccione una luminaria para ver su ubicación</b></h7>
-                  <Button icon='file_download' label='Exportar' accent onClick={this.onClickExportarLuminarias.bind(this)} />
-                </div>
-                <Griddle resultsPerPage={12} ref="griddleTable3" className="drawer_griddle_medidores" rowMetadata={rowMetadata3}
-                columnMetadata={columnMetaLuminarias}
-                results={this.state.dataTodasLuminarias}
-                columns={["ID LUMINARIA","TIPO CONEXION","PROPIEDAD","MEDIDO","DESCRIPCION", "ROTULO"]}
-                onRowClick = {this.onRowClickLuminarias.bind(this)} uniqueIdentifier="ID LUMINARIA"  />
-              </div>
-            </div>
-            <div className="drawer_medidoresButtons">
-              <Button icon='delete_sweep' label='Limpiar ubicación' raised primary onClick={this.onClickLimpiarBusqueda.bind(this)} />
-            </div>
-          </div>
-        </div>
-
-        {/* DRAWER EDICION */}
-        <div className="contenido_drawerleftEspecial">
-          <div id="mostrarEdicionDrawer">
-            <div className="drawer_banner">
-            {/*<Logo />*/}
-            <div className="drawer_banner_divTitle">
-              <h6 className="drawer_banner_title">Editar Luminaria</h6>
-            </div>
-            <div>
-              <IconButton className="btnCerrarDrawer" icon='close' accent onClick={this.onClickCerrarDrawer.bind(this,"edicion")} />
-            </div>
-          </div>
-          <ProgressBar className="drawer_progressBar" type="linear" mode="indeterminate" />
-          <div className="drawer_content">
-
-            <Tabs onSelect={this.handleSelect.bind(this)} selectedIndex={this.state.selectedTab}>
-              <TabList>
-                <Tab><i className="fa fa-pencil"></i></Tab>
-                <Tab><i className="fa fa-camera button-span" aria-hidden="true"></i></Tab>
-                <Tab><i className="fa fa-bolt button-span" aria-hidden="true"></i></Tab>
-              </TabList>
-              {/* tab de edicion */}
-              <TabPanel>
-                <div className="drawer_griddle_medidores">
-                  <div className="drawer_exportarButtonContainer">
-                     <IconButton onClick={this.onClickAnteriorLuminaria.bind(this)} primary icon="keyboard_arrow_left"></IconButton>
-                     <h7>{this.state.counter} de {this.state.counterTotal}</h7>
-                     <IconButton  onClick={this.onClickSiguienteLuminaria.bind(this)} primary icon="keyboard_arrow_right"></IconButton>
-                  </div>
-                  <div className="drawer_exportarButtonContainer">
-                    <h7><b>Edite la información de la luminaria</b></h7>
-                  </div>
-                  <hr />
-
-                  <div className="drawer_elements">
-                    <div className="drawer_elements_group">
-                      <div className="drawer_column_titles">
-                        <h6>ID Luminaria: </h6>
-                      </div>
-
-                      <div className="drawer_column_values">
-                        <h6>{this.state.datosLuminariaAEditar.id_luminaria}</h6>
-                        <h8 className="drawer_h8_modificaciones">{this.state.datosLuminariaModificada.id_luminaria}</h8>
-                      </div>
-                    </div>
-
-                    <div className="drawer_elements_group">
-                      <div className="drawer_column_titles">
-                        <h6>ID Nodo: </h6>
-                      </div>
-
-                      <div className="drawer_column_values">
-                        <h6>{this.state.datosLuminariaAEditar.id_nodo}</h6>
-                        <h8 className="drawer_h8_modificaciones">{this.state.datosLuminariaModificada.id_nodo}</h8>
-                      </div>
-                    </div>
-
-                    <div className="drawer_elements_group">
-                      <div className="drawer_column_titles">
-                        <h6>Tipo Conexión:</h6>
-                      </div>
-
-                      <div className="drawer_column_values">
-                        <Select
-                          name="form-field-name"
-                          value={this.state.tipoConexion}
-                          options={opcionesTipoConexion}
-                          onChange={this.logChangeCombos.bind(this)}
-                        />
-                        <h8 className="drawer_h8_modificaciones">{this.state.datosLuminariaModificada.tipo_conexion}</h8>
-                      </div>
-                    </div>
-
-                    <div className="drawer_elements_group">
-                      <div className="drawer_column_titles">
-                        <h6>Tipo:</h6>
-                      </div>
-
-                      <div className="drawer_column_values">
-                        <Select
-                          name="form-field-name"
-                          value={this.state.tipoLuminaria}
-                          options={opcionesTipo}
-                          onChange={this.logChangeCombos.bind(this)}
-                        />
-                        <h8 className="drawer_h8_modificaciones">{this.state.datosLuminariaModificada.tipo}</h8>
-                      </div>
-                    </div>
-
-                    <div className="drawer_elements_group">
-                      <div className="drawer_column_titles">
-                        <h6>Potencia:</h6>
-                      </div>
-
-                      <div className="drawer_column_values">
-                        <Select
-                          name="form-field-name"
-                          value={this.state.tipoPotencia}
-                          options={opcionesPotencia}
-                          onChange={this.logChangeCombos.bind(this)}
-                        />
-                        <h8 className="drawer_h8_modificaciones">{this.state.datosLuminariaModificada.potencia}</h8>
-                      </div>
-                    </div>
-
-                    <div className="drawer_elements_group">
-                      <div className="drawer_column_titles">
-                        <h6>Propiedad:</h6>
-                      </div>
-
-                      <div className="drawer_column_values">
-                        <Select
-                          name="form-field-name"
-                          value={this.state.tipoPropiedad}
-                          options={opcionesPropiedad}
-                          onChange={this.logChangeCombos.bind(this)}
-                        />
-                        <h8 className="drawer_h8_modificaciones">{this.state.datosLuminariaModificada.propiedad}</h8>
-                      </div>
-                    </div>
-
-                    <div className="drawer_elements_group">
-                      <div className="drawer_column_titles">
-                        <h6>Rótulo:</h6>
-                      </div>
-
-                      <div className="drawer_column_values">
-                        <Input className="drawer_input" type='text' value={this.state.rotulo}  name='name' onChange={this.handleChangeRotulo.bind(this)} maxLength={16} />
-                        <h8 className="drawer_h8_modificaciones">{this.state.datosLuminariaModificada.rotulo}</h8>
-                      </div>
-                    </div>
-
-                    <div className="drawer_elements_group">
-                      <div className="drawer_column_titles">
-                        <h6>Observación:</h6>
-                      </div>
-
-                      <div className="drawer_column_values">
-                        <Input className="drawer_input" type='text' value={this.state.observaciones}  name='name' onChange={this.handleChangeObservaciones.bind(this)} maxLength={16} />
-                        <h8 className="drawer_h8_modificaciones">{this.state.datosLuminariaModificada.observaciones}</h8>
-                      </div>
-                    </div>
-                  </div>
-
-                </div>
-
-                <div className="drawer_editarButtons">
-                  <Button icon='update' label='Actualizar' className="editar_button" raised primary onClick={this.onActualizar.bind(this)}  />
-                  <Button icon='delete_sweep' label='Eliminar' className="editar_button" raised primary onClick={this.onEliminar.bind(this)}  />
-                  <Button icon='create' label='Nuevo' className="editar_button" raised primary onClick={this.onNuevo.bind(this)}  />
-                </div>
-
-              </TabPanel>
-
-              {/* Tabs de fotos */}
-              <TabPanel>
-                <div className="sliderContainer">
-                  <Slider {...settings} afterChange={this.afterChange.bind(this)}>
-                   {DisplayPics}
-                 </Slider>
-                </div>
-                <div className="drawer_viewerButton_container">
-                  <Button icon='photo_camera' label='Ver en pantalla completa' className="editar_button" raised primary onClick={this.onVerFotografía.bind(this)}  />
-                </div>
-
-              </TabPanel>
-              {/* Tabs de circuito asociado */}
-              <TabPanel>
-
-                <div className="drawer_griddle_medidores">
-                  <div className="drawer_exportarButtonContainer">
-
-                  <h7><b>Luminarias Asociadas al medidor : {this.state.numeroMedidorAsociado}</b></h7>
-                    <Button icon='file_download' label='Exportar' accent onClick={this.onClickExportarAsociadas.bind(this, "luminariaEditar")} />
-                  </div>
-                  <Griddle rowMetadata={rowMetadata2} columnMetadata={columnMetaLuminariasAsociadas}  ref="griddleTable" className="drawer_griddle_medidores" results={this.state.dataLuminariasRelacionadas} columns={["ID LUMINARIA","TIPO CONEXION","PROPIEDAD","DESCRIPCION","ROTULO"]} onRowClick = {this.onRowClickLuminariasAsociadas.bind(this)} uniqueIdentifier="ID LUMINARIA" />
-                </div>
-              </TabPanel>
-              </Tabs>
-            </div>
-          </div>
-        </div>
-
-        <div className="contenido_mapa">
-          {/* BARRA DE TITULO */}
-          <Panel>
-              <AppBar>
-                <div className="wrapperTop">
-                  <Logo />
-                  <div className="wrapperTop_midTitle">
-                    <h6>Ilustre Municipalidad de </h6>
-                    <h5 className="muniTitulo">{this.state.comuna[0].originalName}</h5>
-                  </div>
-                  <div className="welcome_logout_wrapper">
-                    <img src={src} ></img>
-                    <div className="drawer_buttons">
-                      <IconButton icon='search' inverse={ true } onClick={this.handleToggle} />
-                      <IconButton icon='map' inverse={ true } onClick={this.handleToggle2} />
-                      <IconButton icon='layers' inverse={ true } onClick={this.handleToggle3} />
-                      <IconButton icon='settings_input_svideo' inverse={ true } onClick={this.handleToggle4} />
-                      <IconButton icon='lightbulb_outline' inverse={ true } onClick={this.handleToggle5.bind(this)} />
-                      <IconButton icon='settings_power' inverse={ true } onClick={this.handleLogout.bind(this)} />
-                    </div>
-                  </div>
-                </div>
-              </AppBar>
-          </Panel>
-
-          <ProgressBar className="drawer_progressBar2" type="linear" mode="indeterminate" />
-          {/* MAPA */}
-          <div className="map_container">
-            <div id="map"></div>
-          </div>
-          <Snackbar action='Aceptar' active={this.state.activeSnackbar} icon={this.state.snackbarIcon} label={this.state.snackbarMessage} onClick={this.handleSnackbarClick.bind(this)} type='cancel' />
-
-        </div>
-
-      </div>
+      <div style={{height: '100%'}}>{rendering}</div>
 
     );
   }

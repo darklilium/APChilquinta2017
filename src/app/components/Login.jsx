@@ -14,6 +14,7 @@ import {browserHistory} from 'react-router';
 
 import {Snackbar} from 'react-toolbox';
 import env from '../services/config';
+import {getFormatedDateExp} from '../services/login-service';
 
 class Login extends React.Component {
   constructor(){
@@ -67,6 +68,7 @@ class Login extends React.Component {
           //  window.location.href = "interrupciones.html";
             //browserHistory.push("chilquinta");
             console.log("mi usuario tiene vialactea, entrar en dashboard de ap");
+            cookieHandler.set('wllExp',getFormatedDateExp())
             //browserHistory.push("dashboard");
             window.location.href = "dashboard.html";
           }else{
@@ -89,6 +91,7 @@ class Login extends React.Component {
               //  browserHistory.push(`muni${muni}`);
                 console.log("mi usuario contiene muni, entrando directamente a la municipalidad que soy");
                 cookieHandler.set('mn',muni);
+                cookieHandler.set('wllExp',getFormatedDateExp())
                 window.location.href = "municipalidad.html";
               }else{
                 console.log("mi usuario tiene muni pero se logueo mal");
@@ -102,6 +105,7 @@ class Login extends React.Component {
               if(!callback.error){
                   //browserHistory.push("chilquinta");
                   console.log("mi usuario no es municipal, entrando en dashboard de ap");
+                  cookieHandler.set('wllExp',getFormatedDateExp())
                   //browserHistory.push("dashboard");
                   window.location.href = "dashboard.html";
               }else{
