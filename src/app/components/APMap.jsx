@@ -309,7 +309,7 @@ class APMap extends React.Component {
 
     //02/032017: agregando IdentifyTask
     var LuminariasLayer = new ArcGISDynamicMapServiceLayer(layers.read_dynamic_ap(),
-    {minScale: 6000});
+    {});
     LuminariasLayer.setImageFormat("png32");
     var layerDefinitions = [];
 
@@ -1278,38 +1278,87 @@ class APMap extends React.Component {
           console.log(n,"array")
         LuminariasLayer.setVisibleLayers([n]);
       }
-
-
       break;
 
       case "TRAMOSAP":
       this.setState({checkbox2: !this.state.checkbox2});
       if(!this.state.checkbox2){
-        LuminariasLayer.setVisibleLayers([0,1,2,3,4]);
+        var a = update(this.state.layerList, {1: {visibility: {$set: true}}});
+        let numbersToShow = _.filter(a,(nts)=>{console.log(nts); return !nts.visibility});
+        console.log(numbersToShow.map(n=>{n}),"show..");
+        let n = numbersToShow.map(n=>{
+          console.log(n.number);
+          return n.number;
+
+        });
+        console.log(n,"array")
+        LuminariasLayer.setVisibleLayers([n]);
+
       }else{
-        LuminariasLayer.setVisibleLayers([0,1,3,4]);
+        var a = update(this.state.layerList, {1: {visibility: {$set: false}}});
+        let numbersToShow = _.filter(a,(nts)=>{console.log(nts); return nts.visibility});
+        console.log(numbersToShow,"show..");
+        let n = numbersToShow.map(n=>{
+          console.log(n.number);
+          return n.number;
+        });
+          console.log(n,"array")
+        LuminariasLayer.setVisibleLayers([n]);
       }
       break;
 
       case 'MODIFICACIONES':
-        this.setState({checkbox3: !this.state.checkbox3});
-        if(!this.state.checkbox3){
-          console.log("en true, prender MODIFICACIONES");
+      this.setState({checkbox3: !this.state.checkbox3});
+      if(!this.state.checkbox3){
+        var a = update(this.state.layerList, {2: {visibility: {$set: true}}});
+        let numbersToShow = _.filter(a,(nts)=>{console.log(nts); return !nts.visibility});
+        console.log(numbersToShow.map(n=>{n}),"show..");
+        let n = numbersToShow.map(n=>{
+          console.log(n.number);
+          return n.number;
 
-        }else{
-          console.log("en false, apagar MODIFICACIONES");
-        }
+        });
+        console.log(n,"array")
+        LuminariasLayer.setVisibleLayers([n]);
+
+      }else{
+        var a = update(this.state.layerList, {2: {visibility: {$set: false}}});
+        let numbersToShow = _.filter(a,(nts)=>{console.log(nts); return nts.visibility});
+        console.log(numbersToShow,"show..");
+        let n = numbersToShow.map(n=>{
+          console.log(n.number);
+          return n.number;
+        });
+          console.log(n,"array")
+        LuminariasLayer.setVisibleLayers([n]);
+      }
       break;
 
       case 'LIMITECOMUNAL':
-        this.setState({checkbox4: !this.state.checkbox4});
-        if(!this.state.checkbox4){
-          console.log("en true, prender LIMITECOMUNAL");
-              //  mapp.addLayer(limiteComunalLayer,index);
+      this.setState({checkbox4: !this.state.checkbox4});
+      if(!this.state.checkbox4){
+        var a = update(this.state.layerList, {3: {visibility: {$set: true}}});
+        let numbersToShow = _.filter(a,(nts)=>{console.log(nts); return !nts.visibility});
+        console.log(numbersToShow.map(n=>{n}),"show..");
+        let n = numbersToShow.map(n=>{
+          console.log(n.number);
+          return n.number;
 
-        }else{
-          console.log("en false, apagar alim");
-        }
+        });
+        console.log(n,"array")
+        LuminariasLayer.setVisibleLayers([n]);
+
+      }else{
+        var a = update(this.state.layerList, {3: {visibility: {$set: false}}});
+        let numbersToShow = _.filter(a,(nts)=>{console.log(nts); return nts.visibility});
+        console.log(numbersToShow,"show..");
+        let n = numbersToShow.map(n=>{
+          console.log(n.number);
+          return n.number;
+        });
+          console.log(n,"array")
+        LuminariasLayer.setVisibleLayers([n]);
+      }
       break;
       default:
 
