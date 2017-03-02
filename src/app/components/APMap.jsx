@@ -49,6 +49,10 @@ import cookieHandler from 'cookie-handler';
 import {AP_Error} from './AP_PageError.jsx';
 import {getFormatedDate} from '../services/login-service';
 
+// 02/03/2017: agregando IdentifyTask
+import LayerList from "esri/dijit/LayerList";
+import update from 'react-addons-update'; // ES6
+
 var options = [
     { value: 'ROTULO', label: 'Rótulo' },
     { value: 'IDNODO', label: 'ID Nodo' }
@@ -120,6 +124,30 @@ class APMap extends React.Component {
   constructor(props){
     super(props);
     this.state = {
+      //02/03/2017: Agregando layerlist con servicio dinámico.
+      dynamicService :{},
+      layerList : [
+        { name: 'LUMINARIAS',
+          number: 1,
+          visibility: true
+        },
+        {
+          name: 'TRAMOSAP',
+          number: 2,
+          visibility: true
+        },
+        {
+          name: 'MODIFICACIONES',
+          number: 0,
+          visibility: true
+        },
+        {
+          name: 'LIMITECOMUNAL',
+          number: 4,
+          visibility: true
+        }
+      ],
+
       counter: 0,
       counterTotal: 0,
       allElements: [],
@@ -193,7 +221,7 @@ class APMap extends React.Component {
     var mapp = mymap.createMap("map","topo",this.state.comuna[0].extent[0], this.state.comuna[0].extent[1],12);
 
     //layers para ap.
-    var luminariasLayer = new esri.layers.FeatureLayer(layers.read_luminarias(),{id:"ap_luminarias", mode: esri.layers.FeatureLayer.MODE_ONDEMAND, minScale: 6000, outFields: ["*"]});
+    /*var luminariasLayer = new esri.layers.FeatureLayer(layers.read_luminarias(),{id:"ap_luminarias", mode: esri.layers.FeatureLayer.MODE_ONDEMAND, minScale: 6000, outFields: ["*"]});
     luminariasLayer.setDefinitionExpression("COMUNA = '"+ this.state.comuna[0].queryName+"'" );
 
     var tramosAPLayer = new esri.layers.FeatureLayer(layers.read_tramosAP(),{id:"ap_tramos", mode: esri.layers.FeatureLayer.MODE_ONDEMAND, minScale: 6000});
@@ -277,6 +305,21 @@ class APMap extends React.Component {
             event.graphic.attributes['MEDIDO_TERRENO'],
             event.graphic.geometry);
     });
+    */
+
+    //02/032017: agregando IdentifyTask
+    var LuminariasLayer = new ArcGISDynamicMapServiceLayer(layers.read_dynamic_ap(),
+    {minScale: 6000});
+    LuminariasLayer.setImageFormat("png32");
+    var layerDefinitions = [];
+
+    layerDefinitions[0] = "COMUNA = '"+ this.state.comuna[0].queryName+"'";
+    layerDefinitions[1] = "COMUNA = '"+ this.state.comuna[0].queryName+"'";
+    layerDefinitions[2] = "COMUNA = '"+ this.state.comuna[0].queryName+"'";
+    layerDefinitions[4] = "nombre = '"+ this.state.comuna[0].queryName+"'";
+    LuminariasLayer.setLayerDefinitions(layerDefinitions);
+    mapp.addLayer(LuminariasLayer);
+    this.setState({dynamicService: LuminariasLayer});
 
   }
 
@@ -1115,7 +1158,7 @@ class APMap extends React.Component {
 
   handleCheckboxChange = (e) => {
     var mapp = mymap.getMap();
-
+/*
       switch (e) {
       case 'LUMINARIAS':
         this.setState({checkbox: !this.state.checkbox});
@@ -1168,12 +1211,12 @@ class APMap extends React.Component {
           var modificadasLayer = mapp.getLayer("ap_modificaciones");
           var index = _.findIndex(this.state.layersOrder, function(l) { return l == "ap_modificaciones"; });
           modificadasLayer.show();
-        /*  alimLayer.setInfoTemplates({
+          /* alimLayer.setInfoTemplates({
             0: {infoTemplate: myinfotemplate.getAlimentadorInfoWindow()}
           });
           */
           //mapp.addLayer(modificadasLayer,index);
-
+/*
         }else{
           console.log("en false, apagar MODIFICACIONES");
           var modificadasLayer = mapp.getLayer("ap_modificaciones");
@@ -1201,6 +1244,76 @@ class APMap extends React.Component {
         }
       break;
       default:
+
+    }
+
+    */
+
+    var LuminariasLayer = this.state.dynamicService;
+
+
+    switch (e) {
+      case "LUMINARIAS":
+      this.setState({checkbox: !this.state.checkbox});
+      if(!this.state.checkbox){
+        var a = update(this.state.layerList, {0: {visibility: {$set: true}}});
+        let numbersToShow = _.filter(a,(nts)=>{console.log(nts); return !nts.visibility});
+        console.log(numbersToShow.map(n=>{n}),"show..");
+        let n = numbersToShow.map(n=>{
+          console.log(n.number);
+          return n.number;
+
+        });
+        console.log(n,"array")
+        LuminariasLayer.setVisibleLayers([n]);
+
+      }else{
+        var a = update(this.state.layerList, {0: {visibility: {$set: false}}});
+        let numbersToShow = _.filter(a,(nts)=>{console.log(nts); return nts.visibility});
+        console.log(numbersToShow,"show..");
+        let n = numbersToShow.map(n=>{
+          console.log(n.number);
+          return n.number;
+        });
+          console.log(n,"array")
+        LuminariasLayer.setVisibleLayers([n]);
+      }
+
+
+      break;
+
+      case "TRAMOSAP":
+      this.setState({checkbox2: !this.state.checkbox2});
+      if(!this.state.checkbox2){
+        LuminariasLayer.setVisibleLayers([0,1,2,3,4]);
+      }else{
+        LuminariasLayer.setVisibleLayers([0,1,3,4]);
+      }
+      break;
+
+      case 'MODIFICACIONES':
+        this.setState({checkbox3: !this.state.checkbox3});
+        if(!this.state.checkbox3){
+          console.log("en true, prender MODIFICACIONES");
+
+        }else{
+          console.log("en false, apagar MODIFICACIONES");
+        }
+      break;
+
+      case 'LIMITECOMUNAL':
+        this.setState({checkbox4: !this.state.checkbox4});
+        if(!this.state.checkbox4){
+          console.log("en true, prender LIMITECOMUNAL");
+              //  mapp.addLayer(limiteComunalLayer,index);
+
+        }else{
+          console.log("en false, apagar alim");
+        }
+      break;
+      default:
+
+
 
     }
   };
