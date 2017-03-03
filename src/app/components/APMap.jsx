@@ -217,7 +217,8 @@ class APMap extends React.Component {
   }
 
   componentDidMount(){
-
+    console.log(this.state.comuna);
+    console.log(this.state.comuna[0].extent[0], this.state.comuna[0].extent[1]);
     var mapp = mymap.createMap("map","topo",this.state.comuna[0].extent[0], this.state.comuna[0].extent[1],12);
 
     //layers para ap.
@@ -308,7 +309,7 @@ class APMap extends React.Component {
     */
 
     //02/032017: agregando IdentifyTask
-    var LuminariasLayer = new ArcGISDynamicMapServiceLayer(layers.read_dynamic_ap(),
+    /*var LuminariasLayer = new ArcGISDynamicMapServiceLayer(layers.read_dynamic_ap(),
     {});
     LuminariasLayer.setImageFormat("png32");
     var layerDefinitions = [];
@@ -320,7 +321,38 @@ class APMap extends React.Component {
     LuminariasLayer.setLayerDefinitions(layerDefinitions);
     mapp.addLayer(LuminariasLayer);
     this.setState({dynamicService: LuminariasLayer});
+    */
+    console.log(this.state.comuna[0].queryName);
 
+    var layerDefinitions = [];
+    layerDefinitions[0] = "COMUNA = '"+ this.state.comuna[0].queryName+"'";
+    layerDefinitions[1] = "COMUNA = '"+ this.state.comuna[0].queryName+"'";
+    layerDefinitions[2] = "COMUNA = '"+ this.state.comuna[0].queryName+"'";
+    layerDefinitions[4] = "nombre = '"+ this.state.comuna[0].queryName+"'";
+
+    var modificacionesLayer = new ArcGISDynamicMapServiceLayer(layers.read_dynamic_ap(),{});
+    modificacionesLayer.setImageFormat("png32");
+    modificacionesLayer.setVisibleLayers([0]);
+    modificacionesLayer.setLayerDefinitions(layerDefinitions);
+
+    var luminariasLayer = new ArcGISDynamicMapServiceLayer(layers.read_dynamic_ap(),{ minScale: 6000});
+    luminariasLayer.setImageFormat("png32");
+    luminariasLayer.setVisibleLayers([1]);
+    luminariasLayer.setLayerDefinitions(layerDefinitions);
+
+
+    var tramosLayer = new ArcGISDynamicMapServiceLayer(layers.read_dynamic_ap(),{minScale: 6000});
+    tramosLayer.setImageFormat("png32");
+    tramosLayer.setVisibleLayers([2]);
+    tramosLayer.setLayerDefinitions(layerDefinitions);
+
+    var limiteComunalLayer = new ArcGISDynamicMapServiceLayer(layers.read_dynamic_ap(),{});
+    limiteComunalLayer.setImageFormat("png32");
+    limiteComunalLayer.setVisibleLayers([4]);
+    limiteComunalLayer.setLayerDefinitions(layerDefinitions);
+
+    mapp.addLayers([limiteComunalLayer, tramosLayer,luminariasLayer, modificacionesLayer]);
+    this.setState({dynamicService: [limiteComunalLayer, tramosLayer, luminariasLayer, modificacionesLayer]})
   }
 
   onShowCurrent(elements, showElementNumber){
@@ -1256,108 +1288,41 @@ class APMap extends React.Component {
       case "LUMINARIAS":
       this.setState({checkbox: !this.state.checkbox});
       if(!this.state.checkbox){
-        var a = update(this.state.layerList, {0: {visibility: {$set: true}}});
-        let numbersToShow = _.filter(a,(nts)=>{console.log(nts); return !nts.visibility});
-        console.log(numbersToShow.map(n=>{n}),"show..");
-        let n = numbersToShow.map(n=>{
-          console.log(n.number);
-          return n.number;
-
-        });
-        console.log(n,"array")
-        LuminariasLayer.setVisibleLayers([n]);
+          this.state.dynamicService[2].show();
 
       }else{
-        var a = update(this.state.layerList, {0: {visibility: {$set: false}}});
-        let numbersToShow = _.filter(a,(nts)=>{console.log(nts); return nts.visibility});
-        console.log(numbersToShow,"show..");
-        let n = numbersToShow.map(n=>{
-          console.log(n.number);
-          return n.number;
-        });
-          console.log(n,"array")
-        LuminariasLayer.setVisibleLayers([n]);
+        //this.setState({dynamicService: [limiteComunalLayer, tramosLayer, luminariasLayer, modificacionesLayer]})
+        this.state.dynamicService[2].hide();
       }
       break;
 
       case "TRAMOSAP":
       this.setState({checkbox2: !this.state.checkbox2});
       if(!this.state.checkbox2){
-        var a = update(this.state.layerList, {1: {visibility: {$set: true}}});
-        let numbersToShow = _.filter(a,(nts)=>{console.log(nts); return !nts.visibility});
-        console.log(numbersToShow.map(n=>{n}),"show..");
-        let n = numbersToShow.map(n=>{
-          console.log(n.number);
-          return n.number;
-
-        });
-        console.log(n,"array")
-        LuminariasLayer.setVisibleLayers([n]);
+        this.state.dynamicService[1].show();
 
       }else{
-        var a = update(this.state.layerList, {1: {visibility: {$set: false}}});
-        let numbersToShow = _.filter(a,(nts)=>{console.log(nts); return nts.visibility});
-        console.log(numbersToShow,"show..");
-        let n = numbersToShow.map(n=>{
-          console.log(n.number);
-          return n.number;
-        });
-          console.log(n,"array")
-        LuminariasLayer.setVisibleLayers([n]);
+        this.state.dynamicService[1].hide();
       }
       break;
 
       case 'MODIFICACIONES':
       this.setState({checkbox3: !this.state.checkbox3});
       if(!this.state.checkbox3){
-        var a = update(this.state.layerList, {2: {visibility: {$set: true}}});
-        let numbersToShow = _.filter(a,(nts)=>{console.log(nts); return !nts.visibility});
-        console.log(numbersToShow.map(n=>{n}),"show..");
-        let n = numbersToShow.map(n=>{
-          console.log(n.number);
-          return n.number;
-
-        });
-        console.log(n,"array")
-        LuminariasLayer.setVisibleLayers([n]);
+        this.state.dynamicService[3].show();
 
       }else{
-        var a = update(this.state.layerList, {2: {visibility: {$set: false}}});
-        let numbersToShow = _.filter(a,(nts)=>{console.log(nts); return nts.visibility});
-        console.log(numbersToShow,"show..");
-        let n = numbersToShow.map(n=>{
-          console.log(n.number);
-          return n.number;
-        });
-          console.log(n,"array")
-        LuminariasLayer.setVisibleLayers([n]);
+        this.state.dynamicService[3].hide();
       }
       break;
 
       case 'LIMITECOMUNAL':
       this.setState({checkbox4: !this.state.checkbox4});
       if(!this.state.checkbox4){
-        var a = update(this.state.layerList, {3: {visibility: {$set: true}}});
-        let numbersToShow = _.filter(a,(nts)=>{console.log(nts); return !nts.visibility});
-        console.log(numbersToShow.map(n=>{n}),"show..");
-        let n = numbersToShow.map(n=>{
-          console.log(n.number);
-          return n.number;
-
-        });
-        console.log(n,"array")
-        LuminariasLayer.setVisibleLayers([n]);
+        this.state.dynamicService[0].show();
 
       }else{
-        var a = update(this.state.layerList, {3: {visibility: {$set: false}}});
-        let numbersToShow = _.filter(a,(nts)=>{console.log(nts); return nts.visibility});
-        console.log(numbersToShow,"show..");
-        let n = numbersToShow.map(n=>{
-          console.log(n.number);
-          return n.number;
-        });
-          console.log(n,"array")
-        LuminariasLayer.setVisibleLayers([n]);
+      this.state.dynamicService[0].hide();
       }
       break;
       default:
@@ -1715,7 +1680,7 @@ class APMap extends React.Component {
     };
 
     let rendering = null;
-    if(logoName && namee){
+    if(logoName){
       var d = cookieHandler.get('wllExp');
         if(d > getFormatedDate()){
           console.log("dentro del rango");

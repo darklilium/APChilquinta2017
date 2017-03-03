@@ -315,7 +315,7 @@ const MuniImages = [
     original: env.CSSDIRECTORY + 'images/logos/logos_menu/valparaiso.png',
     name: 'valparaiso',
     originalName: 'Valparaíso',
-    extent: [-70.9627 , -32.7788],
+    extent: [-71.6272 ,-33.0394],
     queryName: 'VALPARAISO'
 
   },

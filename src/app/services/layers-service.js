@@ -23,10 +23,6 @@ function myLayers(){
     read_dynamic_ap(){
       return serviceURL + "AP_Municipal/AP_MUNICIPAL/MapServer?f=json&token=" + token.read();
     },
-    read_dynamic_ap1(){
-      return serviceURL + "AP_Municipal/AP_MUNICIPAL/MapServer/1?f=json&token=" + token.read();
-    },
-
     read_generateTokenURL(){
       return serviceMain + "tokens/generateToken";
     },
