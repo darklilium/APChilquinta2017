@@ -346,7 +346,7 @@ class APMap extends React.Component {
     this.setState({dynamicService: [limiteComunalLayer, tramosLayer, luminariasLayer, modificacionesLayer]});
 
     mapp.on('click', (event)=>{
-
+      $('.drawer_progressBar2').css('visibility',"visible");
       var identifyTask, identifyParams;
 
       identifyTask = new IdentifyTask(layers.read_dynamic_ap());
@@ -359,7 +359,9 @@ class APMap extends React.Component {
       identifyParams.height = mapp.height;
       identifyParams.geometry = event.mapPoint;
       identifyParams.mapExtent = mapp.extent;
+      var onlyLum = [];
 
+      //Usar promises para obtener resultados de parametros de identificación sobre los layers 0 y 1
       var deferred = identifyTask.execute(identifyParams, (callback)=>{
         if(!callback.length){
           console.log("no hay length", callback);
@@ -373,9 +375,10 @@ class APMap extends React.Component {
           });
 
           this.setState({allElements: arrResults});
+          //Mostrar ventana de edición de luminaria seleccionada
           this.onShowCurrent(arrResults,0);
 
-          let onlyLum = arrResults.filter(element =>{ return element.layerName=='Luminarias' });
+          onlyLum = arrResults.filter(element =>{ return element.layerName=='Luminarias' });
           //obtener el primer registro (o único).
           this.setState({counterTotal: onlyLum.length, counter: 1, allElements: onlyLum, currentIndex: 0});
           $('.drawer_progressBar2').css('visibility',"hidden");
@@ -387,49 +390,44 @@ class APMap extends React.Component {
         console.log("ee",errback);
       });
 
-      /*  .addCallback(function (response){
-          return arrayUtils.map(response, function (result) {
-                          var feature = result.feature;
-                          var layerName = result.layerName;
+      //agregar infowindow ----------------------------------------------------
+      deferred.addCallback(function (response){
+        //extraer información de sólo las luminarias para generar infowindow.
+        let res = response.filter((r)=>{return r.layerName=="Luminarias"});
+        return arrayUtils.map(res, function (result) {
 
-                          feature.attributes.layerName = layerName;
-
-                          if(layerName === 'Luminarias'){
-                            var luminariasTemplate = new InfoTemplate("ID Luminaria: ${ID_LUMINARIA}",
-                              "Rótulo: ${ROTULO} <br />" +
-                              "Tipo Conexión: ${TIPO_CONEXION}<br /> " +
-                              "Potencia: ${POTENCIA} <br/> " +
-                              "Tipo: ${TIPO} <br/>" +
-                              "Propiedad: ${PROPIEDAD} <br/>" +
-                              "Medido: ${MEDIDO_TERRENO}");
-                            feature.setInfoTemplate(luminariasTemplate);
-                          }
-                          return feature;
-                        });
+          var feature = result.feature;
+          var layerName = result.layerName;
+          var onlyLuminarias = [];
+            feature.attributes.layerName = layerName;
+            if(layerName === 'Luminarias'){
+              var luminariasTemplate = new InfoTemplate("ID Luminaria: ${ID_LUMINARIA}",
+                "Rótulo: ${ROTULO} <br />" +
+                "Tipo Conexión: ${TIPO_CONEXION}<br /> " +
+                "Potencia: ${POTENCIA} <br/> " +
+                "Tipo: ${TIPO} <br/>" +
+                "Propiedad: ${PROPIEDAD} <br/>" +
+                "Medido: ${MEDIDO_TERRENO}");
+                feature.setInfoTemplate(luminariasTemplate);
+                onlyLuminarias.push(feature);
+            }
+          return feature;
         });
-        mapp.infoWindow.setFeatures([deferred]);
+      });
 
-        mapp.infoWindow.show(event.mapPoint);
-        console.log(deferred);
-        //se llama a .then cuando se resuelve una promesa:
-        deferred.then(function(results){
-          let arr = results;
-            this.setState({allElements : arr});
-            console.log(this.state.allElements);
-        });
-        */
+      mapp.infoWindow.setFeatures([deferred]);
+      mapp.infoWindow.show(event.mapPoint);
     });
-
   }
 
   onShowCurrent(elements, showElementNumber){
       var mapp = mymap.getMap();
 
-    console.log("current", elements, showElementNumber);
+  //  console.log("current", elements, showElementNumber);
     let onlyLum = elements.filter(element =>{ return element.layerName=='Luminarias' });
-    console.log(onlyLum, "solo lum");
+  //  console.log(onlyLum, "solo lum");
     let onlyMods = elements.filter(element =>{ return element.layerName=='Modificaciones' });
-    console.log(onlyMods, "solo mods");
+  //  console.log(onlyMods, "solo mods");
 
     let idequipoap = 0;
     //si hay resultados para luminarias
@@ -1912,7 +1910,7 @@ class APMap extends React.Component {
                     {/* DRAWER EDICION */}
                     <div className="contenido_drawerleftEspecial">
                       <div id="mostrarEdicionDrawer">
-                        <div className="drawer_banner">
+                        <div className="drawer_banner banner_fix_edit">
                         {/*<Logo />*/}
                         <div className="drawer_banner_divTitle">
                           <h6 className="drawer_banner_title">Editar Luminaria</h6>
@@ -2071,7 +2069,7 @@ class APMap extends React.Component {
                              </Slider>
                             </div>
                             <div className="drawer_viewerButton_container">
-                              <Button icon='photo_camera' label='Ver en pantalla completa' className="editar_button" raised primary onClick={this.onVerFotografía.bind(this)}  />
+                              <Button icon='photo_camera' label='Ver en pantalla completa' className="editar_button editar_verFotoBtn" raised primary onClick={this.onVerFotografía.bind(this)}  />
                             </div>
 
                           </TabPanel>
