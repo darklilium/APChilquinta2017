@@ -52,6 +52,10 @@ import {getFormatedDate} from '../services/login-service';
 // 02/03/2017: agregando IdentifyTask
 import LayerList from "esri/dijit/LayerList";
 import update from 'react-addons-update'; // ES6
+import IdentifyTask from "esri/tasks/IdentifyTask";
+import IdentifyParameters from "esri/tasks/IdentifyParameters";
+import arrayUtils from "dojo/_base/array";
+import InfoTemplate from "esri/InfoTemplate";
 
 var options = [
     { value: 'ROTULO', label: 'Rótulo' },
@@ -119,6 +123,7 @@ const opcionesPotencia = [
 
 ]
 var defaultPic = (<div><img id="foto0" src={env.CSSDIRECTORY + "images/nofoto.png"}></img></div>);
+
 
 class APMap extends React.Component {
   constructor(props){
@@ -204,6 +209,7 @@ class APMap extends React.Component {
     }
     this.onShowCurrent = this.onShowCurrent.bind(this);
     this.onLimpiarFormEdicion = this.onLimpiarFormEdicion.bind(this);
+
   }
 
   componentWillMount(){
@@ -217,8 +223,7 @@ class APMap extends React.Component {
   }
 
   componentDidMount(){
-    console.log(this.state.comuna);
-    console.log(this.state.comuna[0].extent[0], this.state.comuna[0].extent[1]);
+
     var mapp = mymap.createMap("map","topo",this.state.comuna[0].extent[0], this.state.comuna[0].extent[1],12);
 
     //layers para ap.
@@ -309,20 +314,6 @@ class APMap extends React.Component {
     */
 
     //02/032017: agregando IdentifyTask
-    /*var LuminariasLayer = new ArcGISDynamicMapServiceLayer(layers.read_dynamic_ap(),
-    {});
-    LuminariasLayer.setImageFormat("png32");
-    var layerDefinitions = [];
-
-    layerDefinitions[0] = "COMUNA = '"+ this.state.comuna[0].queryName+"'";
-    layerDefinitions[1] = "COMUNA = '"+ this.state.comuna[0].queryName+"'";
-    layerDefinitions[2] = "COMUNA = '"+ this.state.comuna[0].queryName+"'";
-    layerDefinitions[4] = "nombre = '"+ this.state.comuna[0].queryName+"'";
-    LuminariasLayer.setLayerDefinitions(layerDefinitions);
-    mapp.addLayer(LuminariasLayer);
-    this.setState({dynamicService: LuminariasLayer});
-    */
-    console.log(this.state.comuna[0].queryName);
 
     var layerDefinitions = [];
     layerDefinitions[0] = "COMUNA = '"+ this.state.comuna[0].queryName+"'";
@@ -352,15 +343,159 @@ class APMap extends React.Component {
     limiteComunalLayer.setLayerDefinitions(layerDefinitions);
 
     mapp.addLayers([limiteComunalLayer, tramosLayer,luminariasLayer, modificacionesLayer]);
-    this.setState({dynamicService: [limiteComunalLayer, tramosLayer, luminariasLayer, modificacionesLayer]})
+    this.setState({dynamicService: [limiteComunalLayer, tramosLayer, luminariasLayer, modificacionesLayer]});
+
+    mapp.on('click', (event)=>{
+
+      var identifyTask, identifyParams;
+
+      identifyTask = new IdentifyTask(layers.read_dynamic_ap());
+      identifyParams = new IdentifyParameters();
+      identifyParams.tolerance = 10;
+      identifyParams.returnGeometry = true;
+      identifyParams.layerIds = [0, 1];
+      identifyParams.layerOption = IdentifyParameters.LAYER_OPTION_ALL;
+      identifyParams.width = mapp.width;
+      identifyParams.height = mapp.height;
+      identifyParams.geometry = event.mapPoint;
+      identifyParams.mapExtent = mapp.extent;
+
+      var deferred = identifyTask.execute(identifyParams, (callback)=>{
+        if(!callback.length){
+          console.log("no hay length", callback);
+        }else{
+          let arrResults = callback.map(result => {
+            let r = {
+              features: result.feature,
+              layerName: result.layerName
+            }
+            return r;
+          });
+
+          this.setState({allElements: arrResults});
+          this.onShowCurrent(arrResults,0);
+
+          let onlyLum = arrResults.filter(element =>{ return element.layerName=='Luminarias' });
+          //obtener el primer registro (o único).
+          this.setState({counterTotal: onlyLum.length, counter: 1, allElements: onlyLum, currentIndex: 0});
+          $('.drawer_progressBar2').css('visibility',"hidden");
+          $('.wrapperTop_midTitle h6').addClass('wrapperTop_midTitle-h6');
+          $('.muniTitulo').addClass('muniTitulo-40percent');
+        }
+
+      },(errback)=>{
+        console.log("ee",errback);
+      });
+
+      /*  .addCallback(function (response){
+          return arrayUtils.map(response, function (result) {
+                          var feature = result.feature;
+                          var layerName = result.layerName;
+
+                          feature.attributes.layerName = layerName;
+
+                          if(layerName === 'Luminarias'){
+                            var luminariasTemplate = new InfoTemplate("ID Luminaria: ${ID_LUMINARIA}",
+                              "Rótulo: ${ROTULO} <br />" +
+                              "Tipo Conexión: ${TIPO_CONEXION}<br /> " +
+                              "Potencia: ${POTENCIA} <br/> " +
+                              "Tipo: ${TIPO} <br/>" +
+                              "Propiedad: ${PROPIEDAD} <br/>" +
+                              "Medido: ${MEDIDO_TERRENO}");
+                            feature.setInfoTemplate(luminariasTemplate);
+                          }
+                          return feature;
+                        });
+        });
+        mapp.infoWindow.setFeatures([deferred]);
+
+        mapp.infoWindow.show(event.mapPoint);
+        console.log(deferred);
+        //se llama a .then cuando se resuelve una promesa:
+        deferred.then(function(results){
+          let arr = results;
+            this.setState({allElements : arr});
+            console.log(this.state.allElements);
+        });
+        */
+    });
+
   }
 
   onShowCurrent(elements, showElementNumber){
       var mapp = mymap.getMap();
 
-    console.log(elements, showElementNumber);
+    console.log("current", elements, showElementNumber);
+    let onlyLum = elements.filter(element =>{ return element.layerName=='Luminarias' });
+    console.log(onlyLum, "solo lum");
+    let onlyMods = elements.filter(element =>{ return element.layerName=='Modificaciones' });
+    console.log(onlyMods, "solo mods");
+
     let idequipoap = 0;
-    if(elements[showElementNumber].attributes['ID_EQUIPO_AP']==0){
+    //si hay resultados para luminarias
+    if(onlyLum.length){
+      //si tiene equipo ap
+
+      if(onlyLum[showElementNumber].features.attributes['ID_EQUIPO_AP']==0){
+        idequipoap = 'NO TIENE';
+      }else{
+        idequipoap = onlyLum[showElementNumber].features.attributes['ID_EQUIPO_AP'];
+      }
+
+      let editarLuminaria = {
+        id_luminaria: onlyLum[showElementNumber].features.attributes['ID_LUMINARIA'],
+        id_nodo: onlyLum[showElementNumber].features.attributes['ID_NODO'],
+        tipo_conexion: onlyLum[showElementNumber].features.attributes['TIPO_CONEXION'],
+        tipo: onlyLum[showElementNumber].features.attributes['TIPO'],
+        potencia:  parseInt(onlyLum[showElementNumber].features.attributes['POTENCIA']),
+        propiedad:onlyLum[showElementNumber].features.attributes['PROPIEDAD'],
+        rotulo :onlyLum[showElementNumber].features.attributes['ROTULO'],
+        observaciones: onlyLum[showElementNumber].features.attributes['OBSERVACION'],
+        geometria: onlyLum[showElementNumber].features.geometry
+      }
+      console.log(editarLuminaria, "editar");
+
+      this.setState({
+        tipoLuminaria:  onlyLum[showElementNumber].features.attributes['TIPO'],
+        tipoConexion: onlyLum[showElementNumber].features.attributes['TIPO_CONEXION'],
+        tipoPropiedad: onlyLum[showElementNumber].features.attributes['PROPIEDAD'],
+        tipoPotencia: parseInt(onlyLum[showElementNumber].features.attributes['POTENCIA']),
+        rotulo: onlyLum[showElementNumber].features.attributes['ROTULO'],
+        selectedTab: 0,
+        numeroMedidorAsociado: idequipoap
+      });
+      console.log("potencia",this.state.tipoPotencia);
+
+      this.setState({datosLuminariaAEditar: editarLuminaria, datosLuminariaModificada: {}});
+
+      //disable all the rest of drawers.
+        $('#busquedaDrawer').removeClass('drawerVisibility_show').addClass('drawerVisibility_notShow');
+        $('.contenido_drawerleft1').css('width','0%');
+        $('#cambiarMapaDrawer').removeClass('drawerVisibility_show').addClass('drawerVisibility_notShow');
+        $('.contenido_drawerleft2').css('width','0%');
+        $('#mostrarMedidoresDrawer').removeClass('drawerVisibility_show').addClass('drawerVisibility_notShow');
+        $('.contenido_drawerleft3').css('width','0%');
+        $('#cambiarLayersDrawer').removeClass('drawerVisibility_show').addClass('drawerVisibility_notShow');
+        $('.contenido_drawerleft4').css('width','0%');
+        $('#mostrarLuminariasDrawer').removeClass('drawerVisibility_show').addClass('drawerVisibility_notShow');
+        $('.contenido_drawerleft5').css('width','0%');
+        $('.contenido_mapa').css('width','100%');
+
+        $('.wrapperTop_midTitle h6').addClass('wrapperTop_midTitle-h6');
+        $('.muniTitulo').addClass('muniTitulo-40percent');
+
+        $('#mostrarEdicionDrawer').removeClass('drawerVisibility_notShow').addClass('drawerVisibility_show');
+        $('.contenido_mapa').css('width','60%');
+        $('.contenido_drawerleftEspecial').css('width','40%');
+
+
+
+    }else{
+      //no hay length, no hay luminarias
+      console.log("no hay luminarias a mostrar")
+    }
+  /*
+    if(elements[showElementNumber].features.attributes['ID_EQUIPO_AP']==0){
       idequipoap = 'NO TIENE';
     }else{
       idequipoap = elements[showElementNumber].attributes['ID_EQUIPO_AP'];
@@ -420,6 +555,7 @@ class APMap extends React.Component {
 
     });
 
+*/
   }
 
   handleSnackbarClick = () => {
@@ -1190,99 +1326,9 @@ class APMap extends React.Component {
 
   handleCheckboxChange = (e) => {
     var mapp = mymap.getMap();
-/*
-      switch (e) {
-      case 'LUMINARIAS':
-        this.setState({checkbox: !this.state.checkbox});
-        if(!this.state.checkbox){
-          console.log("en true, prender LUMINARIAS",this.state.comuna[0].queryName );
-
-          //var luminariasLayer = new esri.layers.FeatureLayer(myLayers.read_luminarias(),{id:"ap_luminarias", mode: esri.layers.FeatureLayer.MODE_ONDEMAND, minScale: 5000});
-          //luminariasLayer.setDefinitionExpression("COMUNA = '"+ this.props.comunaName+"'" );
-          var luminariasLayer = mapp.getLayer("ap_luminarias");
-
-          luminariasLayer.show();
-          var index = _.findIndex(this.state.layersOrder, function(l) { return l == "ap_luminarias"; });
-          //mapp.addLayer(luminariasLayer,index);
-
-        }else{
-          console.log("en false, apagar LUMINARIAS");
-          var luminariasLayer = mapp.getLayer("ap_luminarias");
-          luminariasLayer.hide();
-          //mapp.removeLayer(mapp.getLayer("ap_luminarias"));
-        }
-      break;
-
-      case 'TRAMOSAP':
-        this.setState({checkbox2: !this.state.checkbox2});
-        if(!this.state.checkbox2){
-          console.log("en true, prender TRAMOSAP",this.state.comuna[0].queryName);
-
-          //var tramosAPLayer = new esri.layers.FeatureLayer(myLayers.read_tramosAP(),{id:"ap_tramos", mode: esri.layers.FeatureLayer.MODE_ONDEMAND, minScale: 5000});
-          //tramosAPLayer.setDefinitionExpression("comuna  = '"+ this.props.comunaName +"'" );
-          var tramosAPLayer = mapp.getLayer("ap_tramos");
-          var index = _.findIndex(this.state.layersOrder, function(l) { return l == "ap_tramos"; });
-          tramosAPLayer.show();
-          //mapp.addLayer(tramosAPLayer,index);
-
-        }else{
-          console.log("en false, apagar TRAMOSAP");
-          var tramosAPLayer = mapp.getLayer("ap_tramos");
-          tramosAPLayer.hide();
-          //mapp.removeLayer(mapp.getLayer("ap_tramos"));
-        }
-      break;
-
-      case 'MODIFICACIONES':
-        this.setState({checkbox3: !this.state.checkbox3});
-        if(!this.state.checkbox3){
-          console.log("en true, prender MODIFICACIONES");
-
-          //var modificadasLayer = new esri.layers.FeatureLayer(myLayers.read_modificacionesAP(),{id:"ap_modificaciones", mode: esri.layers.FeatureLayer.MODE_ONDEMAND, minScale: 5000});
-          //modificadasLayer.setDefinitionExpression("Comuna  = '"+ this.props.comunaName +"'" );
-          var modificadasLayer = mapp.getLayer("ap_modificaciones");
-          var index = _.findIndex(this.state.layersOrder, function(l) { return l == "ap_modificaciones"; });
-          modificadasLayer.show();
-          /* alimLayer.setInfoTemplates({
-            0: {infoTemplate: myinfotemplate.getAlimentadorInfoWindow()}
-          });
-          */
-          //mapp.addLayer(modificadasLayer,index);
-/*
-        }else{
-          console.log("en false, apagar MODIFICACIONES");
-          var modificadasLayer = mapp.getLayer("ap_modificaciones");
-          modificadasLayer.hide();
-          //mapp.removeLayer(mapp.getLayer("ap_modificaciones"));
-        }
-      break;
-
-      case 'LIMITECOMUNAL':
-        this.setState({checkbox4: !this.state.checkbox4});
-        if(!this.state.checkbox4){
-          console.log("en true, prender LIMITECOMUNAL");
-          //var limiteComunalLayer = new esri.layers.FeatureLayer(myLayers.read_limiteComunal(),{id:"ap_limiteComunal", mode: esri.layers.FeatureLayer.MODE_ONDEMAND});
-          //limiteComunalLayer.setDefinitionExpression("nombre   = '"+ this.props.comunaName +"'" );
-          var limiteComunalLayer = mapp.getLayer("ap_limiteComunal");
-          var index = _.findIndex(this.state.layersOrder, function(l) { return l == "ap_limiteComunal"; });
-          limiteComunalLayer.show();
-        //  mapp.addLayer(limiteComunalLayer,index);
-
-        }else{
-          console.log("en false, apagar alim");
-          var limiteComunalLayer = mapp.getLayer("ap_limiteComunal");
-          limiteComunalLayer.hide();
-          //mapp.removeLayer(mapp.getLayer("ap_limiteComunal"));
-        }
-      break;
-      default:
-
-    }
-
-    */
 
     var LuminariasLayer = this.state.dynamicService;
-
+    //this.setState({dynamicService: [limiteComunalLayer, tramosLayer, luminariasLayer, modificacionesLayer]})
 
     switch (e) {
       case "LUMINARIAS":
@@ -1291,7 +1337,7 @@ class APMap extends React.Component {
           this.state.dynamicService[2].show();
 
       }else{
-        //this.setState({dynamicService: [limiteComunalLayer, tramosLayer, luminariasLayer, modificacionesLayer]})
+
         this.state.dynamicService[2].hide();
       }
       break;
@@ -1326,9 +1372,6 @@ class APMap extends React.Component {
       }
       break;
       default:
-
-
-
     }
   };
 
