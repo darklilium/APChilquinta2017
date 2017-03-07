@@ -57,6 +57,7 @@ import IdentifyParameters from "esri/tasks/IdentifyParameters";
 import arrayUtils from "dojo/_base/array";
 import InfoTemplate from "esri/InfoTemplate";
 
+
 var options = [
     { value: 'ROTULO', label: 'Rótulo' },
     { value: 'IDNODO', label: 'ID Nodo' }
@@ -332,6 +333,7 @@ class APMap extends React.Component {
     luminariasLayer.setLayerDefinitions(layerDefinitions);
 
 
+
     var tramosLayer = new ArcGISDynamicMapServiceLayer(layers.read_dynamic_ap(),{minScale: 6000});
     tramosLayer.setImageFormat("png32");
     tramosLayer.setVisibleLayers([2]);
@@ -375,6 +377,15 @@ class APMap extends React.Component {
           });
 
           this.setState({allElements: arrResults});
+          console.log(arrResults,"arrResults");
+          //dibujar
+          let mySymbol = makeSymbol.makePointLocated();
+          gLayerLuminariaSearch.clear();
+          var g = new Graphic( arrResults[0].features.geometry,mySymbol);
+          gLayerLuminariaSearch.add(g);
+          mapp.addLayer(gLayerLuminariaSearch,1);
+          //mapp.centerAndZoom( cb[1][0].geometry,20);
+
           //Mostrar ventana de edición de luminaria seleccionada
           this.onShowCurrent(arrResults,0);
 
@@ -417,17 +428,23 @@ class APMap extends React.Component {
 
       mapp.infoWindow.setFeatures([deferred]);
       mapp.infoWindow.show(event.mapPoint);
+
+
+
+
     });
+
+
   }
 
   onShowCurrent(elements, showElementNumber){
       var mapp = mymap.getMap();
 
-  //  console.log("current", elements, showElementNumber);
+    //  console.log("current", elements, showElementNumber);
     let onlyLum = elements.filter(element =>{ return element.layerName=='Luminarias' });
-  //  console.log(onlyLum, "solo lum");
+    //  console.log(onlyLum, "solo lum");
     let onlyMods = elements.filter(element =>{ return element.layerName=='Modificaciones' });
-  //  console.log(onlyMods, "solo mods");
+    //  console.log(onlyMods, "solo mods");
 
     let idequipoap = 0;
     //si hay resultados para luminarias
@@ -492,7 +509,7 @@ class APMap extends React.Component {
       //no hay length, no hay luminarias
       console.log("no hay luminarias a mostrar")
     }
-  /*
+    /*
     if(elements[showElementNumber].features.attributes['ID_EQUIPO_AP']==0){
       idequipoap = 'NO TIENE';
     }else{
@@ -553,7 +570,7 @@ class APMap extends React.Component {
 
     });
 
-*/
+    */
   }
 
   handleSnackbarClick = () => {
@@ -735,6 +752,10 @@ class APMap extends React.Component {
   onNuevo(){
     if( this.state.rotulo=="" ){
       console.log("rotulo no definido, no se puede ingresar.");
+      this.setState({snackbarMessage: "Rótulo no ha sido definido, intente nuevamente", activeSnackbar: true, snackbarIcon: 'clear'});
+      $('.theme__icon___4OQx3').css('color',"red");
+      //Deshabilitar barra de progreso.
+      $('.drawer_progressBar').css('visibility','hidden');
       return;
     }
 
@@ -757,12 +778,27 @@ class APMap extends React.Component {
 
     nuevoQuery(nuevosAttr, this.state.datosLuminariaAEditar.geometria, (callback)=>{
       console.log("tengo callback", callback);
+      if(callback){
+        this.setState({snackbarMessage: "Registro nuevo agregado exitosamente", activeSnackbar: true, snackbarIcon: 'done'});
+        $('.theme__icon___4OQx3').css('color',"greenyellow");
+        //Deshabilitar barra de progreso.
+        $('.drawer_progressBar').css('visibility','hidden');
+      }else{
+        this.setState({snackbarMessage: "No se ha podido ingresar nuevo registro, intente nuevamente", activeSnackbar: true, snackbarIcon: 'clear'});
+        $('.theme__icon___4OQx3').css('color',"red");
+        //Deshabilitar barra de progreso.
+        $('.drawer_progressBar').css('visibility','hidden');
+      }
     });
   }
 
   onEliminar(){
     if( this.state.rotulo=="" ){
       console.log("rotulo no definido, no se puede ingresar.");
+      this.setState({snackbarMessage: "Rótulo no ha sido definido, intente nuevamente", activeSnackbar: true, snackbarIcon: 'clear'});
+      $('.theme__icon___4OQx3').css('color',"red");
+      //Deshabilitar barra de progreso.
+      $('.drawer_progressBar').css('visibility','hidden');
       return;
     }
 
@@ -785,12 +821,27 @@ class APMap extends React.Component {
 
     nuevoQuery(nuevosAttr, this.state.datosLuminariaAEditar.geometria, (callback)=>{
       console.log("tengo callback", callback);
+      if(callback){
+        this.setState({snackbarMessage: "Registro eliminado exitosamente", activeSnackbar: true, snackbarIcon: 'done'});
+        $('.theme__icon___4OQx3').css('color',"greenyellow");
+        //Deshabilitar barra de progreso.
+        $('.drawer_progressBar').css('visibility','hidden');
+      }else{
+        this.setState({snackbarMessage: "No se ha podido eliminar registro, intente nuevamente", activeSnackbar: true, snackbarIcon: 'clear'});
+        $('.theme__icon___4OQx3').css('color',"red");
+        //Deshabilitar barra de progreso.
+        $('.drawer_progressBar').css('visibility','hidden');
+      }
     });
   }
 
   onActualizar(){
     if( this.state.rotulo=="" ){
       console.log("rotulo no definido, no se puede ingresar.");
+      this.setState({snackbarMessage: "Rótulo no ha sido definido, intente nuevamente", activeSnackbar: true, snackbarIcon: 'clear'});
+      $('.theme__icon___4OQx3').css('color',"red");
+      //Deshabilitar barra de progreso.
+      $('.drawer_progressBar').css('visibility','hidden');
       return;
     }
 
@@ -812,7 +863,19 @@ class APMap extends React.Component {
     console.log(nuevosAttr, this.state.datosLuminariaAEditar.geometria);
 
     nuevoQuery(nuevosAttr, this.state.datosLuminariaAEditar.geometria, (callback)=>{
-      console.log("tengo callback", callback);
+      console.log("tengo callback nuevo", callback);
+      if(callback){
+        this.setState({snackbarMessage: "Registro modificado exitosamente", activeSnackbar: true, snackbarIcon: 'done'});
+        $('.theme__icon___4OQx3').css('color',"greenyellow");
+        //Deshabilitar barra de progreso.
+        $('.drawer_progressBar').css('visibility','hidden');
+      }else{
+        this.setState({snackbarMessage: "No se ha podido modificar registro, intente nuevamente", activeSnackbar: true, snackbarIcon: 'clear'});
+        $('.theme__icon___4OQx3').css('color',"red");
+        //Deshabilitar barra de progreso.
+        $('.drawer_progressBar').css('visibility','hidden');
+      }
+
     });
   }
 
@@ -1725,7 +1788,7 @@ class APMap extends React.Component {
       var d = cookieHandler.get('wllExp');
         if(d > getFormatedDate()){
           console.log("dentro del rango");
-          if(!cookieHandler.get('tkn')){
+          if(!cookieHandler.get('tkn') || !cookieHandler.get('sttngs')){
             console.log("no hay, redirect...");
             window.location.href = "index.html";
           }else{

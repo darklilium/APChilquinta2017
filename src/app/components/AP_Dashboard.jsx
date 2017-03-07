@@ -73,6 +73,7 @@ onClickEntrar(){
 
   //browserHistory.push(`muni${this.state.selectedComuna}`);
   cookieHandler.set('mn',this.state.selectedComuna);
+  cookieHandler.set('sttngs',"a");
   window.location.href = "municipalidad.html";
 
 }
