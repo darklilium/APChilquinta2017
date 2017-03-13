@@ -340,12 +340,12 @@ class APMap extends React.Component {
     tramosLayer.setLayerDefinitions(layerDefinitions);
 
     var limiteComunalLayer = new ArcGISDynamicMapServiceLayer(layers.read_dynamic_ap(),{});
-    limiteComunalLayer.setImageFormat("png32");
+    //limiteComunalLayer.setImageFormat("png32");
     limiteComunalLayer.setVisibleLayers([4]);
     limiteComunalLayer.setLayerDefinitions(layerDefinitions);
 
-    mapp.addLayers([limiteComunalLayer, tramosLayer,luminariasLayer, modificacionesLayer]);
-    this.setState({dynamicService: [limiteComunalLayer, tramosLayer, luminariasLayer, modificacionesLayer]});
+    mapp.addLayers([tramosLayer,luminariasLayer, modificacionesLayer,limiteComunalLayer]);
+    this.setState({dynamicService: [tramosLayer, luminariasLayer, modificacionesLayer, limiteComunalLayer]});
 
     mapp.on('click', (event)=>{
       $('.drawer_progressBar2').css('visibility',"visible");
