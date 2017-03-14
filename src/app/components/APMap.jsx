@@ -339,13 +339,16 @@ class APMap extends React.Component {
     tramosLayer.setVisibleLayers([2]);
     tramosLayer.setLayerDefinitions(layerDefinitions);
 
-    var limiteComunalLayer = new ArcGISDynamicMapServiceLayer(layers.read_dynamic_ap(),{});
-    //limiteComunalLayer.setImageFormat("png32");
+    /*var limiteComunalLayer = new ArcGISDynamicMapServiceLayer(layers.read_dynamic_ap(),{});
+    limiteComunalLayer.setImageFormat("jpg");
     limiteComunalLayer.setVisibleLayers([4]);
     limiteComunalLayer.setLayerDefinitions(layerDefinitions);
+*/
+    var limiteComunalLayer = new esri.layers.FeatureLayer(layers.read_limiteComunal(),{id:"ap_limiteComunal", mode: esri.layers.FeatureLayer.MODE_ONDEMAND});
+    limiteComunalLayer.setDefinitionExpression("nombre   = '"+ this.state.comuna[0].queryName+"'" );
 
-    mapp.addLayers([tramosLayer,luminariasLayer, modificacionesLayer,limiteComunalLayer]);
-    this.setState({dynamicService: [tramosLayer, luminariasLayer, modificacionesLayer, limiteComunalLayer]});
+    mapp.addLayers([limiteComunalLayer, tramosLayer,luminariasLayer, modificacionesLayer]);
+    this.setState({dynamicService: [limiteComunalLayer, tramosLayer, luminariasLayer, modificacionesLayer]});
 
     mapp.on('click', (event)=>{
       $('.drawer_progressBar2').css('visibility',"visible");
