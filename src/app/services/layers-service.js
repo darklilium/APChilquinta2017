@@ -20,7 +20,9 @@ function myLayers(){
 
   //check 8 and last one
   return {
-
+    read_dynamic_ap(){
+      return serviceURL + "AP_Municipal/AP_MUNICIPAL/MapServer?f=json&token=" + token.read();
+    },
     read_generateTokenURL(){
       return serviceMain + "tokens/generateToken";
     },

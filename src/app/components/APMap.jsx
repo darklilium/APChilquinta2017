@@ -49,6 +49,15 @@ import cookieHandler from 'cookie-handler';
 import {AP_Error} from './AP_PageError.jsx';
 import {getFormatedDate} from '../services/login-service';
 
+// 02/03/2017: agregando IdentifyTask
+import LayerList from "esri/dijit/LayerList";
+import update from 'react-addons-update'; // ES6
+import IdentifyTask from "esri/tasks/IdentifyTask";
+import IdentifyParameters from "esri/tasks/IdentifyParameters";
+import arrayUtils from "dojo/_base/array";
+import InfoTemplate from "esri/InfoTemplate";
+
+
 var options = [
     { value: 'ROTULO', label: 'Rótulo' },
     { value: 'IDNODO', label: 'ID Nodo' }
@@ -116,10 +125,35 @@ const opcionesPotencia = [
 ]
 var defaultPic = (<div><img id="foto0" src={env.CSSDIRECTORY + "images/nofoto.png"}></img></div>);
 
+
 class APMap extends React.Component {
   constructor(props){
     super(props);
     this.state = {
+      //02/03/2017: Agregando layerlist con servicio dinámico.
+      dynamicService :{},
+      layerList : [
+        { name: 'LUMINARIAS',
+          number: 1,
+          visibility: true
+        },
+        {
+          name: 'TRAMOSAP',
+          number: 2,
+          visibility: true
+        },
+        {
+          name: 'MODIFICACIONES',
+          number: 0,
+          visibility: true
+        },
+        {
+          name: 'LIMITECOMUNAL',
+          number: 4,
+          visibility: true
+        }
+      ],
+
       counter: 0,
       counterTotal: 0,
       allElements: [],
@@ -176,6 +210,7 @@ class APMap extends React.Component {
     }
     this.onShowCurrent = this.onShowCurrent.bind(this);
     this.onLimpiarFormEdicion = this.onLimpiarFormEdicion.bind(this);
+
   }
 
   componentWillMount(){
@@ -193,7 +228,7 @@ class APMap extends React.Component {
     var mapp = mymap.createMap("map","topo",this.state.comuna[0].extent[0], this.state.comuna[0].extent[1],12);
 
     //layers para ap.
-    var luminariasLayer = new esri.layers.FeatureLayer(layers.read_luminarias(),{id:"ap_luminarias", mode: esri.layers.FeatureLayer.MODE_ONDEMAND, minScale: 6000, outFields: ["*"]});
+    /*var luminariasLayer = new esri.layers.FeatureLayer(layers.read_luminarias(),{id:"ap_luminarias", mode: esri.layers.FeatureLayer.MODE_ONDEMAND, minScale: 6000, outFields: ["*"]});
     luminariasLayer.setDefinitionExpression("COMUNA = '"+ this.state.comuna[0].queryName+"'" );
 
     var tramosAPLayer = new esri.layers.FeatureLayer(layers.read_tramosAP(),{id:"ap_tramos", mode: esri.layers.FeatureLayer.MODE_ONDEMAND, minScale: 6000});
@@ -278,15 +313,208 @@ class APMap extends React.Component {
             event.graphic.attributes['MEDIDO_TERRENO'],
             event.graphic.geometry);
     });
+    */
+
+    //02/032017: agregando IdentifyTask
+
+    var layerDefinitions = [];
+    layerDefinitions[0] = "COMUNA = '"+ this.state.comuna[0].queryName+"'";
+    layerDefinitions[1] = "COMUNA = '"+ this.state.comuna[0].queryName+"'";
+    layerDefinitions[2] = "COMUNA = '"+ this.state.comuna[0].queryName+"'";
+    layerDefinitions[4] = "nombre = '"+ this.state.comuna[0].queryName+"'";
+
+    var modificacionesLayer = new ArcGISDynamicMapServiceLayer(layers.read_dynamic_ap(),{});
+    modificacionesLayer.setImageFormat("png32");
+    modificacionesLayer.setVisibleLayers([0]);
+    modificacionesLayer.setLayerDefinitions(layerDefinitions);
+
+    var luminariasLayer = new ArcGISDynamicMapServiceLayer(layers.read_dynamic_ap(),{ minScale: 6000});
+    luminariasLayer.setImageFormat("png32");
+    luminariasLayer.setVisibleLayers([1]);
+    luminariasLayer.setLayerDefinitions(layerDefinitions);
+
+
+
+    var tramosLayer = new ArcGISDynamicMapServiceLayer(layers.read_dynamic_ap(),{minScale: 6000});
+    tramosLayer.setImageFormat("png32");
+    tramosLayer.setVisibleLayers([2]);
+    tramosLayer.setLayerDefinitions(layerDefinitions);
+
+    /*var limiteComunalLayer = new ArcGISDynamicMapServiceLayer(layers.read_dynamic_ap(),{});
+    limiteComunalLayer.setImageFormat("jpg");
+    limiteComunalLayer.setVisibleLayers([4]);
+    limiteComunalLayer.setLayerDefinitions(layerDefinitions);
+*/
+    var limiteComunalLayer = new esri.layers.FeatureLayer(layers.read_limiteComunal(),{id:"ap_limiteComunal", mode: esri.layers.FeatureLayer.MODE_ONDEMAND});
+    limiteComunalLayer.setDefinitionExpression("nombre   = '"+ this.state.comuna[0].queryName+"'" );
+
+    mapp.addLayers([limiteComunalLayer, tramosLayer,luminariasLayer, modificacionesLayer]);
+    this.setState({dynamicService: [limiteComunalLayer, tramosLayer, luminariasLayer, modificacionesLayer]});
+
+    mapp.on('click', (event)=>{
+      $('.drawer_progressBar2').css('visibility',"visible");
+      var identifyTask, identifyParams;
+
+      identifyTask = new IdentifyTask(layers.read_dynamic_ap());
+      identifyParams = new IdentifyParameters();
+      identifyParams.tolerance = 10;
+      identifyParams.returnGeometry = true;
+      identifyParams.layerIds = [0, 1];
+      identifyParams.layerOption = IdentifyParameters.LAYER_OPTION_ALL;
+      identifyParams.width = mapp.width;
+      identifyParams.height = mapp.height;
+      identifyParams.geometry = event.mapPoint;
+      identifyParams.mapExtent = mapp.extent;
+      var onlyLum = [];
+
+      //Usar promises para obtener resultados de parametros de identificación sobre los layers 0 y 1
+      var deferred = identifyTask.execute(identifyParams, (callback)=>{
+        if(!callback.length){
+          console.log("no hay length", callback);
+        }else{
+          let arrResults = callback.map(result => {
+            let r = {
+              features: result.feature,
+              layerName: result.layerName
+            }
+            return r;
+          });
+
+          this.setState({allElements: arrResults});
+          console.log(arrResults,"arrResults");
+          //dibujar
+          let mySymbol = makeSymbol.makePointLocated();
+          gLayerLuminariaSearch.clear();
+          var g = new Graphic( arrResults[0].features.geometry,mySymbol);
+          gLayerLuminariaSearch.add(g);
+          mapp.addLayer(gLayerLuminariaSearch,1);
+          //mapp.centerAndZoom( cb[1][0].geometry,20);
+
+          //Mostrar ventana de edición de luminaria seleccionada
+          this.onShowCurrent(arrResults,0);
+
+          onlyLum = arrResults.filter(element =>{ return element.layerName=='Luminarias' });
+          //obtener el primer registro (o único).
+          this.setState({counterTotal: onlyLum.length, counter: 1, allElements: onlyLum, currentIndex: 0});
+          $('.drawer_progressBar2').css('visibility',"hidden");
+          $('.wrapperTop_midTitle h6').addClass('wrapperTop_midTitle-h6');
+          $('.muniTitulo').addClass('muniTitulo-40percent');
+        }
+
+      },(errback)=>{
+        console.log("ee",errback);
+      });
+
+      //agregar infowindow ----------------------------------------------------
+      deferred.addCallback(function (response){
+        //extraer información de sólo las luminarias para generar infowindow.
+        let res = response.filter((r)=>{return r.layerName=="Luminarias"});
+        return arrayUtils.map(res, function (result) {
+
+          var feature = result.feature;
+          var layerName = result.layerName;
+          var onlyLuminarias = [];
+            feature.attributes.layerName = layerName;
+            if(layerName === 'Luminarias'){
+              var luminariasTemplate = new InfoTemplate("ID Luminaria: ${ID_LUMINARIA}",
+                "Rótulo: ${ROTULO} <br />" +
+                "Tipo Conexión: ${TIPO_CONEXION}<br /> " +
+                "Potencia: ${POTENCIA} <br/> " +
+                "Tipo: ${TIPO} <br/>" +
+                "Propiedad: ${PROPIEDAD} <br/>" +
+                "Medido: ${MEDIDO_TERRENO}");
+                feature.setInfoTemplate(luminariasTemplate);
+                onlyLuminarias.push(feature);
+            }
+          return feature;
+        });
+      });
+
+      mapp.infoWindow.setFeatures([deferred]);
+      mapp.infoWindow.show(event.mapPoint);
+
+
+
+
+    });
+
 
   }
 
   onShowCurrent(elements, showElementNumber){
       var mapp = mymap.getMap();
 
-    console.log(elements, showElementNumber);
+    //  console.log("current", elements, showElementNumber);
+    let onlyLum = elements.filter(element =>{ return element.layerName=='Luminarias' });
+    //  console.log(onlyLum, "solo lum");
+    let onlyMods = elements.filter(element =>{ return element.layerName=='Modificaciones' });
+    //  console.log(onlyMods, "solo mods");
+
     let idequipoap = 0;
-    if(elements[showElementNumber].attributes['ID_EQUIPO_AP']==0){
+    //si hay resultados para luminarias
+    if(onlyLum.length){
+      //si tiene equipo ap
+
+      if(onlyLum[showElementNumber].features.attributes['ID_EQUIPO_AP']==0){
+        idequipoap = 'NO TIENE';
+      }else{
+        idequipoap = onlyLum[showElementNumber].features.attributes['ID_EQUIPO_AP'];
+      }
+
+      let editarLuminaria = {
+        id_luminaria: onlyLum[showElementNumber].features.attributes['ID_LUMINARIA'],
+        id_nodo: onlyLum[showElementNumber].features.attributes['ID_NODO'],
+        tipo_conexion: onlyLum[showElementNumber].features.attributes['TIPO_CONEXION'],
+        tipo: onlyLum[showElementNumber].features.attributes['TIPO'],
+        potencia:  parseInt(onlyLum[showElementNumber].features.attributes['POTENCIA']),
+        propiedad:onlyLum[showElementNumber].features.attributes['PROPIEDAD'],
+        rotulo :onlyLum[showElementNumber].features.attributes['ROTULO'],
+        observaciones: onlyLum[showElementNumber].features.attributes['OBSERVACION'],
+        geometria: onlyLum[showElementNumber].features.geometry
+      }
+      console.log(editarLuminaria, "editar");
+
+      this.setState({
+        tipoLuminaria:  onlyLum[showElementNumber].features.attributes['TIPO'],
+        tipoConexion: onlyLum[showElementNumber].features.attributes['TIPO_CONEXION'],
+        tipoPropiedad: onlyLum[showElementNumber].features.attributes['PROPIEDAD'],
+        tipoPotencia: parseInt(onlyLum[showElementNumber].features.attributes['POTENCIA']),
+        rotulo: onlyLum[showElementNumber].features.attributes['ROTULO'],
+        selectedTab: 0,
+        numeroMedidorAsociado: idequipoap
+      });
+      console.log("potencia",this.state.tipoPotencia);
+
+      this.setState({datosLuminariaAEditar: editarLuminaria, datosLuminariaModificada: {}});
+
+      //disable all the rest of drawers.
+        $('#busquedaDrawer').removeClass('drawerVisibility_show').addClass('drawerVisibility_notShow');
+        $('.contenido_drawerleft1').css('width','0%');
+        $('#cambiarMapaDrawer').removeClass('drawerVisibility_show').addClass('drawerVisibility_notShow');
+        $('.contenido_drawerleft2').css('width','0%');
+        $('#mostrarMedidoresDrawer').removeClass('drawerVisibility_show').addClass('drawerVisibility_notShow');
+        $('.contenido_drawerleft3').css('width','0%');
+        $('#cambiarLayersDrawer').removeClass('drawerVisibility_show').addClass('drawerVisibility_notShow');
+        $('.contenido_drawerleft4').css('width','0%');
+        $('#mostrarLuminariasDrawer').removeClass('drawerVisibility_show').addClass('drawerVisibility_notShow');
+        $('.contenido_drawerleft5').css('width','0%');
+        $('.contenido_mapa').css('width','100%');
+
+        $('.wrapperTop_midTitle h6').addClass('wrapperTop_midTitle-h6');
+        $('.muniTitulo').addClass('muniTitulo-40percent');
+
+        $('#mostrarEdicionDrawer').removeClass('drawerVisibility_notShow').addClass('drawerVisibility_show');
+        $('.contenido_mapa').css('width','60%');
+        $('.contenido_drawerleftEspecial').css('width','40%');
+
+
+
+    }else{
+      //no hay length, no hay luminarias
+      console.log("no hay luminarias a mostrar")
+    }
+    /*
+    if(elements[showElementNumber].features.attributes['ID_EQUIPO_AP']==0){
       idequipoap = 'NO TIENE';
     }else{
       idequipoap = elements[showElementNumber].attributes['ID_EQUIPO_AP'];
@@ -346,6 +574,7 @@ class APMap extends React.Component {
 
     });
 
+    */
   }
 
   handleSnackbarClick = () => {
@@ -527,6 +756,10 @@ class APMap extends React.Component {
   onNuevo(){
     if( this.state.rotulo=="" ){
       console.log("rotulo no definido, no se puede ingresar.");
+      this.setState({snackbarMessage: "Rótulo no ha sido definido, intente nuevamente", activeSnackbar: true, snackbarIcon: 'clear'});
+      $('.theme__icon___4OQx3').css('color',"red");
+      //Deshabilitar barra de progreso.
+      $('.drawer_progressBar').css('visibility','hidden');
       return;
     }
 
@@ -549,12 +782,27 @@ class APMap extends React.Component {
 
     nuevoQuery(nuevosAttr, this.state.datosLuminariaAEditar.geometria, (callback)=>{
       console.log("tengo callback", callback);
+      if(callback){
+        this.setState({snackbarMessage: "Registro nuevo agregado exitosamente", activeSnackbar: true, snackbarIcon: 'done'});
+        $('.theme__icon___4OQx3').css('color',"greenyellow");
+        //Deshabilitar barra de progreso.
+        $('.drawer_progressBar').css('visibility','hidden');
+      }else{
+        this.setState({snackbarMessage: "No se ha podido ingresar nuevo registro, intente nuevamente", activeSnackbar: true, snackbarIcon: 'clear'});
+        $('.theme__icon___4OQx3').css('color',"red");
+        //Deshabilitar barra de progreso.
+        $('.drawer_progressBar').css('visibility','hidden');
+      }
     });
   }
 
   onEliminar(){
     if( this.state.rotulo=="" ){
       console.log("rotulo no definido, no se puede ingresar.");
+      this.setState({snackbarMessage: "Rótulo no ha sido definido, intente nuevamente", activeSnackbar: true, snackbarIcon: 'clear'});
+      $('.theme__icon___4OQx3').css('color',"red");
+      //Deshabilitar barra de progreso.
+      $('.drawer_progressBar').css('visibility','hidden');
       return;
     }
 
@@ -577,12 +825,27 @@ class APMap extends React.Component {
 
     nuevoQuery(nuevosAttr, this.state.datosLuminariaAEditar.geometria, (callback)=>{
       console.log("tengo callback", callback);
+      if(callback){
+        this.setState({snackbarMessage: "Registro eliminado exitosamente", activeSnackbar: true, snackbarIcon: 'done'});
+        $('.theme__icon___4OQx3').css('color',"greenyellow");
+        //Deshabilitar barra de progreso.
+        $('.drawer_progressBar').css('visibility','hidden');
+      }else{
+        this.setState({snackbarMessage: "No se ha podido eliminar registro, intente nuevamente", activeSnackbar: true, snackbarIcon: 'clear'});
+        $('.theme__icon___4OQx3').css('color',"red");
+        //Deshabilitar barra de progreso.
+        $('.drawer_progressBar').css('visibility','hidden');
+      }
     });
   }
 
   onActualizar(){
     if( this.state.rotulo=="" ){
       console.log("rotulo no definido, no se puede ingresar.");
+      this.setState({snackbarMessage: "Rótulo no ha sido definido, intente nuevamente", activeSnackbar: true, snackbarIcon: 'clear'});
+      $('.theme__icon___4OQx3').css('color',"red");
+      //Deshabilitar barra de progreso.
+      $('.drawer_progressBar').css('visibility','hidden');
       return;
     }
 
@@ -604,7 +867,19 @@ class APMap extends React.Component {
     console.log(nuevosAttr, this.state.datosLuminariaAEditar.geometria);
 
     nuevoQuery(nuevosAttr, this.state.datosLuminariaAEditar.geometria, (callback)=>{
-      console.log("tengo callback", callback);
+      console.log("tengo callback nuevo", callback);
+      if(callback){
+        this.setState({snackbarMessage: "Registro modificado exitosamente", activeSnackbar: true, snackbarIcon: 'done'});
+        $('.theme__icon___4OQx3').css('color',"greenyellow");
+        //Deshabilitar barra de progreso.
+        $('.drawer_progressBar').css('visibility','hidden');
+      }else{
+        this.setState({snackbarMessage: "No se ha podido modificar registro, intente nuevamente", activeSnackbar: true, snackbarIcon: 'clear'});
+        $('.theme__icon___4OQx3').css('color',"red");
+        //Deshabilitar barra de progreso.
+        $('.drawer_progressBar').css('visibility','hidden');
+      }
+
     });
   }
 
@@ -1117,92 +1392,51 @@ class APMap extends React.Component {
   handleCheckboxChange = (e) => {
     var mapp = mymap.getMap();
 
-      switch (e) {
-      case 'LUMINARIAS':
-        this.setState({checkbox: !this.state.checkbox});
-        if(!this.state.checkbox){
-          console.log("en true, prender LUMINARIAS",this.state.comuna[0].queryName );
+    var LuminariasLayer = this.state.dynamicService;
+    //this.setState({dynamicService: [limiteComunalLayer, tramosLayer, luminariasLayer, modificacionesLayer]})
 
-          //var luminariasLayer = new esri.layers.FeatureLayer(myLayers.read_luminarias(),{id:"ap_luminarias", mode: esri.layers.FeatureLayer.MODE_ONDEMAND, minScale: 5000});
-          //luminariasLayer.setDefinitionExpression("COMUNA = '"+ this.props.comunaName+"'" );
-          var luminariasLayer = mapp.getLayer("ap_luminarias");
+    switch (e) {
+      case "LUMINARIAS":
+      this.setState({checkbox: !this.state.checkbox});
+      if(!this.state.checkbox){
+          this.state.dynamicService[2].show();
 
-          luminariasLayer.show();
-          var index = _.findIndex(this.state.layersOrder, function(l) { return l == "ap_luminarias"; });
-          //mapp.addLayer(luminariasLayer,index);
+      }else{
 
-        }else{
-          console.log("en false, apagar LUMINARIAS");
-          var luminariasLayer = mapp.getLayer("ap_luminarias");
-          luminariasLayer.hide();
-          //mapp.removeLayer(mapp.getLayer("ap_luminarias"));
-        }
+        this.state.dynamicService[2].hide();
+      }
       break;
 
-      case 'TRAMOSAP':
-        this.setState({checkbox2: !this.state.checkbox2});
-        if(!this.state.checkbox2){
-          console.log("en true, prender TRAMOSAP",this.state.comuna[0].queryName);
+      case "TRAMOSAP":
+      this.setState({checkbox2: !this.state.checkbox2});
+      if(!this.state.checkbox2){
+        this.state.dynamicService[1].show();
 
-          //var tramosAPLayer = new esri.layers.FeatureLayer(myLayers.read_tramosAP(),{id:"ap_tramos", mode: esri.layers.FeatureLayer.MODE_ONDEMAND, minScale: 5000});
-          //tramosAPLayer.setDefinitionExpression("comuna  = '"+ this.props.comunaName +"'" );
-          var tramosAPLayer = mapp.getLayer("ap_tramos");
-          var index = _.findIndex(this.state.layersOrder, function(l) { return l == "ap_tramos"; });
-          tramosAPLayer.show();
-          //mapp.addLayer(tramosAPLayer,index);
-
-        }else{
-          console.log("en false, apagar TRAMOSAP");
-          var tramosAPLayer = mapp.getLayer("ap_tramos");
-          tramosAPLayer.hide();
-          //mapp.removeLayer(mapp.getLayer("ap_tramos"));
-        }
+      }else{
+        this.state.dynamicService[1].hide();
+      }
       break;
 
       case 'MODIFICACIONES':
-        this.setState({checkbox3: !this.state.checkbox3});
-        if(!this.state.checkbox3){
-          console.log("en true, prender MODIFICACIONES");
+      this.setState({checkbox3: !this.state.checkbox3});
+      if(!this.state.checkbox3){
+        this.state.dynamicService[3].show();
 
-          //var modificadasLayer = new esri.layers.FeatureLayer(myLayers.read_modificacionesAP(),{id:"ap_modificaciones", mode: esri.layers.FeatureLayer.MODE_ONDEMAND, minScale: 5000});
-          //modificadasLayer.setDefinitionExpression("Comuna  = '"+ this.props.comunaName +"'" );
-          var modificadasLayer = mapp.getLayer("ap_modificaciones");
-          var index = _.findIndex(this.state.layersOrder, function(l) { return l == "ap_modificaciones"; });
-          modificadasLayer.show();
-        /*  alimLayer.setInfoTemplates({
-            0: {infoTemplate: myinfotemplate.getAlimentadorInfoWindow()}
-          });
-          */
-          //mapp.addLayer(modificadasLayer,index);
-
-        }else{
-          console.log("en false, apagar MODIFICACIONES");
-          var modificadasLayer = mapp.getLayer("ap_modificaciones");
-          modificadasLayer.hide();
-          //mapp.removeLayer(mapp.getLayer("ap_modificaciones"));
-        }
+      }else{
+        this.state.dynamicService[3].hide();
+      }
       break;
 
       case 'LIMITECOMUNAL':
-        this.setState({checkbox4: !this.state.checkbox4});
-        if(!this.state.checkbox4){
-          console.log("en true, prender LIMITECOMUNAL");
-          //var limiteComunalLayer = new esri.layers.FeatureLayer(myLayers.read_limiteComunal(),{id:"ap_limiteComunal", mode: esri.layers.FeatureLayer.MODE_ONDEMAND});
-          //limiteComunalLayer.setDefinitionExpression("nombre   = '"+ this.props.comunaName +"'" );
-          var limiteComunalLayer = mapp.getLayer("ap_limiteComunal");
-          var index = _.findIndex(this.state.layersOrder, function(l) { return l == "ap_limiteComunal"; });
-          limiteComunalLayer.show();
-        //  mapp.addLayer(limiteComunalLayer,index);
+      this.setState({checkbox4: !this.state.checkbox4});
+      if(!this.state.checkbox4){
+        this.state.dynamicService[0].show();
 
-        }else{
-          console.log("en false, apagar alim");
-          var limiteComunalLayer = mapp.getLayer("ap_limiteComunal");
-          limiteComunalLayer.hide();
-          //mapp.removeLayer(mapp.getLayer("ap_limiteComunal"));
-        }
+      }else{
+      this.state.dynamicService[0].hide();
+      }
       break;
       default:
-
     }
   };
 
@@ -1554,11 +1788,11 @@ class APMap extends React.Component {
     };
 
     let rendering = null;
-    if(logoName && namee){
+    if(logoName){
       var d = cookieHandler.get('wllExp');
         if(d > getFormatedDate()){
           console.log("dentro del rango");
-          if(!cookieHandler.get('tkn')){
+          if(!cookieHandler.get('tkn') || !cookieHandler.get('sttngs')){
             console.log("no hay, redirect...");
             window.location.href = "index.html";
           }else{
@@ -1743,7 +1977,7 @@ class APMap extends React.Component {
                     {/* DRAWER EDICION */}
                     <div className="contenido_drawerleftEspecial">
                       <div id="mostrarEdicionDrawer">
-                        <div className="drawer_banner">
+                        <div className="drawer_banner banner_fix_edit">
                         {/*<Logo />*/}
                         <div className="drawer_banner_divTitle">
                           <h6 className="drawer_banner_title">Editar Luminaria</h6>
@@ -1902,7 +2136,7 @@ class APMap extends React.Component {
                              </Slider>
                             </div>
                             <div className="drawer_viewerButton_container">
-                              <Button icon='photo_camera' label='Ver en pantalla completa' className="editar_button" raised primary onClick={this.onVerFotografía.bind(this)}  />
+                              <Button icon='photo_camera' label='Ver en pantalla completa' className="editar_button editar_verFotoBtn" raised primary onClick={this.onVerFotografía.bind(this)}  />
                             </div>
 
                           </TabPanel>

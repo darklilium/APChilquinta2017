@@ -92,6 +92,25 @@ function getInfoTemplate(){
       "<div style=padding-top: 10px;><b>Alimentador:</b> ${ARCGIS.DBO.Tramos_MT_006.alimentador}<br></div>";
       chqAlimInfoTemp.setContent(chqAlimInfoContent);
       return chqAlimInfoTemp;
+    },
+    getLuminariaInfo(){
+      let chqNisInfoTemp= new InfoTemplate();
+      chqNisInfoTemp.setTitle("<b>ID Luminaria: ${ID_LUMINARIA}</b>");
+
+      let chqNisInfoContent =
+      "<div style=padding-top: 10px;><b>Rótulo:</b> ${ROTULO}<br></div>"+
+      //    "<div style=display:inline-block;width:8px;></div>"+
+      "<div style=padding-top: 10px;><b>Tipo Conexión:</b> ${TIPO_CONEXION}<br></div>"+
+      //    "<div style=display:inline-block;width:8px;></div>"+
+      "<div style=padding-top: 10px;><b>Potencia:</b> ${POTENCIA}<br></div>"+
+      //    "<div style=display:inline-block;width:8px;></div>"+
+      "<div style=padding-top: 10px;><b>Tipo:</b> ${TIPO}<br></div>"+
+      //    "<div style=display:inline-block;width:8px;></div>"+
+      "<div style=padding-top: 10px;><b>Propiedad:</b> ${PROPIEDAD}<br></div>"+
+      "<div style=padding-top: 10px;><b>Medido:</b> ${MEDIDO_TERRENO}<br></div>"
+      //    "<div style=display:inline-block;width:8px;></div>";
+      chqNisInfoTemp.setContent(chqNisInfoContent);
+      return chqNisInfoTemp;
     }
 
   }
