@@ -371,6 +371,8 @@ class APMap extends React.Component {
       var deferred = identifyTask.execute(identifyParams, (callback)=>{
         if(!callback.length){
           console.log("no hay length", callback);
+          $('.drawer_progressBar2').css('visibility',"hidden");
+          this.setState({snackbarMessage: "Luminarias en este punto no han sido encontradas. Haga clic en una luminaria para ver su información nuevamente.", activeSnackbar: true, snackbarIcon: 'close' });
         }else{
           let arrResults = callback.map(result => {
             let r = {
