@@ -57,6 +57,8 @@ import IdentifyParameters from "esri/tasks/IdentifyParameters";
 import arrayUtils from "dojo/_base/array";
 import InfoTemplate from "esri/InfoTemplate";
 
+//03/04/2017: limpiar busqueda anterior de tramos , luminarias asociadas, etc.
+import {clearGraphicsLayers} from '../services/queryData';
 
 var options = [
     { value: 'ROTULO', label: 'Rótulo' },
@@ -384,9 +386,12 @@ class APMap extends React.Component {
 
           this.setState({allElements: arrResults});
           console.log(arrResults,"arrResults");
-          //dibujar
+          //dibujar punto seleccionado.
           let mySymbol = makeSymbol.makePointLocated();
-          gLayerLuminariaSearch.clear();
+          //Limpiar busqueda anterior.
+          //gLayerLuminariaSearch.clear();
+          clearGraphicsLayers(true,true,true,true,true);
+          //Dibujar resultado de geometria encontrada
           var g = new Graphic( arrResults[0].features.geometry,mySymbol);
           gLayerLuminariaSearch.add(g);
           mapp.addLayer(gLayerLuminariaSearch,1);
@@ -659,6 +664,9 @@ class APMap extends React.Component {
           getFotografías(this.state.datosLuminariaAEditar.id_nodo, (callback)=>{
               if(!callback[0]){
                 console.log("no hay fotos", callback);
+                this.setState({snackbarMessage: "Fotos para esta luminaria no han sido encontradas.", activeSnackbar: true, snackbarIcon: 'close' });
+                $('.theme__icon___4OQx3').css('color',"red");
+
                 let f = [];
                 let noPicImg = env.CSSDIRECTORY + "images/nofoto.png";
                 this.setState({fotografias: [], showThumbs: false});
@@ -694,8 +702,10 @@ class APMap extends React.Component {
         break;
         //obtener info de luminarias asociadas a un medidor:
         case 2:
+        //clearGraphicsLayers(false,true,true,false,false);
+
         $('.drawer_progressBar').css('visibility',"visible");
-        console.log("ee")
+        console.log("ee");
         if ( (this.state.numeroMedidorAsociado=='NO TIENE') || (this.state.numeroMedidorAsociado==0) ){
           console.log("Vacio numeroMedidorAsociado");
           this.setState({dataLuminariasRelacionadas: []});
@@ -748,6 +758,11 @@ class APMap extends React.Component {
           //Deshabilitar barra de progreso.
           $('.drawer_progressBar').css('visibility','hidden');
         });
+
+        //Dibujar medidor.
+        getMedidorLocation(this.state.numeroMedidorAsociado,(cb)=>{
+          console.log("medidor dibujado",cb);
+        })
 
         break;
         default:

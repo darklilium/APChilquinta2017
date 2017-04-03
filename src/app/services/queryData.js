@@ -335,8 +335,26 @@ function crearRectangulo(geometry,delta){
 }
 
 
-//02/03/2017:
+//03/04/217:
 
+function clearGraphicsLayers(Medidor,LumAsoc,Tramos,Luminarias,LuminariaSearch){
+  if(Medidor){
+    gLayerMedidor.clear();
+  }
+  if(LumAsoc){
+    gLayerLumAsoc.clear();
+  }
+  if(Tramos){
+    gLayerTramos.clear();
+  }
+  if(Luminarias){
+    gLayerLuminarias.clear();
+  }
+  if(LuminariaSearch){
+    gLayerLuminariaSearch.clear();
+  }
+
+}
 
 export {getMedidores,
   getLuminariasAsociadas,
@@ -352,4 +370,5 @@ export {getMedidores,
    getFotografías,
    getInfoLuminariaSeleccionada,
    getInfoLuminariaModificaciones,
-   getInfoLuminariaCercana};
+   getInfoLuminariaCercana,
+   clearGraphicsLayers};
