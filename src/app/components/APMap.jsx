@@ -208,8 +208,11 @@ class APMap extends React.Component {
       selectedRowId2: 0,
       selectedRowId3: 0,
       layersOrder: '',
+      IDMedidorAsociado: 0,
       numeroMedidorAsociado: 0,
-      dataLuminariasRelacionadas: ''
+      editarLum_nisAsociado: 0,
+      dataLuminariasRelacionadas: '',
+      nisMedidorAsociado: ''
     }
     this.onShowCurrent = this.onShowCurrent.bind(this);
     this.onLimpiarFormEdicion = this.onLimpiarFormEdicion.bind(this);
@@ -347,7 +350,7 @@ class APMap extends React.Component {
     limiteComunalLayer.setImageFormat("jpg");
     limiteComunalLayer.setVisibleLayers([4]);
     limiteComunalLayer.setLayerDefinitions(layerDefinitions);
-*/
+    */
     var limiteComunalLayer = new esri.layers.FeatureLayer(layers.read_limiteComunal(),{id:"ap_limiteComunal", mode: esri.layers.FeatureLayer.MODE_ONDEMAND});
     limiteComunalLayer.setDefinitionExpression("nombre   = '"+ this.state.comuna[0].queryName+"'" );
 
@@ -452,11 +455,11 @@ class APMap extends React.Component {
   onShowCurrent(elements, showElementNumber){
       var mapp = mymap.getMap();
 
-    //  console.log("current", elements, showElementNumber);
+    //console.log("current", elements, showElementNumber);
     let onlyLum = elements.filter(element =>{ return element.layerName=='Luminarias' });
-    //  console.log(onlyLum, "solo lum");
+      console.log(onlyLum, "solo lum");
     let onlyMods = elements.filter(element =>{ return element.layerName=='Modificaciones' });
-    //  console.log(onlyMods, "solo mods");
+      console.log(onlyMods, "solo mods");
 
     let idequipoap = 0;
     //si hay resultados para luminarias
@@ -468,7 +471,7 @@ class APMap extends React.Component {
       }else{
         idequipoap = onlyLum[showElementNumber].features.attributes['ID_EQUIPO_AP'];
       }
-
+      console.log(idequipoap,"idequipoap");
       let editarLuminaria = {
         id_luminaria: onlyLum[showElementNumber].features.attributes['ID_LUMINARIA'],
         id_nodo: onlyLum[showElementNumber].features.attributes['ID_NODO'],
@@ -489,9 +492,9 @@ class APMap extends React.Component {
         tipoPotencia: parseInt(onlyLum[showElementNumber].features.attributes['POTENCIA']),
         rotulo: onlyLum[showElementNumber].features.attributes['ROTULO'],
         selectedTab: 0,
-        numeroMedidorAsociado: idequipoap
+        IDMedidorAsociado: idequipoap
       });
-      console.log("potencia",this.state.tipoPotencia);
+
 
       this.setState({datosLuminariaAEditar: editarLuminaria, datosLuminariaModificada: {}});
 
@@ -653,7 +656,7 @@ class APMap extends React.Component {
 
     this.setState({observaciones: name});
   }
-
+  //Tabs que muestran información según tabindex. Tab1: editar, tab2: fotos, tab3: tramoEquipo asociado.
   handleSelect(index, last){
 
       this.setState({selectedTab: index});
@@ -707,8 +710,8 @@ class APMap extends React.Component {
 
         $('.drawer_progressBar').css('visibility',"visible");
         console.log("ee");
-        if ( (this.state.numeroMedidorAsociado=='NO TIENE') || (this.state.numeroMedidorAsociado==0) ){
-          console.log("Vacio numeroMedidorAsociado");
+        if ( (this.state.IDMedidorAsociado=='NO TIENE') || (this.state.IDMedidorAsociado==0) ){
+          console.log("Vacio IDMedidorAsociado");
           this.setState({dataLuminariasRelacionadas: []});
           this.setState({snackbarMessage: "Luminarias asociadas en este circuito no han sido encontradas.", activeSnackbar: true, snackbarIcon: 'close' });
           $('.theme__icon___4OQx3').css('color',"red");
@@ -717,11 +720,13 @@ class APMap extends React.Component {
           return;
         }
 
-        getLuminariasAsociadas(this.state.numeroMedidorAsociado,(callback)=>{
+        getLuminariasAsociadas(this.state.IDMedidorAsociado,(callback)=>{
           if(!callback[0]){
             console.log("Vacio getLuminariasAsociadas");
 
             this.setState({snackbarMessage: "Luminarias asociadas en este circuito no han sido encontradas.", activeSnackbar: true, snackbarIcon: 'close' });
+
+
             $('.theme__icon___4OQx3').css('color',"red");
             //Deshabilitar barra de progreso.
             $('.drawer_progressBar').css('visibility','hidden');
@@ -735,7 +740,8 @@ class APMap extends React.Component {
               "TIPO CONEXION": feature.attributes.TIPO_CONEXION ,
               "PROPIEDAD": feature.attributes.PROPIEDAD ,
               "MEDIDO": feature.attributes.MEDIDO_TERRENO ,
-              "DESCRIPCION": feature.attributes.DESCRIPCION ,
+              "TIPO": feature.attributes.TIPO,
+              "POTENCIA": feature.attributes.POTENCIA,
               "ROTULO": feature.attributes.ROTULO ,
               "Geometry": feature.geometry
             }
@@ -745,7 +751,7 @@ class APMap extends React.Component {
           this.setState({dataLuminariasRelacionadas: m});
         });
 
-        getTramosMedidor(this.state.numeroMedidorAsociado, (cb)=>{
+        getTramosMedidor(this.state.IDMedidorAsociado, (cb)=>{
           if(!cb[0]){
             console.log("Vacio getTramosMedidor 2");
 
@@ -761,9 +767,17 @@ class APMap extends React.Component {
         });
 
         //Dibujar medidor.
-        getMedidorLocation(this.state.numeroMedidorAsociado,(cb)=>{
-          console.log("medidor dibujado",cb);
+        getMedidorLocation(this.state.IDMedidorAsociado,(cb)=>{
+          if(!cb[1].length){
+            this.setState({editarLum_nisAsociado: 0, numeroMedidorAsociado: 0});
+              console.log("medidor dibujado",cb);
+            return;
+          }
+          console.log("medidor dibujado",cb,"cb1",cb[1]);
+          this.setState({editarLum_nisAsociado: cb[1][0].attributes.nis, numeroMedidorAsociado: cb[1][0].attributes.numero_medidor});
+
         })
+
 
         break;
         default:
@@ -1463,6 +1477,7 @@ class APMap extends React.Component {
     exportToExcel(this.state.dataMedidores, "MedidoresAP_", true);
   }
 
+  //Exportar a excel luminarias asociadas a un equipo. 1.- Editar luminaria. 2.- Seleccionar equipo desde grid.
   onClickExportarAsociadas(e){
 
     console.log(e);
@@ -1473,8 +1488,14 @@ class APMap extends React.Component {
         this.setState({snackbarMessage: "Seleccione una luminaria a editar para extraer los datos de sus luminarias asociadas", activeSnackbar: true, snackbarIcon: "warning" });
         return;
       }
-      console.log(this.state.labelNumeroMedidor,"aa");
-      exportToExcel(this.state.dataLuminariasRelacionadas, "LuminariasAP_Asociadas_ID_Equipo_"+ this.state.numeroMedidorAsociado, true);
+      //console.log(this.state.labelNumeroMedidor,"aa");
+      console.log(this.state.editarLum_nisAsociado, this.state.numeroMedidorAsociado, "variables a reportar");
+      if(this.state.numeroMedidorAsociado==" " || this.state.numeroMedidorAsociado==""){
+        exportToExcel(this.state.dataLuminariasRelacionadas, "LuminariasAP_Asociadas_ID_Equipo_"+ this.state.IDMedidorAsociado + " N°Cliente_" + this.state.editarLum_nisAsociado + " N°Medidor_0" , true);
+        return;
+      }
+      //  this.setState({editarLum_nisAsociado: cb[1][0].attributes.nis, numeroMedidorAsociado: cb[1][0].attributes.numero_medidor});
+      exportToExcel(this.state.dataLuminariasRelacionadas, "LuminariasAP_Asociadas_ID_Equipo_"+ this.state.IDMedidorAsociado + "N°Cliente_" + this.state.editarLum_nisAsociado + " N°Medidor_" + this.state.numeroMedidorAsociado , true);
       break;
 
       case 'dataLuminarias':
@@ -1483,7 +1504,7 @@ class APMap extends React.Component {
           this.setState({snackbarMessage: "Seleccione un medidor para extraer los datos de sus luminarias asociadas", activeSnackbar: true, snackbarIcon: "warning" });
           return;
         }
-        exportToExcel(this.state.dataLuminarias, "LuminariasAP_Asociadas_ID_Equipo_"+ this.state.numeroMedidor + "__"+this.state.labelNumeroMedidor, true);
+        exportToExcel(this.state.dataLuminarias, "LuminariasAP_Asociadas_ID_Equipo_"+ this.state.numeroMedidor + "__"+this.state.labelNumeroMedidor+ "__N°Cliente_"+ this.state.nisMedidorAsociado, true);
       default:
 
     }
@@ -1505,9 +1526,14 @@ class APMap extends React.Component {
     $('.drawer_progressBar').css('visibility','visible');
 
     //  console.log("onrowclick",event,gridRow);
-    this.setState({ selectedRowId: gridRow.props.data['ID EQUIPO'] });
-    this.setState({numeroMedidor: gridRow.props.data['ID EQUIPO'], labelIDMedidor: "Luminarias de ID Equipo: " +gridRow.props.data['ID EQUIPO'], labelNumeroMedidor: " N° Medidor: " + gridRow.props.data['N° MEDIDOR'] });
-    console.log(gridRow.props.data['Geometry']);
+    this.setState({
+      selectedRowId: gridRow.props.data['ID EQUIPO'],
+      numeroMedidor: gridRow.props.data['ID EQUIPO'],
+      labelIDMedidor: "Luminarias de ID Equipo: " +gridRow.props.data['ID EQUIPO'],
+      labelNumeroMedidor: " N° Medidor: " + gridRow.props.data['N° MEDIDOR'],
+      nisMedidorAsociado: gridRow.props.data['NIS']
+    });
+
     getLuminariasAsociadas(gridRow.props.data['ID EQUIPO'],(callback)=>{
       if(!callback[0]){
         console.log("Vacio getLuminariasAsociadas");
@@ -1974,10 +2000,11 @@ class APMap extends React.Component {
                             </div>
                             <Griddle resultsPerPage={5} rowMetadata={rowMetadata2} columnMetadata={columnMetaLuminariasAsociadas}  ref="griddleTable" className="drawer_griddle_medidores" results={this.state.dataLuminarias} columns={["ID LUMINARIA","TIPO CONEXION","PROPIEDAD","TIPO","POTENCIA","ROTULO"]} onRowClick = {this.onRowClickLuminariasAsociadas.bind(this)} uniqueIdentifier="ID LUMINARIA" />
                           </div>
+                          <div className="drawer_medidoresButtons">
+                            <Button icon='delete_sweep' label='Limpiar ubicación' raised primary onClick={this.onClickLimpiarBusqueda.bind(this)} />
+                          </div>
                         </div>
-                        <div className="drawer_medidoresButtons">
-                          <Button icon='delete_sweep' label='Limpiar ubicación' raised primary onClick={this.onClickLimpiarBusqueda.bind(this)} />
-                        </div>
+
                       </div>
                     </div>
 
@@ -2184,12 +2211,13 @@ class APMap extends React.Component {
 
                             <div className="drawer_griddle_medidores">
                               <div className="drawer_exportarButtonContainer">
-
-                              <h7><b>Luminarias Asociadas al ID Equipo : {this.state.numeroMedidorAsociado}</b></h7>
-                              <h7><b>N° Medidor : {this.state.numeroMedidorAsociado}</b></h7>
-                              <h7><b>Producto : {this.state.numeroMedidorAsociado}</b></h7>
-                                <Button icon='file_download' label='Exportar' accent onClick={this.onClickExportarAsociadas.bind(this, "luminariaEditar")} />
-                              </div>
+                                <div className="drawer_titles_equipoMedidor">
+                                  <h7 className="nocenter"><b>Luminarias Asociadas al ID Equipo : {this.state.IDMedidorAsociado}</b></h7>
+                                  <h8 className="nocenter"><b>N° Medidor : {this.state.numeroMedidorAsociado}</b></h8>
+                                  <h8 className="nocenter"><b>N° Cliente : {this.state.editarLum_nisAsociado}</b></h8>
+                                </div>
+                                  <Button icon='file_download' label='Exportar' accent onClick={this.onClickExportarAsociadas.bind(this, "luminariaEditar")} />
+                                </div>
                               <Griddle rowMetadata={rowMetadata2} columnMetadata={columnMetaLuminariasAsociadas}  ref="griddleTable" className="drawer_griddle_medidores" results={this.state.dataLuminariasRelacionadas} columns={["ID LUMINARIA","TIPO CONEXION","PROPIEDAD","DESCRIPCION","ROTULO"]} onRowClick = {this.onRowClickLuminariasAsociadas.bind(this)} uniqueIdentifier="ID LUMINARIA" />
                             </div>
                           </TabPanel>

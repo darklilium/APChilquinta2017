@@ -128,7 +128,7 @@ function getMedidorLocation(idmedidor, callback){
   qMedidores.where = "id_medidor =" + idmedidor ;
 
   qTaskMedidores.execute(qMedidores, (featureSet)=>{
-    console.log(featureSet.features.length);
+    console.log(featureSet.features);
     if(!featureSet.features.length){
       return callback([false,[],"Medidor no encontrado","clear","red"]);
     }

@@ -359,6 +359,7 @@ input:not([type=checkbox]):not([type=radio]) {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  padding-bottom: 1em;
 }
 
 .slick-slider {
@@ -627,9 +628,12 @@ align-self: center;
 .drawer_titles_equipoMedidor{
   display: flex;
   flex-direction: column;
-  align-items: center;
+  //align-items: center;
 }
 
+.nocenter{
+  text-align: left !important;
+}
 //LOGIN MEDIAS
 @media screen and (max-width: 600px) and (orientation: portrait){
   .login_input {
