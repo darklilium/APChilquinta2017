@@ -1473,6 +1473,7 @@ class APMap extends React.Component {
         this.setState({snackbarMessage: "Seleccione una luminaria a editar para extraer los datos de sus luminarias asociadas", activeSnackbar: true, snackbarIcon: "warning" });
         return;
       }
+      console.log(this.state.labelNumeroMedidor,"aa");
       exportToExcel(this.state.dataLuminariasRelacionadas, "LuminariasAP_Asociadas_ID_Equipo_"+ this.state.numeroMedidorAsociado, true);
       break;
 
@@ -1482,7 +1483,7 @@ class APMap extends React.Component {
           this.setState({snackbarMessage: "Seleccione un medidor para extraer los datos de sus luminarias asociadas", activeSnackbar: true, snackbarIcon: "warning" });
           return;
         }
-        exportToExcel(this.state.dataLuminarias, "LuminariasAP_Asociadas_ID_Equipo_"+ this.state.numeroMedidor, true);
+        exportToExcel(this.state.dataLuminarias, "LuminariasAP_Asociadas_ID_Equipo_"+ this.state.numeroMedidor + "__"+this.state.labelNumeroMedidor, true);
       default:
 
     }
@@ -1525,7 +1526,8 @@ class APMap extends React.Component {
           "TIPO CONEXION": feature.attributes.TIPO_CONEXION ,
           "PROPIEDAD": feature.attributes.PROPIEDAD ,
           "MEDIDO": feature.attributes.MEDIDO_TERRENO ,
-          "DESCRIPCION": feature.attributes.DESCRIPCION ,
+          "TIPO": feature.attributes.TIPO,
+          "POTENCIA": feature.attributes.POTENCIA,
           "ROTULO": feature.attributes.ROTULO ,
           "Geometry": feature.geometry
         }
@@ -1756,7 +1758,12 @@ class APMap extends React.Component {
         "customHeaderComponentProps": { color: '#da291c' }
       },
       {
-        "columnName": "DESCRIPCION",
+        "columnName": "TIPO",
+        "customHeaderComponent": HeaderComponent2,
+        "customHeaderComponentProps": { color: '#da291c' }
+      },
+      {
+        "columnName": "POTENCIA",
         "customHeaderComponent": HeaderComponent2,
         "customHeaderComponentProps": { color: '#da291c' }
       },
@@ -1788,7 +1795,12 @@ class APMap extends React.Component {
         "customHeaderComponentProps": { color: '#da291c' }
       },
       {
-        "columnName": "DESCRIPCION",
+        "columnName": "TIPO",
+        "customHeaderComponent": HeaderComponent3,
+        "customHeaderComponentProps": { color: '#da291c' }
+      },
+      {
+        "columnName": "POTENCIA",
         "customHeaderComponent": HeaderComponent3,
         "customHeaderComponentProps": { color: '#da291c' }
       },
@@ -1954,13 +1966,13 @@ class APMap extends React.Component {
                           <div className="drawer_griddle_medidores">
                             <div className="drawer_exportarButtonContainer">
 
-                            <div className="drawer_titles_equipoMedidor">  
+                            <div className="drawer_titles_equipoMedidor">
                               <h7><b>{this.state.labelIDMedidor}</b></h7>
                               <h8><b>{this.state.labelNumeroMedidor}</b></h8>
                             </div>
                               <Button icon='file_download' label='Exportar' accent onClick={this.onClickExportarAsociadas.bind(this, "dataLuminarias")} />
                             </div>
-                            <Griddle resultsPerPage={5} rowMetadata={rowMetadata2} columnMetadata={columnMetaLuminariasAsociadas}  ref="griddleTable" className="drawer_griddle_medidores" results={this.state.dataLuminarias} columns={["ID LUMINARIA","TIPO CONEXION","PROPIEDAD","DESCRIPCION","ROTULO"]} onRowClick = {this.onRowClickLuminariasAsociadas.bind(this)} uniqueIdentifier="ID LUMINARIA" />
+                            <Griddle resultsPerPage={5} rowMetadata={rowMetadata2} columnMetadata={columnMetaLuminariasAsociadas}  ref="griddleTable" className="drawer_griddle_medidores" results={this.state.dataLuminarias} columns={["ID LUMINARIA","TIPO CONEXION","PROPIEDAD","TIPO","POTENCIA","ROTULO"]} onRowClick = {this.onRowClickLuminariasAsociadas.bind(this)} uniqueIdentifier="ID LUMINARIA" />
                           </div>
                         </div>
                         <div className="drawer_medidoresButtons">
