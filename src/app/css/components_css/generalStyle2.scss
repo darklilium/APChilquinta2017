@@ -622,6 +622,14 @@ align-self: center;
 .banner_fix_edit{
   height: 5.6rem;
 }
+
+// 26.04.2017:
+.drawer_titles_equipoMedidor{
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
 //LOGIN MEDIAS
 @media screen and (max-width: 600px) and (orientation: portrait){
   .login_input {

@@ -202,7 +202,8 @@ class APMap extends React.Component {
       dataLuminarias: '',
       dataTodasLuminarias: '',
       numeroMedidor: '',
-      labelNumeroMedidor: 'Luminarias de Medidor N°: ',
+      labelNumeroMedidor: 'Luminarias de ID Equipo N°: ',
+      labelIDMedidor: 'Luminarias de ID Equipo N°: ',
       selectedRowId: 0,
       selectedRowId2: 0,
       selectedRowId3: 0,
@@ -1039,6 +1040,7 @@ class APMap extends React.Component {
 
         let data = {
           "ID EQUIPO": feature.attributes.id_medidor,
+          "N° MEDIDOR": feature.attributes.numero_medidor,
           "NIS": feature.attributes.nis,
           "CANT. LUMINARIAS": feature.attributes.luminarias,
           "CANT. TRAMOS": feature.attributes.tramos_ap,
@@ -1471,7 +1473,7 @@ class APMap extends React.Component {
         this.setState({snackbarMessage: "Seleccione una luminaria a editar para extraer los datos de sus luminarias asociadas", activeSnackbar: true, snackbarIcon: "warning" });
         return;
       }
-      exportToExcel(this.state.dataLuminariasRelacionadas, "LuminariasAP_Asociadas_Medidor_"+ this.state.numeroMedidorAsociado, true);
+      exportToExcel(this.state.dataLuminariasRelacionadas, "LuminariasAP_Asociadas_ID_Equipo_"+ this.state.numeroMedidorAsociado, true);
       break;
 
       case 'dataLuminarias':
@@ -1480,7 +1482,7 @@ class APMap extends React.Component {
           this.setState({snackbarMessage: "Seleccione un medidor para extraer los datos de sus luminarias asociadas", activeSnackbar: true, snackbarIcon: "warning" });
           return;
         }
-        exportToExcel(this.state.dataLuminarias, "LuminariasAP_Asociadas_Medidor_"+ this.state.numeroMedidor, true);
+        exportToExcel(this.state.dataLuminarias, "LuminariasAP_Asociadas_ID_Equipo_"+ this.state.numeroMedidor, true);
       default:
 
     }
@@ -1503,7 +1505,7 @@ class APMap extends React.Component {
 
     //  console.log("onrowclick",event,gridRow);
     this.setState({ selectedRowId: gridRow.props.data['ID EQUIPO'] });
-    this.setState({numeroMedidor: gridRow.props.data['ID EQUIPO'], labelNumeroMedidor: "Luminarias de Medidor N°: " +gridRow.props.data['ID EQUIPO'] });
+    this.setState({numeroMedidor: gridRow.props.data['ID EQUIPO'], labelIDMedidor: "Luminarias de ID Equipo: " +gridRow.props.data['ID EQUIPO'], labelNumeroMedidor: " N° Medidor: " + gridRow.props.data['N° MEDIDOR'] });
     console.log(gridRow.props.data['Geometry']);
     getLuminariasAsociadas(gridRow.props.data['ID EQUIPO'],(callback)=>{
       if(!callback[0]){
@@ -1698,6 +1700,11 @@ class APMap extends React.Component {
     var columnMetaMedidores = [
             {
             "columnName": "ID EQUIPO",
+            "customHeaderComponent": HeaderComponent,
+            "customHeaderComponentProps": { color: '#da291c' }
+            },
+            {
+            "columnName": "N° MEDIDOR",
             "customHeaderComponent": HeaderComponent,
             "customHeaderComponentProps": { color: '#da291c' }
             },
@@ -1942,15 +1949,18 @@ class APMap extends React.Component {
                               <h7><b>Seleccione un medidor para ver sus luminarias asociadas y ubicación</b></h7>
                               <Button icon='file_download' label='Exportar' accent onClick={this.onClickExportarMedidores.bind(this)} />
                             </div>
-                            <Griddle  resultsPerPage={6} rowMetadata={rowMetadata} columnMetadata={columnMetaMedidores} ref="griddleTable" className="drawer_griddle_medidores" results={this.state.dataMedidores} columns={["ID EQUIPO","NIS","CANT. LUMINARIAS","CANT. TRAMOS","TIPO","ROTULO"]} onRowClick = {this.onRowClick.bind(this)} uniqueIdentifier="ID EQUIPO" />
+                            <Griddle  resultsPerPage={5} rowMetadata={rowMetadata} columnMetadata={columnMetaMedidores} ref="griddleTable" className="drawer_griddle_medidores" results={this.state.dataMedidores} columns={["ID EQUIPO","N° MEDIDOR", "NIS","CANT. LUMINARIAS","CANT. TRAMOS","TIPO","ROTULO"]} onRowClick = {this.onRowClick.bind(this)} uniqueIdentifier="ID EQUIPO" />
                           </div>
                           <div className="drawer_griddle_medidores">
                             <div className="drawer_exportarButtonContainer">
 
-                            <h7><b>{this.state.labelNumeroMedidor}</b></h7>
+                            <div className="drawer_titles_equipoMedidor">  
+                              <h7><b>{this.state.labelIDMedidor}</b></h7>
+                              <h8><b>{this.state.labelNumeroMedidor}</b></h8>
+                            </div>
                               <Button icon='file_download' label='Exportar' accent onClick={this.onClickExportarAsociadas.bind(this, "dataLuminarias")} />
                             </div>
-                            <Griddle resultsPerPage={6} rowMetadata={rowMetadata2} columnMetadata={columnMetaLuminariasAsociadas}  ref="griddleTable" className="drawer_griddle_medidores" results={this.state.dataLuminarias} columns={["ID LUMINARIA","TIPO CONEXION","PROPIEDAD","DESCRIPCION","ROTULO"]} onRowClick = {this.onRowClickLuminariasAsociadas.bind(this)} uniqueIdentifier="ID LUMINARIA" />
+                            <Griddle resultsPerPage={5} rowMetadata={rowMetadata2} columnMetadata={columnMetaLuminariasAsociadas}  ref="griddleTable" className="drawer_griddle_medidores" results={this.state.dataLuminarias} columns={["ID LUMINARIA","TIPO CONEXION","PROPIEDAD","DESCRIPCION","ROTULO"]} onRowClick = {this.onRowClickLuminariasAsociadas.bind(this)} uniqueIdentifier="ID LUMINARIA" />
                           </div>
                         </div>
                         <div className="drawer_medidoresButtons">
@@ -2163,7 +2173,9 @@ class APMap extends React.Component {
                             <div className="drawer_griddle_medidores">
                               <div className="drawer_exportarButtonContainer">
 
-                              <h7><b>Luminarias Asociadas al medidor : {this.state.numeroMedidorAsociado}</b></h7>
+                              <h7><b>Luminarias Asociadas al ID Equipo : {this.state.numeroMedidorAsociado}</b></h7>
+                              <h7><b>N° Medidor : {this.state.numeroMedidorAsociado}</b></h7>
+                              <h7><b>Producto : {this.state.numeroMedidorAsociado}</b></h7>
                                 <Button icon='file_download' label='Exportar' accent onClick={this.onClickExportarAsociadas.bind(this, "luminariaEditar")} />
                               </div>
                               <Griddle rowMetadata={rowMetadata2} columnMetadata={columnMetaLuminariasAsociadas}  ref="griddleTable" className="drawer_griddle_medidores" results={this.state.dataLuminariasRelacionadas} columns={["ID LUMINARIA","TIPO CONEXION","PROPIEDAD","DESCRIPCION","ROTULO"]} onRowClick = {this.onRowClickLuminariasAsociadas.bind(this)} uniqueIdentifier="ID LUMINARIA" />

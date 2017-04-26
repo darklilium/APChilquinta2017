@@ -132,7 +132,7 @@ class DrawerTest extends React.Component {
       dataLuminarias: '',
       dataTodasLuminarias: '',
       numeroMedidor: '',
-      labelNumeroMedidor: 'Luminarias de Medidor N°: ',
+      labelNumeroMedidor: 'Luminarias de ID Equipo : ',
       selectedRowId: 0,
       selectedRowId2: 0,
       selectedRowId3: 0,
@@ -592,7 +592,7 @@ class DrawerTest extends React.Component {
   onRowClick(gridRow, event) {
     //  console.log("onrowclick",event,gridRow);
     this.setState({ selectedRowId: gridRow.props.data['ID EQUIPO'] });
-    this.setState({numeroMedidor: gridRow.props.data['ID EQUIPO'], labelNumeroMedidor: "Luminarias de Medidor N°: " +gridRow.props.data['ID EQUIPO'] });
+    this.setState({numeroMedidor: gridRow.props.data['ID EQUIPO'], labelNumeroMedidor: "Luminarias de ID Equipo: " +gridRow.props.data['ID EQUIPO'] });
     console.log(gridRow.props.data['Geometry']);
     getLuminariasAsociadas(gridRow.props.data['ID EQUIPO'],(callback)=>{
       if(!callback[0]){
