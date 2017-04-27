@@ -218,7 +218,8 @@ class APMap extends React.Component {
       numeroMedidorAsociado: 0,
       editarLum_nisAsociado: 0,
       dataLuminariasRelacionadas: '',
-      nisMedidorAsociado: ''
+      nisMedidorAsociado: '',
+      btnsEditDisabled: true
     }
     this.onShowCurrent = this.onShowCurrent.bind(this);
     this.onLimpiarFormEdicion = this.onLimpiarFormEdicion.bind(this);
@@ -295,6 +296,7 @@ class APMap extends React.Component {
           console.log("no hay length", callback);
           $('.drawer_progressBar2').css('visibility',"hidden");
           this.setState({snackbarMessage: "Luminarias en este punto no han sido encontradas. Haga clic en una luminaria para ver su información nuevamente.", activeSnackbar: true, snackbarIcon: 'close' });
+          return;
         }else{
           let arrResults = callback.map(result => {
             let r = {
@@ -378,6 +380,7 @@ class APMap extends React.Component {
     let idequipoap = 0;
     //si hay resultados para luminarias
     if(onlyLum.length){
+      this.setState({btnsEditDisabled: false});
       //si tiene equipo ap
 
       if(onlyLum[showElementNumber].features.attributes['ID_EQUIPO_AP']==0){
@@ -433,42 +436,43 @@ class APMap extends React.Component {
         $('.contenido_drawerleftEspecial').css('width','40%');
 
 
+        if(!onlyMods.length){
+              console.log("no hay modificaciones");
+              /*this.setState({datosLuminariaModificada: []});
+              this.setState({snackbarMessage: "Modificaciones realizadas para luminaria no encontradas.", activeSnackbar: true, snackbarIcon: 'close' });
+              $('.theme__icon___4OQx3').css('color',"red");
+              */
+              //Deshabilitar barra de progreso.
+              $('.drawer_progressBar').css('visibility','hidden');
+              return;
 
+          }
+
+          let onlyModss = onlyMods.filter(modificaciones =>{return modificaciones.features.attributes['id_luminaria']==onlyLum[showElementNumber].features.attributes['ID_LUMINARIA']});
+          console.log("solo esta lum mod", onlyModss);
+          if(onlyModss.length){
+            let modificacionesLuminaria = {
+              id_luminaria: onlyModss[0].features.attributes['id_luminaria'],
+              id_nodo: onlyModss[0].features.attributes['id_nodo'],
+              tipo_conexion:  onlyModss[0].features.attributes['tipo_cnx'],
+              tipo:  onlyModss[0].features.attributes['tipo'],
+              potencia:   onlyModss[0].features.attributes['potencia'],
+              propiedad:onlyModss[0].features.attributes['propiedad'],
+              rotulo : onlyModss[0].features.attributes['rotulo'],
+              observaciones: onlyModss[0].features.attributes['obs'],
+              geometria: onlyModss[0].features.attributes.geometry
+            }
+              this.setState({datosLuminariaModificada: modificacionesLuminaria});
+
+        }else{
+            console.log("nada");
+        }
     }else{
       //no hay length, no hay luminarias
-      console.log("no hay luminarias a mostrar")
+      console.log("no hay luminarias a mostrar");
+      this.onLimpiarFormEdicion();
+      this.setState({btnsEditDisabled: true});
     }
-
-      if(!onlyMods.length){
-          console.log("no hay modificaciones");
-          /*this.setState({datosLuminariaModificada: []});
-          this.setState({snackbarMessage: "Modificaciones realizadas para luminaria no encontradas.", activeSnackbar: true, snackbarIcon: 'close' });
-          $('.theme__icon___4OQx3').css('color',"red");
-          */
-          //Deshabilitar barra de progreso.
-          $('.drawer_progressBar').css('visibility','hidden');
-          return;
-
-      }
-      let onlyModss = onlyMods.filter(modificaciones =>{return modificaciones.features.attributes['id_luminaria']==onlyLum[showElementNumber].features.attributes['ID_LUMINARIA']});
-      console.log("solo esta lum mod", onlyModss);
-      if(onlyModss.length){
-        let modificacionesLuminaria = {
-          id_luminaria: onlyModss[0].features.attributes['id_luminaria'],
-          id_nodo: onlyModss[0].features.attributes['id_nodo'],
-          tipo_conexion:  onlyModss[0].features.attributes['tipo_cnx'],
-          tipo:  onlyModss[0].features.attributes['tipo'],
-          potencia:   onlyModss[0].features.attributes['potencia'],
-          propiedad:onlyModss[0].features.attributes['propiedad'],
-          rotulo : onlyModss[0].features.attributes['rotulo'],
-          observaciones: onlyModss[0].features.attributes['obs'],
-          geometria: onlyModss[0].features.attributes.geometry
-        }
-          this.setState({datosLuminariaModificada: modificacionesLuminaria});
-      }else{
-        console.log("nada");
-      }
-
 
       //ver cuando es lum id = 0 id nodo = y más de un registro a modificar.id nodo: 11549584
 
@@ -1389,7 +1393,7 @@ class APMap extends React.Component {
         this.setState({snackbarMessage: "Seleccione una luminaria a editar para extraer los datos de sus luminarias asociadas", activeSnackbar: true, snackbarIcon: "warning" });
         return;
       }
-    
+
       if(this.state.numeroMedidorAsociado==" " || this.state.numeroMedidorAsociado==""){
         let e = this.state.dataLuminariasRelacionadas.map(data=>{
           return _.omit(data,['Geometry']);
@@ -2093,9 +2097,9 @@ class APMap extends React.Component {
                             </div>
 
                             <div className="drawer_editarButtons">
-                              <Button icon='update' label='Actualizar' className="editar_button" raised primary onClick={this.onActualizar.bind(this)}  />
-                              <Button icon='delete_sweep' label='Eliminar' className="editar_button" raised primary onClick={this.onEliminar.bind(this)}  />
-                              <Button icon='create' label='Nuevo' className="editar_button" raised primary onClick={this.onNuevo.bind(this)}  />
+                              <Button icon='update' label='Actualizar' disabled={this.state.btnsEditDisabled} className="editar_button" raised primary onClick={this.onActualizar.bind(this)}  />
+                              <Button icon='delete_sweep' label='Eliminar'  disabled={this.state.btnsEditDisabled} className="editar_button" raised primary onClick={this.onEliminar.bind(this)}  />
+                              <Button icon='create' label='Nuevo'  disabled={this.state.btnsEditDisabled} className="editar_button" raised primary onClick={this.onNuevo.bind(this)}  />
                             </div>
 
                           </TabPanel>

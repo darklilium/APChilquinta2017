@@ -29,7 +29,7 @@ function getMedidores(comuna, callback){
     qMedidores.where = "comuna ='" + comuna + "'";
 
     qTaskMedidores.execute(qMedidores, (featureSet)=>{
-      console.log(featureSet.features.length);
+      
       if(!featureSet.features.length){
         return callback([false,[],"Medidores no encontrados","clear","red"]);
       }
@@ -75,7 +75,7 @@ function getLuminariasAsociadas(medidor, callback){
     qLuminariasAsociadas.where = "ID_EQUIPO_AP  =" + medidor ;
 
     qTaskLuminariasAsociadas.execute(qLuminariasAsociadas, (featureSet)=>{
-      console.log(featureSet.features.length);
+
       if(!featureSet.features.length){
         return callback([false,[],"Luminarias asociadas no encontradas","clear","red"]);
       }
@@ -128,7 +128,7 @@ function getMedidorLocation(idmedidor, callback){
   qMedidores.where = "id_medidor =" + idmedidor ;
 
   qTaskMedidores.execute(qMedidores, (featureSet)=>{
-    console.log(featureSet.features);
+
     if(!featureSet.features.length){
       return callback([false,[],"Medidor no encontrado","clear","red"]);
     }
@@ -312,7 +312,7 @@ function getInfoLuminariaCercana(geometry, callback){
   qLuminariaSelected.geometry = myRectangulo;
   qLuminariaSelected.spatialRelationship = esri.tasks.Query.SPATIAL_REL_INTERSECTS;
   qTaskLuminariaSelected.execute(qLuminariaSelected, (featureSet)=>{
-    console.log("luminaria seleccionada ",featureSet.features.length);
+
     if(!featureSet.features.length){
       return callback([false,[],"Luminarias no encontradas, intente haciendo clic en otro sitio","clear","red"]);
     }
