@@ -406,7 +406,8 @@ class APMap extends React.Component {
 
           onlyLum = arrResults.filter(element =>{ return element.layerName=='Luminarias' });
           //obtener el primer registro (o único).
-          this.setState({counterTotal: onlyLum.length, counter: 1, allElements: onlyLum, currentIndex: 0});
+          //this.setState({counterTotal: onlyLum.length, counter: 1, allElements: onlyLum, currentIndex: 0});
+          this.setState({counterTotal: onlyLum.length, counter: 1, currentIndex: 0});
           $('.drawer_progressBar2').css('visibility',"hidden");
           $('.wrapperTop_midTitle h6').addClass('wrapperTop_midTitle-h6');
           $('.muniTitulo').addClass('muniTitulo-40percent');
@@ -524,68 +525,41 @@ class APMap extends React.Component {
       //no hay length, no hay luminarias
       console.log("no hay luminarias a mostrar")
     }
-    /*
-    if(elements[showElementNumber].features.attributes['ID_EQUIPO_AP']==0){
-      idequipoap = 'NO TIENE';
-    }else{
-      idequipoap = elements[showElementNumber].attributes['ID_EQUIPO_AP'];
-    }
 
-    let editarLuminaria = {
-      id_luminaria: elements[showElementNumber].attributes['ID_LUMINARIA'],
-      id_nodo: elements[showElementNumber].attributes['ID_NODO'],
-      tipo_conexion: elements[showElementNumber].attributes['TIPO_CONEXION'],
-      tipo: elements[showElementNumber].attributes['TIPO'],
-      potencia:  elements[showElementNumber].attributes['POTENCIA'],
-      propiedad:elements[showElementNumber].attributes['PROPIEDAD'],
-      rotulo :elements[showElementNumber].attributes['ROTULO'],
-      observaciones: elements[showElementNumber].attributes['OBSERVACION'],
-      geometria: elements[showElementNumber].geometry
-    }
 
-    this.setState({
-      tipoLuminaria:  elements[showElementNumber].attributes['TIPO'],
-      tipoConexion: elements[showElementNumber].attributes['TIPO_CONEXION'],
-      tipoPropiedad: elements[showElementNumber].attributes['PROPIEDAD'],
-      tipoPotencia: elements[showElementNumber].attributes['POTENCIA'],
-      rotulo: elements[showElementNumber].attributes['ROTULO'],
-      selectedTab: 0,
-      numeroMedidorAsociado: idequipoap
-    });
 
-    //mostrar si tiene resultados para modificaciones:
+      if(!onlyMods.length){
+          console.log("no hay modificaciones");
+          this.setState({datosLuminariaModificada: []});
+          this.setState({snackbarMessage: "Modificaciones realizadas para luminaria no encontradas.", activeSnackbar: true, snackbarIcon: 'close' });
+          $('.theme__icon___4OQx3').css('color',"red");
+          //Deshabilitar barra de progreso.
+          $('.drawer_progressBar').css('visibility','hidden');
+          return;
 
-    this.setState({datosLuminariaAEditar: editarLuminaria, datosLuminariaModificada: {}});
-    getInfoLuminariaModificaciones(elements[showElementNumber].attributes['ID_NODO'], elements[showElementNumber].attributes['ID_LUMINARIA'], (callback)=>{
-      console.log(callback,"aa");
-      if(!callback[0]){
-        console.log("no hay modificaciones");
-        this.setState({datosLuminariaModificada: []});
-        this.setState({snackbarMessage: "Modificaciones realizadas para luminaria no encontradas.", activeSnackbar: true, snackbarIcon: 'close' });
-        $('.theme__icon___4OQx3').css('color',"red");
-        //Deshabilitar barra de progreso.
-        $('.drawer_progressBar').css('visibility','hidden');
-        return;
+      }
+      let onlyModss = onlyMods.filter(modificaciones =>{return modificaciones.features.attributes['id_luminaria']==onlyLum[showElementNumber].features.attributes['ID_LUMINARIA']});
+      console.log("solo esta lum mod", onlyModss);
+      if(onlyModss.length){
+        let modificacionesLuminaria = {
+          id_luminaria: onlyModss[0].features.attributes['id_luminaria'],
+          id_nodo: onlyModss[0].features.attributes['id_nodo'],
+          tipo_conexion:  onlyModss[0].features.attributes['tipo_cnx'],
+          tipo:  onlyModss[0].features.attributes['tipo'],
+          potencia:   onlyModss[0].features.attributes['potencia'],
+          propiedad:onlyModss[0].features.attributes['propiedad'],
+          rotulo : onlyModss[0].features.attributes['rotulo'],
+          observaciones: onlyModss[0].features.attributes['obs'],
+          geometria: onlyModss[0].features.attributes.geometry
+        }
+          this.setState({datosLuminariaModificada: modificacionesLuminaria});
+      }else{
+        console.log("nada");
       }
 
-      //si hay...
-      let editarLuminaria = {
-        id_luminaria: callback[1][0].attributes['id_luminaria'],
-        id_nodo: callback[1][0].attributes['id_nodo'],
-        tipo_conexion: callback[1][0].attributes['tipo_cnx'],
-        tipo: callback[1][0].attributes['tipo'],
-        potencia:  callback[1][0].attributes['potencia'],
-        propiedad:callback[1][0].attributes['propiedad'],
-        rotulo :callback[1][0].attributes['rotulo'],
-        observaciones: callback[1][0].attributes['obs'],
-        geometria: callback[1][0].attributes.geometry
-      }
 
-        this.setState({datosLuminariaModificada: editarLuminaria});
+  //ver cuando es lum id = 0 id nodo = y más de un registro a modificar.id nodo: 11549584
 
-    });
-
-    */
   }
 
   handleSnackbarClick = () => {
@@ -1646,7 +1620,6 @@ class APMap extends React.Component {
 
     if(!this.state.allElements.length){
       console.log("no hay elementos para mostrar");
-
       return;
     }
 
@@ -2218,7 +2191,7 @@ class APMap extends React.Component {
                                 </div>
                                   <Button icon='file_download' label='Exportar' accent onClick={this.onClickExportarAsociadas.bind(this, "luminariaEditar")} />
                                 </div>
-                              <Griddle rowMetadata={rowMetadata2} columnMetadata={columnMetaLuminariasAsociadas}  ref="griddleTable" className="drawer_griddle_medidores" results={this.state.dataLuminariasRelacionadas} columns={["ID LUMINARIA","TIPO CONEXION","PROPIEDAD","DESCRIPCION","ROTULO"]} onRowClick = {this.onRowClickLuminariasAsociadas.bind(this)} uniqueIdentifier="ID LUMINARIA" />
+                              <Griddle rowMetadata={rowMetadata2} columnMetadata={columnMetaLuminariasAsociadas}  ref="griddleTable" className="drawer_griddle_medidores" results={this.state.dataLuminariasRelacionadas} columns={["ID LUMINARIA","TIPO CONEXION","PROPIEDAD","TIPO","POTENCIA","ROTULO"]} onRowClick = {this.onRowClickLuminariasAsociadas.bind(this)} uniqueIdentifier="ID LUMINARIA" />
                             </div>
                           </TabPanel>
                           </Tabs>
