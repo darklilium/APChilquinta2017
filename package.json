@@ -1,17 +1,17 @@
 {
-  "name": "PO2017",
-  "description": "Nueva Interfaz para el proyecto Interrupciones PO.",
+  "name": "AP_Chilquinta",
+  "description": "Nueva aplicación para AP Chilquinta",
   "version": "0.11.4",
   "author": {
     "name": "Evelyn Hernández",
-    "url": "https://github.com/darklilium/PO2017"
+    "url": "https://github.com/darklilium/APChilquinta2017.git"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/darklilium/PO2017.git"
+    "url": "git+https://github.com/darklilium/APChilquinta2017.git"
   },
   "bugs": {
-    "url": "https://github.com/darklilium/PO2017/issues",
+    "url": "https://github.com/darklilium/APChilquinta2017/issues",
     "email": "dark.desires@live.cl"
   },
   "keywords": [
@@ -65,7 +65,7 @@
     "prod:build": "webpack --optimize-minimize --progress --colors"
   },
   "license": "MIT",
-  "homepage": "https://github.com/darklilium/PO2017",
+  "homepage": "https://github.com/darklilium/APChilquinta2017",
   "dependencies": {
     "cookie-handler": "^1.0.1",
     "evolved-react-image-gallery": "^0.5.17",
