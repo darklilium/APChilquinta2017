@@ -470,7 +470,7 @@ class APMap extends React.Component {
       }
 
 
-  //ver cuando es lum id = 0 id nodo = y más de un registro a modificar.id nodo: 11549584
+      //ver cuando es lum id = 0 id nodo = y más de un registro a modificar.id nodo: 11549584
 
   }
 
@@ -957,6 +957,7 @@ class APMap extends React.Component {
     });
 
   };
+  //Obtener todas las luminarias de la comuna
   handleToggle5 = () => {
     //Habilitar barra de progreso en carga.
     $('.drawer_progressBar').css('visibility','visible');
@@ -1003,7 +1004,8 @@ class APMap extends React.Component {
           "TIPO CONEXION": feature.attributes['TIPO_CONEXION'] ,
           "PROPIEDAD": feature.attributes['PROPIEDAD'] ,
           "MEDIDO": feature.attributes['MEDIDO_TERRENO'] ,
-          "DESCRIPCION": feature.attributes['DESCRIPCION'] ,
+          "TIPO": feature.attributes['TIPO'] ,
+          "POTENCIA": feature.attributes['POTENCIA'] ,
           "ROTULO": feature.attributes['ROTULO'] ,
           "Geometry": feature.geometry
         }
@@ -1370,7 +1372,10 @@ class APMap extends React.Component {
   };
 
   onClickExportarMedidores(){
-    exportToExcel(this.state.dataMedidores, "MedidoresAP_", true);
+    let ex = this.state.dataMedidores.map(data=>{
+      return _.omit(data,['Geometry']);
+    });
+    exportToExcel(ex, "MedidoresAP_", true);
   }
 
   //Exportar a excel luminarias asociadas a un equipo. 1.- Editar luminaria. 2.- Seleccionar equipo desde grid.
@@ -1384,14 +1389,19 @@ class APMap extends React.Component {
         this.setState({snackbarMessage: "Seleccione una luminaria a editar para extraer los datos de sus luminarias asociadas", activeSnackbar: true, snackbarIcon: "warning" });
         return;
       }
-      //console.log(this.state.labelNumeroMedidor,"aa");
-      console.log(this.state.editarLum_nisAsociado, this.state.numeroMedidorAsociado, "variables a reportar");
+    
       if(this.state.numeroMedidorAsociado==" " || this.state.numeroMedidorAsociado==""){
-        exportToExcel(this.state.dataLuminariasRelacionadas, "LuminariasAP_Asociadas_ID_Equipo_"+ this.state.IDMedidorAsociado + " N°Cliente_" + this.state.editarLum_nisAsociado + " N°Medidor_0" , true);
+        let e = this.state.dataLuminariasRelacionadas.map(data=>{
+          return _.omit(data,['Geometry']);
+        });
+        exportToExcel(e, "LuminariasAP_Asociadas_ID_Equipo_"+ this.state.IDMedidorAsociado + " N°Cliente_" + this.state.editarLum_nisAsociado + " N°Medidor_0" , true);
         return;
       }
-      //  this.setState({editarLum_nisAsociado: cb[1][0].attributes.nis, numeroMedidorAsociado: cb[1][0].attributes.numero_medidor});
-      exportToExcel(this.state.dataLuminariasRelacionadas, "LuminariasAP_Asociadas_ID_Equipo_"+ this.state.IDMedidorAsociado + "N°Cliente_" + this.state.editarLum_nisAsociado + " N°Medidor_" + this.state.numeroMedidorAsociado , true);
+      //omitir campo geometry
+      let x = this.state.dataLuminariasRelacionadas.map(data=>{
+        return _.omit(data,['Geometry']);
+      });
+      exportToExcel(x, "LuminariasAP_Asociadas_ID_Equipo_"+ this.state.IDMedidorAsociado + "N°Cliente_" + this.state.editarLum_nisAsociado + " N°Medidor_" + this.state.numeroMedidorAsociado , true);
       break;
 
       case 'dataLuminarias':
@@ -1400,20 +1410,27 @@ class APMap extends React.Component {
           this.setState({snackbarMessage: "Seleccione un medidor para extraer los datos de sus luminarias asociadas", activeSnackbar: true, snackbarIcon: "warning" });
           return;
         }
-        exportToExcel(this.state.dataLuminarias, "LuminariasAP_Asociadas_ID_Equipo_"+ this.state.numeroMedidor + "__"+this.state.labelNumeroMedidor+ "__N°Cliente_"+ this.state.nisMedidorAsociado, true);
+        //omitir campo geometry
+        let p = this.state.dataLuminarias.map(data=>{
+          return _.omit(data,['Geometry']);
+        });
+        exportToExcel(p, "LuminariasAP_Asociadas_ID_Equipo_"+ this.state.numeroMedidor + "__"+this.state.labelNumeroMedidor+ "__N°Cliente_"+ this.state.nisMedidorAsociado, true);
       default:
 
     }
 
   }
-
+  //Exportar todas las luminarias de la comuna
   onClickExportarLuminarias(){
     if( _.isEmpty(this.state.dataTodasLuminarias) ){
-
       this.setState({snackbarMessage: "No existen luminarias para extraer información.", activeSnackbar: true, snackbarIcon: "warning" });
       return;
     }
-    exportToExcel(this.state.dataTodasLuminarias, "LuminariasAP_Todas", true);
+    //omitir campo geometry
+    let o = this.state.dataTodasLuminarias.map(data=>{
+      return _.omit(data,['Geometry']);
+    });
+    exportToExcel(o, "LuminariasAP_Todas", true);
   }
 
   onRowClick(gridRow, event) {
@@ -1536,9 +1553,6 @@ class APMap extends React.Component {
   }
 
   onClickSiguienteLuminaria(){
-    //console.log("counter:",this.state.counter, "maximo:",this.state.counterTotal);
-    //console.log("counter+1 sera", this.state.counter+1, "maximo:",this.state.counterTotal);
-    //console.log("supera el total?", (this.state.counter>this.state.counterTotal)? "No" : "Si");
 
     if(!this.state.allElements.length){
       console.log("no hay elementos para mostrar");
@@ -1560,9 +1574,7 @@ class APMap extends React.Component {
   }
 
   onClickAnteriorLuminaria(){
-    //console.log("counter:",this.state.counter, "maximo:",this.state.counterTotal);
-    //console.log("counter-1 sera", this.state.counter-1, "maximo:",this.state.counterTotal);
-    //console.log("supera el total?", (this.state.counter>this.state.counterTotal)? "No" : "Si");
+
     if(!this.state.allElements.length){
       console.log("no hay elementos para mostrar");
 
@@ -1599,7 +1611,6 @@ class APMap extends React.Component {
   render(){
     let logoName = cookieHandler.get('mn');
     let namee = cookieHandler.get('usrnm');
-
 
     let src = env.CSSDIRECTORY  + "images/logos/logos_menu/"+ cookieHandler.get('mn') + ".png";
     let DisplayPics;
@@ -1925,7 +1936,7 @@ class APMap extends React.Component {
                             <Griddle resultsPerPage={12} ref="griddleTable3" className="drawer_griddle_medidores" rowMetadata={rowMetadata3}
                             columnMetadata={columnMetaLuminarias}
                             results={this.state.dataTodasLuminarias}
-                            columns={["ID LUMINARIA","TIPO CONEXION","PROPIEDAD","MEDIDO","DESCRIPCION", "ROTULO"]}
+                            columns={["ID LUMINARIA","TIPO CONEXION","PROPIEDAD","MEDIDO","TIPO", "POTENCIA", "ROTULO"]}
                             onRowClick = {this.onRowClickLuminarias.bind(this)} uniqueIdentifier="ID LUMINARIA"  />
                           </div>
                         </div>
