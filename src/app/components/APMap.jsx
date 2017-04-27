@@ -315,6 +315,7 @@ class APMap extends React.Component {
           var g = new Graphic( arrResults[0].features.geometry,mySymbol);
           gLayerLuminariaSearch.add(g);
           mapp.addLayer(gLayerLuminariaSearch,1);
+
           mapp.centerAndZoom(arrResults[0].features.geometry,20);
 
           //Mostrar ventana de edición de luminaria seleccionada
@@ -1307,7 +1308,7 @@ class APMap extends React.Component {
         $('.wrapperTop_midTitle h6').removeClass('wrapperTop_midTitle-h6');
         $('.muniTitulo').removeClass('muniTitulo-40percent');
           clearGraphicsLayers(true,true,true,true,true);
-        
+
 
       break;
       default:
