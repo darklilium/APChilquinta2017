@@ -52,14 +52,32 @@ var map = {
 
 export default map;
 */
+/*var map;
+function mymap(div, basemap , centerx,centery,zoom,popup){
 
+  return map = new Map(div,{
+    basemap: basemap,
+    center: [centerx,centery],
+    zoom: zoom,
+    logo:false,
+    infoWindow: popup
+  });
+}
+/*var map = new Map("map", {
+         basemap: "satellite",
+         center: [-83.275, 42.573],
+         zoom: 18,
+         infoWindow: popup
+       });
+*/
 var map = {
-  createMap: function(div,basemap,centerx,centery,zoom){
-      this.map = new esri.Map(div, {
+  createMap: function(div,basemap,centerx,centery,zoom, popup){
+      this.map = new Map(div, {
         center:[centerx, centery],
         basemap: basemap,
         zoom:zoom,
-        logo: false
+        logo: false,
+        infoWindow: popup
       });
       return this.map;
   },

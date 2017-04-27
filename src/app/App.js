@@ -5,14 +5,10 @@ import React from 'react';
 import { Button } from 'react-toolbox/lib/button'; // Bundled component import
 import { Layout, NavDrawer, Panel, Sidebar } from 'react-toolbox';
 import { AppBar, Checkbox, IconButton } from 'react-toolbox';
-import Statistics from './components/Statistics.jsx';
 import {Router, Route, browserHistory, IndexRoute, hashHistory } from "react-router";
-
-
 import {MainLayout} from "./components/MainLayout.jsx";
 import HomeLayout from "./components/HomeLayout.jsx";
 import {Login} from './components/Login.jsx';
-import ChilquintaMap from './components/ChilquintaMap.jsx';
 import APMap from './components/APMap.jsx';
 import AP_Dashboard from './components/AP_Dashboard.jsx';
 import APHomeLayout from './components/APHomeLayout.jsx';

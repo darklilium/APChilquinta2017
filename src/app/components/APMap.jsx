@@ -1,10 +1,9 @@
 import React from 'react';
-import mymap from '../services/map-service';;
+import mymap from '../services/map-service';
 import ArcGISDynamicMapServiceLayer from 'esri/layers/ArcGISDynamicMapServiceLayer';
 import layers from '../services/layers-service';
 import myinfotemplate from '../utils/infoTemplates';
 import {browserHistory} from 'react-router';
-import {Simbologia} from './Simbologia.jsx';
 import MuniHeader from './MuniHeader.jsx';
 import MuniImages from '../services/APMuniImages';
 import on from 'dojo/on';
@@ -59,6 +58,13 @@ import InfoTemplate from "esri/InfoTemplate";
 
 //03/04/2017: limpiar busqueda anterior de tramos , luminarias asociadas, etc.
 import {clearGraphicsLayers} from '../services/queryData';
+
+//27.04.2017: agregando popup a mapa para seleccionar grafico.
+import SimpleFillSymbol from "esri/symbols/SimpleFillSymbol";
+import SimpleLineSymbol from "esri/symbols/SimpleLineSymbol";
+import domConstruct from "dojo/dom-construct";
+import Popup from "esri/dijit/Popup";
+import Color from "esri/Color";
 
 var options = [
     { value: 'ROTULO', label: 'Rótulo' },
@@ -230,96 +236,13 @@ class APMap extends React.Component {
   }
 
   componentDidMount(){
+    var popup = new Popup({
+         fillSymbol: new SimpleFillSymbol(SimpleFillSymbol.STYLE_SOLID,
+           new SimpleLineSymbol(SimpleLineSymbol.STYLE_SOLID,
+             new Color([255, 0, 0]), 2), new Color([255, 255, 0, 0.25]))
+       }, domConstruct.create("div"));
 
-    var mapp = mymap.createMap("map","topo",this.state.comuna[0].extent[0], this.state.comuna[0].extent[1],12);
-
-    //layers para ap.
-    /*var luminariasLayer = new esri.layers.FeatureLayer(layers.read_luminarias(),{id:"ap_luminarias", mode: esri.layers.FeatureLayer.MODE_ONDEMAND, minScale: 6000, outFields: ["*"]});
-    luminariasLayer.setDefinitionExpression("COMUNA = '"+ this.state.comuna[0].queryName+"'" );
-
-    var tramosAPLayer = new esri.layers.FeatureLayer(layers.read_tramosAP(),{id:"ap_tramos", mode: esri.layers.FeatureLayer.MODE_ONDEMAND, minScale: 6000});
-    tramosAPLayer.setDefinitionExpression("comuna  = '"+ this.state.comuna[0].queryName+"'" );
-
-    var modificadasLayer = new esri.layers.FeatureLayer(layers.read_modificacionesAP(),{id:"ap_modificaciones", mode: esri.layers.FeatureLayer.MODE_ONDEMAND,  outFields: ["*"]});
-    modificadasLayer.setDefinitionExpression("Comuna  = '"+ this.state.comuna[0].queryName+"'" );
-
-    var limiteComunalLayer = new esri.layers.FeatureLayer(layers.read_limiteComunal(),{id:"ap_limiteComunal", mode: esri.layers.FeatureLayer.MODE_ONDEMAND});
-    limiteComunalLayer.setDefinitionExpression("nombre   = '"+ this.state.comuna[0].queryName+"'" );
-
-
-    mapp.addLayers([limiteComunalLayer,tramosAPLayer,luminariasLayer, modificadasLayer]);
-
-    this.setState({layers: [luminariasLayer,tramosAPLayer,modificadasLayer,limiteComunalLayer]})
-
-    mapp.on('click',(e)=>{
-      $('.drawer_progressBar2').css('visibility',"visible");
-
-      getInfoLuminariaCercana(e.mapPoint,(cb)=>{
-        if(!cb[0]){
-          this.setState({snackbarMessage: cb[2], activeSnackbar: true, snackbarIcon: cb[3] });
-          $('.theme__icon___4OQx3').css('color',cb[4]);
-          $('.drawer_progressBar2').css('visibility','hidden');
-          this.setState({counterTotal: "--", counter: 0, currentIndex: 0, allElements: []});
-          $('.wrapperTop_midTitle h6').removeClass('wrapperTop_midTitle-h6');
-          $('.muniTitulo').removeClass('muniTitulo-40percent');
-          this.onLimpiarFormEdicion();
-          return;
-
-        }
-
-        //disable all the rest of drawers.
-          $('#busquedaDrawer').removeClass('drawerVisibility_show').addClass('drawerVisibility_notShow');
-          $('.contenido_drawerleft1').css('width','0%');
-          $('#cambiarMapaDrawer').removeClass('drawerVisibility_show').addClass('drawerVisibility_notShow');
-          $('.contenido_drawerleft2').css('width','0%');
-          $('#mostrarMedidoresDrawer').removeClass('drawerVisibility_show').addClass('drawerVisibility_notShow');
-          $('.contenido_drawerleft3').css('width','0%');
-          $('#cambiarLayersDrawer').removeClass('drawerVisibility_show').addClass('drawerVisibility_notShow');
-          $('.contenido_drawerleft4').css('width','0%');
-          $('#mostrarLuminariasDrawer').removeClass('drawerVisibility_show').addClass('drawerVisibility_notShow');
-          $('.contenido_drawerleft5').css('width','0%');
-          $('.contenido_mapa').css('width','100%');
-
-          $('.wrapperTop_midTitle h6').addClass('wrapperTop_midTitle-h6');
-          $('.muniTitulo').addClass('muniTitulo-40percent');
-
-          $('#mostrarEdicionDrawer').removeClass('drawerVisibility_notShow').addClass('drawerVisibility_show');
-          $('.contenido_mapa').css('width','60%');
-          $('.contenido_drawerleftEspecial').css('width','40%');
-
-
-        //console.log(cb[1][0].geometry);
-        //dibuja geometria seleccionado en el mapa
-        let mySymbol = makeSymbol.makePointLocated();
-        gLayerLuminariaSearch.clear();
-        var g = new Graphic( cb[1][0].geometry,mySymbol);
-        gLayerLuminariaSearch.add(g);
-        mapp.addLayer(gLayerLuminariaSearch,1);
-        mapp.centerAndZoom( cb[1][0].geometry,20);
-        this.onShowCurrent(cb[1],0);
-
-        //obtener el primer registro (o único).
-        this.setState({counterTotal: cb[1].length, counter: 1, allElements: cb[1], currentIndex: 0});
-        $('.drawer_progressBar2').css('visibility',"hidden");
-        $('.wrapperTop_midTitle h6').addClass('wrapperTop_midTitle-h6');
-        $('.muniTitulo').addClass('muniTitulo-40percent');
-
-      });
-
-    });
-
-    //Muestra información cuando se pasa el mouse encima de la capa luminarias.
-    luminariasLayer.on('mouse-over',(event)=>{
-
-          ap_infoWindow(event.graphic.attributes['ID_LUMINARIA'],
-            event.graphic.attributes['ROTULO'],
-            event.graphic.attributes['TIPO_CONEXION'],
-            event.graphic.attributes['DESCRIPCION'],
-            event.graphic.attributes['PROPIEDAD'],
-            event.graphic.attributes['MEDIDO_TERRENO'],
-            event.graphic.geometry);
-    });
-    */
+    var mapp = mymap.createMap("map","topo",this.state.comuna[0].extent[0], this.state.comuna[0].extent[1],12, popup);
 
     //02/032017: agregando IdentifyTask
 
@@ -339,18 +262,11 @@ class APMap extends React.Component {
     luminariasLayer.setVisibleLayers([1]);
     luminariasLayer.setLayerDefinitions(layerDefinitions);
 
-
-
     var tramosLayer = new ArcGISDynamicMapServiceLayer(layers.read_dynamic_ap(),{minScale: 6000});
     tramosLayer.setImageFormat("png32");
     tramosLayer.setVisibleLayers([2]);
     tramosLayer.setLayerDefinitions(layerDefinitions);
 
-    /*var limiteComunalLayer = new ArcGISDynamicMapServiceLayer(layers.read_dynamic_ap(),{});
-    limiteComunalLayer.setImageFormat("jpg");
-    limiteComunalLayer.setVisibleLayers([4]);
-    limiteComunalLayer.setLayerDefinitions(layerDefinitions);
-    */
     var limiteComunalLayer = new esri.layers.FeatureLayer(layers.read_limiteComunal(),{id:"ap_limiteComunal", mode: esri.layers.FeatureLayer.MODE_ONDEMAND});
     limiteComunalLayer.setDefinitionExpression("nombre   = '"+ this.state.comuna[0].queryName+"'" );
 
@@ -393,13 +309,13 @@ class APMap extends React.Component {
           //dibujar punto seleccionado.
           let mySymbol = makeSymbol.makePointLocated();
           //Limpiar busqueda anterior.
-          //gLayerLuminariaSearch.clear();
+          gLayerLuminariaSearch.clear();
           clearGraphicsLayers(true,true,true,true,true);
           //Dibujar resultado de geometria encontrada
           var g = new Graphic( arrResults[0].features.geometry,mySymbol);
           gLayerLuminariaSearch.add(g);
           mapp.addLayer(gLayerLuminariaSearch,1);
-          //mapp.centerAndZoom( cb[1][0].geometry,20);
+          mapp.centerAndZoom(arrResults[0].features.geometry,20);
 
           //Mostrar ventana de edición de luminaria seleccionada
           this.onShowCurrent(arrResults,0);
@@ -445,11 +361,7 @@ class APMap extends React.Component {
       mapp.infoWindow.setFeatures([deferred]);
       mapp.infoWindow.show(event.mapPoint);
 
-
-
-
     });
-
 
   }
 
@@ -526,13 +438,12 @@ class APMap extends React.Component {
       console.log("no hay luminarias a mostrar")
     }
 
-
-
       if(!onlyMods.length){
           console.log("no hay modificaciones");
-          this.setState({datosLuminariaModificada: []});
+          /*this.setState({datosLuminariaModificada: []});
           this.setState({snackbarMessage: "Modificaciones realizadas para luminaria no encontradas.", activeSnackbar: true, snackbarIcon: 'close' });
           $('.theme__icon___4OQx3').css('color',"red");
+          */
           //Deshabilitar barra de progreso.
           $('.drawer_progressBar').css('visibility','hidden');
           return;
@@ -1353,19 +1264,23 @@ class APMap extends React.Component {
       $('#busquedaDrawer').removeClass('drawerVisibility_show').addClass('drawerVisibility_notShow');
         $('.contenido_drawerleft1').css('width','0%');
         $('.contenido_mapa').css('width','100%');
+          clearGraphicsLayers(true,true,true,true,true);
         break;
 
       case 'mapas':
         $('#cambiarMapaDrawer').removeClass('drawerVisibility_show').addClass('drawerVisibility_notShow');
         $('.contenido_drawerleft2').css('width','0%');
         $('.contenido_mapa').css('width','100%');
+          clearGraphicsLayers(true,true,true,true,true);
       break;
 
       case 'layers':
         $('#cambiarLayersDrawer').removeClass('drawerVisibility_show').addClass('drawerVisibility_notShow');
         $('.contenido_drawerleft3').css('width','0%');
         $('.contenido_mapa').css('width','100%');
+          clearGraphicsLayers(true,true,true,true,true);
       break;
+
       case 'medidores':
         $('#mostrarMedidoresDrawer').removeClass('drawerVisibility_show').addClass('drawerVisibility_notShow');
         $('.contenido_drawerleft4').css('width','0%');
@@ -1373,6 +1288,7 @@ class APMap extends React.Component {
 
         $('.wrapperTop_midTitle h6').removeClass('wrapperTop_midTitle-h6');
         $('.muniTitulo').removeClass('muniTitulo-40percent');
+          clearGraphicsLayers(true,true,true,true,true);
       break;
       case 'luminarias':
         $('#mostrarLuminariasDrawer').removeClass('drawerVisibility_show').addClass('drawerVisibility_notShow');
@@ -1381,6 +1297,7 @@ class APMap extends React.Component {
 
         $('.wrapperTop_midTitle h6').removeClass('wrapperTop_midTitle-h6');
         $('.muniTitulo').removeClass('muniTitulo-40percent');
+          clearGraphicsLayers(true,true,true,true,true);
       break;
       case 'edicion':
         $('#mostrarEdicionDrawer').removeClass('drawerVisibility_show').addClass('drawerVisibility_notShow');
@@ -1389,8 +1306,12 @@ class APMap extends React.Component {
 
         $('.wrapperTop_midTitle h6').removeClass('wrapperTop_midTitle-h6');
         $('.muniTitulo').removeClass('muniTitulo-40percent');
+          clearGraphicsLayers(true,true,true,true,true);
+        
+
       break;
       default:
+
 
     }
 
