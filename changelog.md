@@ -1,15 +1,19 @@
-0.11.4 / 2017-04-27
+0.2 / 2017-04-27
 ==================
 
-  * Agregado issue #6, busqueda por nis y numMedidor
+  * Agregado issue [\#6](https://github.com/darklilium/APChilquinta2017/issues/6), busqueda por nis y numMedidor
   * Modificando logica para habilitar botones de edicion
-  * Agregado issue #9 de eliminar campo geometry
+  * Agregado issue [\#9](https://github.com/darklilium/APChilquinta2017/issues/9) de eliminar campo geometry
   * Haciendo algunos cambios a infowindow
   * Eliminadas referencias y archivos que no se usan
-  * Agregado issue #8 para modificaciones de luminarias
-  * Agregado issue #2, sobre n°cliente y medidor
-  * Agregado issue #3, agregar tipo potencia y tipo lum
-  * Agregado issue #1, agregar n° medidor
+  * Agregado issue [\#8](https://github.com/darklilium/APChilquinta2017/issues/8) para modificaciones de luminarias
+  * Agregado issue [\#2](https://github.com/darklilium/APChilquinta2017/issues/2), sobre n°cliente y medidor
+  * Agregado issue [\#3](https://github.com/darklilium/APChilquinta2017/issues/3), agregar tipo potencia y tipo lum
+  * Agregado issue [\#1](https://github.com/darklilium/APChilquinta2017/issues/1), agregar n° medidor
+  
+0.1 / 2017-04-3
+==================
+
   * Agregado snackbar para fotos no encontradas y borrar busqueda
   * Agregado mensaje para snackbar cuando no hay luminarias en un punto[C
   * Agregando cambios de identifyTask con layer limite comunal featured
