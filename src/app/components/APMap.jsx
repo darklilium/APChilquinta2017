@@ -26,7 +26,7 @@ import ProgressBar from 'react-toolbox/lib/progress_bar';
 import { Layout, NavDrawer, Panel, Sidebar } from 'react-toolbox';
 import { AppBar, Checkbox, IconButton } from 'react-toolbox';
 import { List, ListItem, ListSubHeader, ListDivider, ListCheckbox } from 'react-toolbox/lib/list';
-import {searchRotulo, searchIDNodo, gLayerFind} from '../services/searchbar_service';
+import {searchRotulo, searchIDNodo, gLayerFind, searchNumeroMedidor, searchNumeroCliente} from '../services/searchbar_service';
 import {makeInfowindow} from '../utils/makeInfowindow';
 import {getMedidores,
   getLuminariasAsociadas,
@@ -67,8 +67,10 @@ import Popup from "esri/dijit/Popup";
 import Color from "esri/Color";
 
 var options = [
-    { value: 'ROTULO', label: 'Rótulo' },
-    { value: 'IDNODO', label: 'ID Nodo' }
+    { value: 'ROTULO', label: 'Rótulo Poste' },
+    { value: 'IDNODO', label: 'ID Nodo' },
+    { value: 'NMEDIDOR', label: 'N° Medidor'},
+    { value: 'NCLIENTE', label: 'N° Cliente'}
 ];
 
 const opcionesTipo = [
@@ -494,21 +496,29 @@ class APMap extends React.Component {
   }
 
   logChange(val) {
-      console.log("Selected: " + val.value);
-      this.setState({tipoBusqueda: val.value});
 
+    if(!val){
+        this.setState({tipoBusqueda: 'ROTULO', labelBusqueda: 'N° ROTULO'});
+    }else{
+    this.setState({tipoBusqueda: val.value});
       switch (val.value) {
         case 'ROTULO':
             this.setState({labelBusqueda: 'N° ROTULO'});
-          break;
-          case 'IDNODO':
-              this.setState({labelBusqueda: 'N° ID NODO'});
-            break;
+        break;
+        case 'IDNODO':
+          this.setState({labelBusqueda: 'N° ID NODO'});
+        break;
+        case 'NMEDIDOR':
+          this.setState({labelBusqueda: 'N° MEDIDOR'});
+        break;
+        case 'NCLIENTE':
+          this.setState({labelBusqueda: 'N° CLIENTE'});
+        break;
 
         default:
-          this.setState({tipoBusqueda: 'ROTULO'});
+          this.setState({tipoBusqueda: 'ROTULO', labelBusqueda: 'N° ROTULO'});
       }
-
+    }
   }
 
   logChangeCombos(valor) {
@@ -830,7 +840,7 @@ class APMap extends React.Component {
     $('.wrapperTop_midTitle h6').css('font-size', '1.6ren');
     $('.muniTitulo').css('font-size','2em');
   }
-
+  //abre drawer busqueda.
   handleToggle = () => {
     $('.wrapperTop_midTitle h6').removeClass('wrapperTop_midTitle-h6');
     $('.muniTitulo').removeClass('muniTitulo-40percent');
@@ -854,6 +864,7 @@ class APMap extends React.Component {
     $('.contenido_drawerleft1').css('width','20%');
 
   };
+  //abre drawer cambiar mapa
   handleToggle2 = () => {
     $('.wrapperTop_midTitle h6').removeClass('wrapperTop_midTitle-h6');
     $('.muniTitulo').removeClass('muniTitulo-40percent');
@@ -876,11 +887,12 @@ class APMap extends React.Component {
     $('.contenido_mapa').css('width','80%');
     $('.contenido_drawerleft2').css('width','20%');
   };
+  //abre layerList
   handleToggle3 = () => {
     $('.wrapperTop_midTitle h6').removeClass('wrapperTop_midTitle-h6');
     $('.muniTitulo').removeClass('muniTitulo-40percent');
     var mapp = mymap.getMap();
-    console.log(mapp.graphicsLayerIds);
+
     //disable all the rest of drawers.
       $('#busquedaDrawer').removeClass('drawerVisibility_show').addClass('drawerVisibility_notShow');
       $('.contenido_drawerleft1').css('width','0%');
@@ -900,6 +912,7 @@ class APMap extends React.Component {
     $('.contenido_mapa').css('width','80%');
     $('.contenido_drawerleft3').css('width','20%');
   };
+  //obtener todos los medidores de la comuna.
   handleToggle4 = () => {
     //Habilitar barra de progreso en carga.
     $('.drawer_progressBar').css('visibility','visible');
@@ -1021,7 +1034,7 @@ class APMap extends React.Component {
       $('.drawer_progressBar').css('visibility','hidden');
     });
   };
-
+  //cierra sesión de usuario
   handleLogout(){
     cookieHandler.remove('usrnm');
     cookieHandler.remove('mn');
@@ -1038,8 +1051,9 @@ class APMap extends React.Component {
   handleChange = (name, value) => {
    this.setState({...this.state, [name]: value});
   };
-
+  //realiza la búsqueda según elemento.
   onClickBusqueda(){
+
     var mapp = mymap.getMap();
     console.log("Buscando para:",this.state.tipoBusqueda);
     $('.drawer_progressBar').css('visibility','visible');
@@ -1054,7 +1068,7 @@ class APMap extends React.Component {
       return;
 
     }
-
+    //Definición de tipos de búsqueda según los seleccionado:
     switch (this.state.tipoBusqueda) {
 
       case 'ROTULO':
@@ -1079,6 +1093,33 @@ class APMap extends React.Component {
 
         });
       break;
+
+      case 'NMEDIDOR':
+        console.log("searching for NMEDIDOR...");
+        searchNumeroMedidor(this.state.valorBusqueda, (incidenciaFound)=>{
+
+          this.handleToggle();
+          this.setState({snackbarMessage: incidenciaFound[2], activeSnackbar: true, snackbarIcon: incidenciaFound[3] });
+          $('.theme__icon___4OQx3').css('color',incidenciaFound[4]);
+          $('.drawer_progressBar').css('visibility','hidden');
+
+        });
+
+      break;
+
+      case 'NCLIENTE':
+        console.log("searching for NCLIENTE...");
+        searchNumeroCliente(this.state.valorBusqueda, (incidenciaFound)=>{
+
+          this.handleToggle();
+          this.setState({snackbarMessage: incidenciaFound[2], activeSnackbar: true, snackbarIcon: incidenciaFound[3] });
+          $('.theme__icon___4OQx3').css('color',incidenciaFound[4]);
+          $('.drawer_progressBar').css('visibility','hidden');
+
+        });
+
+      break;
+
 
       default:
 
@@ -1272,6 +1313,7 @@ class APMap extends React.Component {
         $('.contenido_drawerleft1').css('width','0%');
         $('.contenido_mapa').css('width','100%');
           clearGraphicsLayers(true,true,true,true,true);
+          gLayerFind.clear();
         break;
 
       case 'mapas':
@@ -1784,14 +1826,9 @@ class APMap extends React.Component {
                          </div>
                         </div>
                         <ProgressBar className="drawer_progressBar" type="linear" mode="indeterminate" />
-                        <div className="drawer_title_divh7"><h7><b>Seleccione un tipo de búsqueda:</b></h7></div>
+                        <div className="drawer_title_divh7"><h7><b>Seleccione elemento técnico/comercial:</b></h7></div>
 
                         <div className="drawer_content drawer_busquedas">
-
-                          {/*<List selectable ripple>
-                            <ListSubHeader className="drawer_listSubHeader drawer_busquedaTitle" caption='Seleccione un tipo de búsqueda:' />
-                          </List>
-                          */}
                           <Select
                               name="form-field-name"
                               value={this.state.tipoBusqueda}
@@ -2135,7 +2172,7 @@ class APMap extends React.Component {
                         </div>
                       </div>
                     </div>
-
+                    {/* MAPA */}
                     <div className="contenido_mapa">
                       {/* BARRA DE TITULO */}
                       <Panel>
