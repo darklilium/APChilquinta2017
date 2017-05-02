@@ -1,4 +1,11 @@
-const env = {
+/*
+02.05.2017
+Evelyn Hernández Riquelme
+v0.3
+
+
+*/
+/*const env = {
   ROOT: "dist/css/",
   CSSDIRECTORY: 'dist/css/',
   ROUTEPATH: '/',
@@ -7,8 +14,8 @@ const env = {
   SAVEAPPLICATIONMODULE: "AP_CHQ_DESA",
   SAVEAPPLICATIONNAME: 'REACT_AP_WEB_DESA'
 }
+*/
 
-/*
 const env = {
   ROOT: "css/",
   CSSDIRECTORY: 'css/',
@@ -18,6 +25,6 @@ const env = {
   SAVEAPPLICATIONMODULE: "AP_CHQ_DESA",
   SAVEAPPLICATIONNAME: 'REACT_AP_WEB_DESA'
 }
-*/
+
 
 export default env;
