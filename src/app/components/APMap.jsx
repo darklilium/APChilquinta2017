@@ -390,7 +390,7 @@ class APMap extends React.Component {
       }else{
         idequipoap = onlyLum[showElementNumber].features.attributes['ID_EQUIPO_AP'];
       }
-      console.log(idequipoap,"idequipoap");
+
       let editarLuminaria = {
         id_luminaria: onlyLum[showElementNumber].features.attributes['ID_LUMINARIA'],
         id_nodo: onlyLum[showElementNumber].features.attributes['ID_NODO'],
@@ -551,10 +551,11 @@ class APMap extends React.Component {
   }
 
   handleChangeObservaciones(name, value){
-    console.log("name:", name);
-    console.log("value:", value);
 
-    this.setState({observaciones: name});
+    this.setState({
+      datosLuminariaAEditar: update(this.state.datosLuminariaAEditar, {observaciones: {$set: name} })
+    });
+    console.log(this.state.datosLuminariaAEditar,"el setstate")
   }
   //Tabs que muestran información según tabindex. Tab1: editar, tab2: fotos, tab3: tramoEquipo asociado.
   handleSelect(index, last){
@@ -687,6 +688,7 @@ class APMap extends React.Component {
   }
 
   onNuevo(){
+
     if( this.state.rotulo=="" ){
       console.log("rotulo no definido, no se puede ingresar.");
       this.setState({snackbarMessage: "Rótulo no ha sido definido, intente nuevamente", activeSnackbar: true, snackbarIcon: 'clear'});
@@ -695,7 +697,7 @@ class APMap extends React.Component {
       $('.drawer_progressBar').css('visibility','hidden');
       return;
     }
-
+    console.log(this.state.datosLuminariaAEditar, "a editar");
     let nuevosAttr = {
       rotulo: this.state.rotulo,
       Comuna: this.state.comuna[0].queryName,
@@ -705,7 +707,7 @@ class APMap extends React.Component {
       potencia:  this.state.tipoPotencia,
       propiedad: this.state.tipoPropiedad,
       eliminar: "nuevo",
-      obs: this.state.observaciones,
+      obs: this.state.datosLuminariaAEditar.observaciones,
       id_luminaria: this.state.datosLuminariaAEditar.id_luminaria,
       id_nodo:this.state.datosLuminariaAEditar.id_nodo
 
@@ -1656,7 +1658,7 @@ class APMap extends React.Component {
   }
 
   handleSnackbarTimeout = (event, instance) => {
-    
+
       this.setState({ activeSnackbar : false });
   };
 
@@ -2131,7 +2133,7 @@ class APMap extends React.Component {
                                   </div>
 
                                   <div className="drawer_column_values">
-                                    <Input className="drawer_input" type='text' value={this.state.observaciones}  name='name' onChange={this.handleChangeObservaciones.bind(this)} maxLength={16} />
+                                    <Input className="drawer_input" type='text' value={this.state.datosLuminariaAEditar.observaciones}  name='name' onChange={this.handleChangeObservaciones.bind(this)} maxLength={16} />
                                     <h8 className="drawer_h8_modificaciones">{this.state.datosLuminariaModificada.observaciones}</h8>
                                   </div>
                                 </div>
