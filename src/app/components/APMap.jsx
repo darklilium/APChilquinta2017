@@ -202,7 +202,7 @@ class APMap extends React.Component {
       valorBusqueda: '',
       labelBusqueda: 'Valor',
       snackbarMessage: '',
-      activeSnackbar: false,
+
       snackbarIcon: 'error',
       mapSelected: 'topo',
       rowMetaData: '',
@@ -617,6 +617,7 @@ class APMap extends React.Component {
           $('.theme__icon___4OQx3').css('color',"red");
           //Deshabilitar barra de progreso.
           $('.drawer_progressBar').css('visibility','hidden');
+          this.setState({editarLum_nisAsociado: 0, numeroMedidorAsociado: 0});
           return;
         }
 
@@ -1654,6 +1655,11 @@ class APMap extends React.Component {
     this.setState({datosLuminariaAEditar: {}, datosLuminariaModificada: {}});
   }
 
+  handleSnackbarTimeout = (event, instance) => {
+    
+      this.setState({ activeSnackbar : false });
+  };
+
   render(){
     let logoName = cookieHandler.get('mn');
     let namee = cookieHandler.get('usrnm');
@@ -2203,7 +2209,14 @@ class APMap extends React.Component {
                       <div className="map_container">
                         <div id="map"></div>
                       </div>
-                      <Snackbar action='Aceptar' active={this.state.activeSnackbar} icon={this.state.snackbarIcon} label={this.state.snackbarMessage} onClick={this.handleSnackbarClick.bind(this)} type='cancel' />
+                      <Snackbar action='Aceptar'
+                        active={this.state.activeSnackbar}
+                        icon={this.state.snackbarIcon}
+                        label={this.state.snackbarMessage}
+                        onClick={this.handleSnackbarClick.bind(this)}
+                        onTimeout={this.handleSnackbarTimeout.bind(this)}
+                        timeout={3000}
+                        type='cancel' />
 
                     </div>
                 </div>;

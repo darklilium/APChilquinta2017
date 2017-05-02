@@ -29,7 +29,7 @@ function getMedidores(comuna, callback){
     qMedidores.where = "comuna ='" + comuna + "'";
 
     qTaskMedidores.execute(qMedidores, (featureSet)=>{
-      
+
       if(!featureSet.features.length){
         return callback([false,[],"Medidores no encontrados","clear","red"]);
       }
@@ -138,7 +138,7 @@ function getMedidorLocation(idmedidor, callback){
 
   //  map.graphics.add(new esri.Graphic(featureSet.features[0].geometry,myLineSymbol));
     map.addLayer(gLayerMedidor);
-    map.centerAndZoom(featureSet.features[0].geometry.getExtent().getCenter(),20);
+  //  map.centerAndZoom(featureSet.features[0].geometry.getExtent().getCenter(),20);
 
     return callback([true,featureSet.features,"Medidor encontrado","check","greenyellow"]);
   }, (Errorq)=>{
