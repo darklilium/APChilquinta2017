@@ -5,6 +5,7 @@
   * Modificada snackbar para que se elimine auto. Agregados icons para web.
   * Update changelog.md.
 
+
 0.2 / 2017-04-27
 ==================
 
@@ -17,6 +18,7 @@
   * Agregado issue [\#2](https://github.com/darklilium/APChilquinta2017/issues/2), sobre n°cliente y medidor
   * Agregado issue [\#3](https://github.com/darklilium/APChilquinta2017/issues/3), agregar tipo potencia y tipo lum
   * Agregado issue [\#1](https://github.com/darklilium/APChilquinta2017/issues/1), agregar n° medidor
+  
 
 0.1 / 2017-04-3
 ==================
