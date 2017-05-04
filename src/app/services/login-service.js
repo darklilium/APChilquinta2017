@@ -182,12 +182,19 @@ function saveLogin(user,page,mod,tkn, callback){
   });
 }
 
+//04.05.2017: se debe hacer match entre usuario municipal ingresado por login y el que está en la tabla.
 function loginMuni(user,pass, callback){
   const url = myLayers.read_generateTokenURL();
   const genericUser = {
     user: 'vialactea\\ehernanr',
     pass: 'Chilquinta9'
   };
+
+  const muniUser = {
+      user: user,
+      pass: pass
+  };
+
   const data = {
     username: genericUser.user,
     password: genericUser.pass,
@@ -228,25 +235,38 @@ function loginMuni(user,pass, callback){
     const page = "REACT_AP_WEB";
     const module = "AP_CHQ";
 
-
-
-    saveSettings(user,(cb)=>{
-      if(cb){
-        let snackbarRet = {
-          message: "Iniciando Sesión",
-          open: true,
-          error: false
-        };
-        return callback(snackbarRet);
-      }else{
-        let snackbarRet = {
-          message: "Hubo un problema iniciando sesión, intente nuevamente.",
-          open: true,
-          error: true
-        };
-        return callback(snackbarRet);
-      }
+    loginMuniMatch(muniUser, cb=>{
+      console.log(cb,"gol")
+        //si es match de user y pass
+        if(cb){
+          saveSettings(user,(cb)=>{
+            if(cb){
+              let snackbarRet = {
+                message: "Iniciando Sesión",
+                open: true,
+                error: false
+              };
+              return callback(snackbarRet);
+            }else{
+              let snackbarRet = {
+                message: "Hubo un problema con la sesión, intente nuevamente.",
+                open: true,
+                error: true
+              };
+              return callback(snackbarRet);
+            }
+          });
+        }else{
+          let snackbarRet = {
+            message: "Usuario y/o password incorrectos. Intente ingresar nuevamente.",
+            open: true,
+            error: true
+          };
+          return callback(snackbarRet);
+        }
     });
+
+
 
 
     // saveLogin(user,page,module,myToken);
@@ -264,6 +284,40 @@ function loginMuni(user,pass, callback){
   });
 
   console.log('done');
+}
+
+function loginMuniMatch(usrObj, callback){
+  //obtiene el usuario y password almacenados en la bd.
+  var qTaskOfficeChilquinta = new QueryTask(myLayers.read_logAccess());
+    var qOfficeChilquinta = new esri.tasks.Query();
+    qOfficeChilquinta.where = "usuario = '"+ usrObj.user+ "'";
+    qOfficeChilquinta.returnGeometry = false;
+    qOfficeChilquinta.outFields=["*"];
+    qTaskOfficeChilquinta.execute(qOfficeChilquinta, (featureSet)=>{
+      if(!featureSet.features.length){
+        callback(false);
+      }else{
+        let u = featureSet.features.map( (f,index)=>{
+          return f.attributes;
+        })
+
+        //console.log(u,"almacenados");
+        const savedMuniUser = {
+          user: u[0].usuario,
+          pass: u[0].pass
+        };
+
+          console.log("usrIngresado", usrObj, "grabado",savedMuniUser);
+
+        if(JSON.stringify(savedMuniUser) === JSON.stringify(usrObj)){
+          return callback(true);
+        }else{
+          return callback(false);
+        }
+      }
+
+    });
+
 }
 
 function saveSettings(user, callback){

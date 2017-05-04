@@ -95,7 +95,7 @@ class Login extends React.Component {
                 window.location.href = "municipalidad.html";
               }else{
                 console.log("mi usuario tiene muni pero se logueo mal");
-                this.setState({snackbarMessage: "Login incorrecto. Trate nuevamente."});
+                this.setState({snackbarMessage: "Login incorrecto. Ingrese el usuario y password correctos. Trate nuevamente."});
                 this.handleClick();
               }
             });
@@ -109,7 +109,7 @@ class Login extends React.Component {
                   //browserHistory.push("dashboard");
                   window.location.href = "dashboard.html";
               }else{
-                this.setState({snackbarMessage: "Login incorrecto, intente nuevamente. " +callback.message});
+                this.setState({snackbarMessage: "Login incorrecto. Asegúrese de su usuario y password e intente nuevamente. "});
                 this.handleClick();
               }
             });
