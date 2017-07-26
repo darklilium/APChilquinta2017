@@ -153,7 +153,7 @@ function saveLogin(user,page,mod,tkn, callback){
 
   const data = {
     f: 'json',
-    adds: JSON.stringify([{ attributes: { "usuario": user, "pagina": page, "modulo": mod  }, geometry: {} }]),
+    adds: JSON.stringify([{ attributes: { "usuario": user, fecha: getFormatedDate() , "pagina": page, "modulo": mod  }, geometry: {} }]),
     token: tkn
   };
 
@@ -187,7 +187,7 @@ function loginMuni(user,pass, callback){
   const url = myLayers.read_generateTokenURL();
   const genericUser = {
     user: 'vialactea\\ehernanr',
-    pass: 'Chilquinta9'
+    pass: 'Chilquinta10'
   };
 
   const muniUser = {

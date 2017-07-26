@@ -3,6 +3,8 @@ import myinfotemplate from '../utils/infoTemplates';
 import mymap from '../services/map-service';
 import {ap_infoWindow} from '../utils/makeInfowindow';
 //import GraphicsLayer from 'esri/layers/GraphicsLayer ';
+import env from '../services/config';
+
 function getMapLayers() {
   var map = mymap.getMap();
     for (var j = 0, jl = map.layerIds.length; j < jl; j++) {
@@ -12,11 +14,17 @@ function getMapLayers() {
 }
 
 function myLayers(){
-  const serviceMain = 'http://gisred.chilquinta/arcgis/';
-  //change this for external connection:
-  //const serviceMain = 'http://gisred.chilquinta.cl:5555/arcgis/';
-  const serviceURL = serviceMain + 'rest/services/';
-  //var graphicLayer = new GraphicsLayer;
+
+  var serviceMain;
+  var serviceURL;
+
+  if(env.BUILDFOR=="INTERNA"){
+    serviceMain = 'http://gisred.chilquinta/arcgis/';
+  }else{
+    serviceMain = 'http://gisred.chilquinta.cl:5555/arcgis/';
+
+  }
+   serviceURL = serviceMain + 'rest/services/';
 
   //check 8 and last one
   return {

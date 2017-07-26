@@ -1044,8 +1044,8 @@ class APMap extends React.Component {
     cookieHandler.remove('tkn');
 
     if(env.ENVIRONMENT=='DEVELOPMENT'){
-      window.location.href = env.WEBSERVERADDRESS;
-      //browserHistory.push(env.ROUTEPATH);
+      //window.location.href = env.WEBSERVERADDRESS;
+      browserHistory.push(env.ROUTEPATH);
     }else{
       window.location.href = env.WEBSERVERADDRESS;
     }
