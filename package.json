@@ -53,6 +53,7 @@
     "sass-lint": "~1.7.0",
     "sass-loader": "~4.0.0",
     "style-loader": "~0.13.1",
+    "uglifyjs-webpack-plugin": "^0.4.6",
     "webpack": "~1.13.2",
     "webpack-dev-middleware": "~1.6.1",
     "webpack-hot-middleware": "~2.12.2"
@@ -62,7 +63,7 @@
     "gulp": "gulp",
     "start": "start npm run dev:server & start npm run gulp",
     "dev:server": "webpack-dev-server --history-api-fallback",
-    "prod:build": "webpack --optimize-minimize --progress --colors"
+    "prod:build": "cross-env NODE_ENV=production webpack -p --config webpackprod.config.js --optimize-minimize --progress --colors"
   },
   "license": "MIT",
   "homepage": "https://github.com/darklilium/APChilquinta2017",

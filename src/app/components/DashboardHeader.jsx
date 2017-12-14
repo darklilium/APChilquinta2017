@@ -8,7 +8,7 @@ import {Router, Route, browserHistory} from "react-router";
 import {TabsExample} from './Tabs.jsx';
 import {Link} from "react-router";
 import {Logo} from "./Logo.jsx";
-import {WidgetsMenu} from './WidgetsMenu.jsx';
+
 import env from '../services/config';
 
 class DashboardHeader extends React.Component {

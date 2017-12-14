@@ -2235,7 +2235,7 @@ class APMap extends React.Component {
     }
 
     return (
-      <div style={{height: '100%'}}>{rendering}</div>
+      <div>{rendering}</div>
 
     );
   }

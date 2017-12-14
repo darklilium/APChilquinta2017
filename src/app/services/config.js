@@ -19,10 +19,10 @@ const env = {
   BUILDFOR: 'INTERNA'
 }
 */
-
-/*const env = {
-  ROOT: "css/",
-  CSSDIRECTORY: 'css/',
+/*
+const env = {
+  ROOT: "dist/css/",
+  CSSDIRECTORY: 'dist/css/',
   ROUTEPATH: 'index.html',
   ENVIRONMENT: 'PRODUCTION',
   WEBSERVERADDRESS: "http://gisred.chilquinta/AP/",
@@ -30,8 +30,8 @@ const env = {
   SAVEAPPLICATIONNAME: 'REACT_AP_WEB_DESA',
   BUILDFOR: 'INTERNA'
 }
-*/
 
+*/
 //bUILD EXTERNA PROD
 /*
 const env = {
@@ -41,7 +41,7 @@ const env = {
   ENVIRONMENT: 'PRODUCTION',
   WEBSERVERADDRESS: "http://gisred.chilquinta.cl:5555/AP/",
   SAVEAPPLICATIONMODULE: "AP_CHQ_PROD",
-  SAVEAPPLICATIONNAME: 'REACT_AP_WEB_PROD'
+  SAVEAPPLICATIONNAME: 'REACT_AP_WEB_PROD',
   BUILDFOR: 'EXTERNA',
   ROOT2: "",
   WPHP: ""
@@ -56,7 +56,7 @@ const env = {
   ENVIRONMENT: 'PRODUCTION',
   WEBSERVERADDRESS: "http://gisred.chilquinta/AP/",
   SAVEAPPLICATIONMODULE: "AP_CHQ_PROD",
-  SAVEAPPLICATIONNAME: 'REACT_AP_WEB_PROD'
+  SAVEAPPLICATIONNAME: 'REACT_AP_WEB_PROD',
   BUILDFOR: 'INTERNA'
 }
 

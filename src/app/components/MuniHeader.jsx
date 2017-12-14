@@ -10,7 +10,7 @@ import {Link} from "react-router";
 import {Logo} from "./Logo.jsx";
 import env from '../services/config';
 import MuniImages from '../services/APMuniImages';
-import {WidgetsMenu} from './WidgetsMenu.jsx';
+
 import {DrawerTest} from './Drawer.jsx';
 
 class MuniHeader extends React.Component {

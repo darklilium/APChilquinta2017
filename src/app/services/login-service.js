@@ -186,8 +186,8 @@ function saveLogin(user,page,mod,tkn, callback){
 function loginMuni(user,pass, callback){
   const url = myLayers.read_generateTokenURL();
   const genericUser = {
-    user: 'vialactea\\ehernanr',
-    pass: 'Chilquinta10'
+    user: 'vialactea\\usrgis',
+    pass: 'N3L4y5HZ'
   };
 
   const muniUser = {

@@ -46,8 +46,8 @@ class Dashboard extends React.Component {
 */
   render(){
     return (
-        <div><AP_Dashboard /></div>
-    )
+        <AP_Dashboard />
+       )
   }
 }
 
